@@ -34,6 +34,7 @@ jobs:
           do_deploy: false
           docker_io_username: ${{ secrets.DOCKER_USERNAME }}
           docker_io_token: ${{ secrets.DOCKER_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
         if: github.repository == 'dotcms/core'
         uses: rtCamp/action-slack-notify@v2
