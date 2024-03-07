@@ -24,7 +24,7 @@ jobs:
           echo "The original run ID is ${{ github.event.workflow_run.id }}"
       - name: Build/Push Docker Image
         id: docker_build
-        uses: ./.github/actions/deploy-artifact-docker@master
+        uses: ./.github/actions/deploy-artifact-docker
         with:
           docker_platforms: linux/amd64,linux/arm64
           build_run_id: ${{ github.event.workflow_run.id }}
