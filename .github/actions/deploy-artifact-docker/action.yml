@@ -87,8 +87,11 @@ runs:
       if: success()
 
     - name: Debug Docker Metadata
+      shell: bash
       run: |
         echo "${{ fromJSON(steps.meta.outputs.json) }}"
+        echo "tags=${{ steps.meta.outputs.tags }}" >> $GITHUB_OUTPUT
+        echo "version=${{ steps.meta.outputs.version }}" >> $GITHUB_OUTPUT
       if: success()
 
     - name: Docker Setup Buildx
@@ -115,6 +118,7 @@ runs:
         push: ${{ inputs.do_deploy }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
 
     - name: Format Tags
       id: format-tags
