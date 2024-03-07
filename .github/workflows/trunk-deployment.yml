@@ -18,18 +18,32 @@ jobs:
       # for security reasons
       - name: Checkout core
         uses: actions/checkout@v4
+      - name: Get the original commit SHA
+        run:  |
+          echo "The original commit SHA is ${{ github.event.workflow_run.head_sha }}"
+          echo "The original run ID is ${{ github.event.workflow_run.id }}"
       - name: Build/Push Docker Image
-        uses: ./.github/workflows/deploy-artifact-docker.yml@main
+        id: docker_build
+        uses: ./.github/actions/deploy-artifact-docker@master
         with:
           docker_platforms: linux/amd64,linux/arm64
           build_run_id: ${{ github.event.workflow_run.id }}
+          commit_id: ${{ github.event.workflow_run.head_sha }}"
+          variant: master
           docker_tag: master_latest_SNAPSHOT
           do_deploy: false
-        secrets:
           docker_io_username: ${{ secrets.DOCKER_USERNAME }}
           docker_io_token: ${{ secrets.DOCKER_TOKEN }}
-      - name: Download Docker Build Context
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-build-context
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Slack Notification
+        if: github.repository == 'dotcms/core'
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.DEVELOPERS_SLACK_WEBHOOK }}
+          SLACK_USERNAME: dotBot
+          SLACK_TITLE: "Attention dotters: Docker image built!"
+          SLACK_MSG_AUTHOR: " "
+          MSG_MINIMAL: true
+          SLACK_FOOTER: ""
+          SLACK_ICON: https://avatars.githubusercontent.com/u/1005263?s=200&v=4
+          SLACK_MESSAGE: "This automated script is happy to announce that a new docker image has been built for *master* with tags: [${{ steps.docker_build.outputs.tags }}] :docker:"
+
