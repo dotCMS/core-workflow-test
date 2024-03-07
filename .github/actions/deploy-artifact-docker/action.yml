@@ -134,8 +134,3 @@ runs:
 
         echo "formatted_tags=${tags}" >> $GITHUB_OUTPUT
       shell: bash
-
-outputs:
-  tags: ${{ steps.meta.outputs.tags }}
-  version: ${{ steps.meta.outputs.version }}
-  formatted_tags: ${{ steps.format-tags.outputs.formatted_tags }}
