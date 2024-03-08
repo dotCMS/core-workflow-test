@@ -94,7 +94,7 @@ runs:
       shell: bash
       run: |
         echo "${{ fromJSON(steps.meta.outputs.json) }}"
-        echo "tags=${{ steps.meta.outputs.tags }}" >> $GITHUB_OUTPUT
+        echo "tags=$(echo ${{ steps.meta.outputs.tags }} | tr '\n' ' ')" >> $GITHUB_OUTPUT
         echo "version=${{ steps.meta.outputs.version }}" >> $GITHUB_OUTPUT
       if: success()
 
@@ -122,19 +122,3 @@ runs:
         push: ${{ inputs.do_deploy }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
-
-    - name: Format Tags
-      id: format-tags
-      run: |
-        tags=''
-        tags_arr=( ${{ inputs.docker_tag }} ) # Adjust according to your tagging strategy
-
-        for tag in "${tags_arr[@]}"
-        do
-          [[ -n "${tags}" ]] && tags="${tags}, "
-          tags="${tags}\`${tag}\`"
-        done
-
-        echo "formatted_tags=${tags}" >> $GITHUB_OUTPUT
-      shell: bash
