@@ -37,13 +37,14 @@ jobs:
       - name: Get the latest commit SHA from master
         id: latest_commit
         run: |
-          echo "TRIGGER_SHA=${{ github.event.workflow_run.head_sha }}"
-          echo "LATEST_SHA=$(git rev-parse origin/master)"
+          TRIGGER_SHA=${{ github.event.workflow_run.head_sha }}
+          LATEST_SHA=$(git rev-parse origin/master)
+          echo "TRIGGER_SHA=${TRIGGER_SHA}"
+          echo "LATEST_SHA=${LATEST_SHA}"
           if [ $TRIGGER_SHA != $LATEST_SHA ]; then
             echo "Triggered by an old commit. Latest: $LATEST_SHA, Trigger: $TRIGGER_SHA"
             exit 1
           fi
-
       # A Docker image is built and pushed using the 'deploy-artifact-docker' action.
       - name: Build/Push Docker Image
         id: docker_build
