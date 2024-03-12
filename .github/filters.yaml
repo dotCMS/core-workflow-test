@@ -3,8 +3,9 @@ backend: &backend
   - 'bom/**'
   - 'build-parent/**'
   - 'core-web/pom.xml'
-  - 'dotCMS/**'  # This captures all under dotCMS/src/main
-  - '!dotCMS/src/main/webapp/html/**/*.{css,js}'  # Explicitly exclude frontend assets from the backend category
+  - 'dotCMS/src/main/webapp/html/**/!(*.{css,js})'
+  - 'dotCMS/src/main/webapp/!(html)/**/*'
+  - 'dotCMS/**'
   - 'dotcms-integration/**'
   - 'independent-projects/**'
   - 'maven-plugins/**'
