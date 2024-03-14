@@ -24,7 +24,6 @@
         <java.keytar.version>1.0.0</java.keytar.version>
         <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-        <buildnumber-maven-plugin.version>3.1.0</buildnumber-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -227,7 +226,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>${buildnumber-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>generate-build-number</id>
