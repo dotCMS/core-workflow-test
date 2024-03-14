@@ -226,17 +226,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-build-number</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
-                    <doUpdate>true</doUpdate>
                     <timestampFormat>yyyyMMddHHmm</timestampFormat>
                 </configuration>
             </plugin>
