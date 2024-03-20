@@ -8,8 +8,6 @@ run-name: Trunk Deployment - ${{ github.event.workflow_run.name }}
 
 # The concurrency group is 'trunk-deployment'. This ensures that only one run of this workflow can be in progress at a time.
 concurrency: trunk-deployment
-env:
-  DEPLOYMENT_ENV: trunk
 on:
   workflow_run:
     workflows: ['Maven CICD Pipeline']
@@ -83,13 +81,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: deployment-trunk.yml
-          name: ${{ env.DEPLOYMENT_ENV }}_latest_sha
+          name: trunk_latest_sha
           path: .
 
       - name: Get the latest commit SHA from master and compare
         id: check
         run: |
-          LAST_DEPLOY_SHA=$(cat ${{ env.DEPLOYMENT_ENV }}_latest_sha.txt)
+          LAST_DEPLOY_SHA=$(cat trunk_latest_sha.txt)
           TRIGGER_SHA=${{ github.event.inputs.trigger_sha || github.event.workflow_run.head_sha }}
           WORKFLOW_SUCCESS=${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.skip_checks == 'true' }}
           FORCE_LATEST=${{ github.event.inputs.force_latest == 'true' }}
@@ -109,7 +107,7 @@ jobs:
     if: needs.deploy_check.outputs.should_deploy == 'true'
     needs: [setup,deploy_check]
     runs-on: ubuntu-latest
-    environment: ${{ env.DEPLOYMENT_ENV }}
+    environment: trunk
     steps:
       # The repository is checked out using the 'actions/checkout' action.
       - name: Checkout core
@@ -133,13 +131,13 @@ jobs:
 
       - name: Create artifact with commit id
         run: |
-          echo "${{ github.event.workflow_run.head_sha }}" > ${{ env.DEPLOYMENT_ENV }}_latest_sha.txt
+          echo "${{ github.event.workflow_run.head_sha }}" > trunk_latest_sha.txt
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.DEPLOYMENT_ENV }}_latest_sha
-          path: ${{ env.DEPLOYMENT_ENV }}_latest_sha.txt
+          name: trunk_latest_sha
+          path: trunk_latest_sha.txt
 
       # A Slack notification is sent using the 'action-slack-notify' action if the repository is 'dotcms/core'.
       - name: Slack Notification
