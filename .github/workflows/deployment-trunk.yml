@@ -102,7 +102,7 @@ jobs:
           if_no_artifact_found: warn
       - name: Display Found Artifact
         run: |
-          echo "Found Artifact: ${{ steps.data-download.outputs.artifacts }}" | jq -r '.[0].workflow_run.head_sha'
+          echo '${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha'
         shell: bash
 
       - name: Get the latest commit SHA from master and compare
