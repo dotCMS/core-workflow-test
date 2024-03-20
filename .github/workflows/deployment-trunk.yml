@@ -41,12 +41,12 @@ jobs:
     steps:
       - name: Set manual run ID
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_id }}
-        id: set_run_id
+        id: manual_run_id
         run: echo "calculated_run_id=${{ github.event.inputs.run_id }}" >> $GITHUB_OUTPUT
 
       - name: Fetch latest successful Maven CICD Pipeline run ID
         if: ${{ github.event_name == 'workflow_dispatch' && !github.event.inputs.run_id }}
-        id: get_latest_successful_run
+        id: fetch_latest_run_id
         uses: actions/github-script@v7
         with:
           script: |
@@ -65,8 +65,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set dynamic run ID
         if: ${{ github.event_name == 'workflow_dispatch' && !github.event.inputs.run_id }}
-        id: set_run_id
-        run: echo "calculated_run_id=${{ steps.get_latest_successful_run.outputs.result }}" >> $GITHUB_OUTPUT
+        id: dynamic_run_id 
+        run: echo "calculated_run_id=${{ steps.fetch_latest_run_id.outputs.result }}" >> $GITHUB_OUTPUT
 
   deploy_check:
     runs-on: ubuntu-latest
