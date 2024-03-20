@@ -39,6 +39,12 @@ jobs:
     outputs:
       calculated_run_id: ${{ steps.set_run_id.outputs.calculated_run_id }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+      - name: Setup node
+        uses: actions/setup-node@master
+        with:
+          node-version: '20.x'
       - name: Set manual run ID
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_id }}
         id: manual_run_id
@@ -53,10 +59,8 @@ jobs:
             const { data } = await github.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'maven-cicd-pipeline.yml', // Replace with your Maven CICD Pipeline workflow file name
+              workflow_id: 'maven-cicd-pipeline.yml',
               branch: 'master',
-              status: 'success',
-              event: 'push',
               per_page: 1
             });
             return data.total_count > 0 ? data.workflow_runs[0].id : null;
