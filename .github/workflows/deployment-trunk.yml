@@ -85,6 +85,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: deployment-trunk.yml
+          branch: master
+          workflow_conclusion: success
+          search_artifacts: true
           name: trunk_latest_sha
           path: .
           if_no_artifact_found: warn
@@ -97,8 +100,7 @@ jobs:
           workflow_conclusion: success
           branch: master
           event: push
-          check_artifacts: true
-          search_artifacts: false
+          search_artifacts: true
           if_no_artifact_found: warn
       - name: Display Found Artifact
         run: |
