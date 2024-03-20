@@ -87,6 +87,7 @@ jobs:
           workflow: deployment-trunk.yml
           name: trunk_latest_sha
           path: .
+          if_no_artifact_found: warn
       - name: Download Build Status
         id: data-download
         uses: dawidd6/action-download-artifact@v2
