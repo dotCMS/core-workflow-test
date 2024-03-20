@@ -87,6 +87,19 @@ jobs:
           workflow: deployment-trunk.yml
           name: trunk_latest_sha
           path: .
+      - name: Download Build Status
+        id: data-download
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: 'workflow-data'
+          workflow: maven-cicd-pipeline.yml
+          workflow_search: true
+          workflow_conclusion: success
+          branch: master
+          event: push
+          check_artifacts: true
+          search_artifacts: false
+          if_no_artifact_found: warn
 
       - name: Get the latest commit SHA from master and compare
         id: check
