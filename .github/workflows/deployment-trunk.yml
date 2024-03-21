@@ -109,10 +109,17 @@ jobs:
           
           if [[ ${last_deployed_exists} == "true" ]]; then
               echo "Found last deployed artifact with SHA: $last_deployed_sha"
-              if git merge-base --is-ancestor ${last_deployed_sha} ${build_sha}; then
-                last_deployed_is_ancestor=true
+             if [[ "${last_deployed_sha}" == "${build_sha}" ]]; then
+                  echo "Last deployed SHA and build SHA are the same."
+                  last_deployed_is_ancestor=false
               else
-                last_deployed_is_ancestor=false
+                  if git merge-base --is-ancestor ${last_deployed_sha} ${build_sha}; then
+                      echo "The last deployed SHA is an ancestor of the build SHA."
+                      last_deployed_is_ancestor=true
+                  else
+                      echo "The last deployed SHA is not an ancestor of the build SHA."
+                      last_deployed_is_ancestor=false
+                  fi
               fi
           else
               last_deployed_is_ancestor=false
