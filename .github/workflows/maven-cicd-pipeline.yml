@@ -187,7 +187,7 @@ jobs:
   build-cli:
     name: CLI Build
     needs: changes
-    if: ${{ needs.changes.outputs.build == 'true' }}
+    if: ${{ needs.changes.outputs.cli == 'true' || needs.changes.outputs.backend == 'true' }}
     uses: ./.github/workflows/cli-build-artifacts.yml
     with:
       buildNativeImage: true
