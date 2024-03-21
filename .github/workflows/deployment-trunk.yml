@@ -84,7 +84,7 @@ jobs:
           fi
           
           if [[ ${build_artifact_exists} == "true" ]]; then
-              build_sha=`${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha`
+              build_sha='${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha`
               echo "Build SHA: $build_sha"
           else
              echo "No build artifact found, nothing to deploy"
