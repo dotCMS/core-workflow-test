@@ -74,13 +74,13 @@ jobs:
           build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
           last_deployed_exists=${{ steps.deployment-status.outputs.found_artifact }} 
           if [[ ${last_deployed_exists} == "true" ]]; then
-              last_deployed_sha=`${{ steps.deployment-status.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha`
+              last_deployed_sha=`echo '${{ steps.deployment-status.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha'`
           else
               echo "No Last Deployed SHA found"
           fi
           
           if [[ ${build_artifact_exists} == "true" ]]; then
-              build_sha='${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha`
+              build_sha='echo '${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha'`
               echo "Build SHA: $build_sha"
           else
              echo "No build artifact found, nothing to deploy"
@@ -96,8 +96,8 @@ jobs:
           fi
           
           
-          SKIP_CHECKS=${{ github.event.inputs.skip_checks == 'true' }}
-          FORCE_LATESST=${{ github.event.inputs.force_latest == 'true' }}
+          SKIP_CHECKS="${{ github.event.inputs.skip_checks == 'true' }}"
+          FORCE_LATESST="${{ github.event.inputs.force_latest == 'true' }}"
           
           if [[ ${SKIP_CHECKS} == "true" || ${last_deployed_is_ancestor} == true || last_deployed_exists != "true" ]]; then
                 echo "should_deploy=true" >> $GITHUB_OUTPUT
