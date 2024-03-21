@@ -81,7 +81,6 @@ jobs:
       - name: Get SHAs and check if we should deploy
         id: check
         run: |
-          run_sha='${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha'
           build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
           last_deployed_exists=${{ steps.deployment-status.outputs.found_artifact }} 
           if [[ ${last_deployed_exists} == "true" ]]; then
@@ -98,6 +97,12 @@ jobs:
              echo "should_deploy=false" >> $GITHUB_OUTPUT
              exit 0
           fi
+
+          run_sha='${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha'
+          run_id='${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.id'
+
+          echo "run sha=${run_sha}"
+          echo "run id=${run_id}"
           
           if [[ ${last_deployed_exists} == "true" ]]; then
               echo "Found last deployed artifact with SHA: $last_deployed_sha"
@@ -122,6 +127,8 @@ jobs:
             else
                 echo "is_latest=false" >> $GITHUB_OUTPUT
           fi
+          echo "calculated_run_id=${run_sha}" >> $GITHUB_OUTPUT
+          echo "run_id=${run_id}" >> $GITHUB_OUTPUT
         shell: bash
   deployment:
     if: needs.deploy_check.outputs.should_deploy == 'true'
