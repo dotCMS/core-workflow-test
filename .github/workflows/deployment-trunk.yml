@@ -129,7 +129,7 @@ jobs:
           SKIP_CHECKS="${{ github.event.inputs.skip_checks == 'true' }}"
           FORCE_LATESST="${{ github.event.inputs.force_latest == 'true' }}"
           
-          if [[ ${SKIP_CHECKS} == "true" || ${last_deployed_is_ancestor} == true || last_deployed_exists != "true" ]]; then
+          if [[ ${SKIP_CHECKS} == "true" || "${last_deployed_is_ancestor}" == "true" || "${last_deployed_exists}" != "true" ]]; then
                 echo "should_deploy=true" >> $GITHUB_OUTPUT
             else
                 echo "should_deploy=false" >> $GITHUB_OUTPUT
