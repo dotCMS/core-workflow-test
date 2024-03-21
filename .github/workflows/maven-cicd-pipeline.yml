@@ -185,12 +185,13 @@ jobs:
   # Run CLI build artifacts
   #
   build-cli:
+    name: Build CLI Artifacts
+    needs: changes
+    if: ${{ needs.changes.outputs.build == 'true' }}
     uses: ./.github/workflows/cli-build-artifacts.yml
     with:
       buildNativeImage: true
       branch: ${{ github.ref }}
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
 
   #
   # Run all JVM Unit Tests in parallel with other tests
