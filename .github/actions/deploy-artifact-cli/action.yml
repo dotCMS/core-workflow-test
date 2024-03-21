@@ -53,16 +53,6 @@ runs:
         search_artifacts: true
         if_no_artifact_found: warn
 
-#    - name: 'Download CLI Artifacts'
-#      id: download-cli-artifacts
-#      uses: actions/download-artifact@v4
-#      with:
-#        pattern: cli-artifacts-*
-#        path: ${{ github.workspace }}/tools/dotcms-cli/cli/target
-#        merge-multiple: true
-#        run-id: ${{ github.event.workflow_run.id }}
-#        github-token: ${{ secrets.GITHUB_TOKEN }}
-
     - name: 'List CLI Artifacts'
       run: |
         ls -R ${{ github.workspace }}/tools/dotcms-cli/cli/target
@@ -71,7 +61,7 @@ runs:
     - name: 'Maven settings.xml setup'
       uses: whelk-io/maven-settings-xml-action@v22
       with:
-        servers: '[{ "id": "dotcms-libs", "username": "${{ secrets.EE_REPO_USERNAME }}", "password": "${{ secrets.EE_REPO_PASSWORD }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ secrets.EE_REPO_USERNAME }}", "password": "${{ secrets.EE_REPO_PASSWORD }}" }]'
+        servers: '[{ "id": "dotcms-libs", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }]'
 
     - name: 'Deploy CLI Artifacts'
       if: ${{ step.download-cli-artifacts.outputs.found_artifact == 'true' }}
