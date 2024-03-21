@@ -46,6 +46,9 @@ jobs:
     steps:
       - name: Checkout core
         uses: actions/checkout@v4
+        with:
+          ref: master         # Specify the branch to check out
+          fetch-depth: 0      # Indicates to fetch all history for all branches and tags
 
       - name: Download latest artifact
         id: deployment-status
