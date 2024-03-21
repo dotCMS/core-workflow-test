@@ -56,7 +56,7 @@ public class EntryCommand implements DotCommand{
 
     public static final String NAME = "dotCLI";
 
-    // Declared here, so we have an instance available via Arc container on the Customized CommandLine
+    // Declared here, so we have an instance available via Arc container on the Customized CommandLine.
     @Inject
     ExceptionHandlerImpl exceptionHandler;
 

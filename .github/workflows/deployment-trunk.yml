@@ -85,6 +85,7 @@ jobs:
           run_id: ${{ steps.lookup-type.outputs.runid }}
           search_artifacts: true
           if_no_artifact_found: warn
+
       - name: Get SHAs and check if we should deploy
         id: check
         run: |
@@ -169,6 +170,17 @@ jobs:
           docker_io_username: ${{ secrets.DOCKER_USERNAME }}
           docker_io_token: ${{ secrets.DOCKER_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: CLI Deploy
+        id: cli_deploy
+        uses: ./.github/actions/deploy-artifact-cli
+        with:
+          branch: master
+          artifactory-repo-username: ${{ secrets.EE_REPO_USERNAME }}
+          artifactory-repo-password: ${{ secrets.EE_REPO_PASSWORD }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          build-run-id: ${{ needs.setup.outputs.calculated_run_id }}
+          commit-id: ${{ github.event.workflow_run.head_sha }}
 
       - name: Create artifact with commit id
         if: needs.deploy_check.outputs.is_latest == 'true'

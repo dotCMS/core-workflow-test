@@ -1,0 +1,87 @@
+name: 'Deploy CLI Artifact'
+description: 'Deploy the dotCMS CLI artifacts to Artifactory'
+inputs:
+  branch:
+    description: 'Branch to build from'
+    required: true
+  artifactory-repo-username:
+    description: 'Artifactory Repository Username'
+    required: true
+  artifactory-repo-password:
+    description: 'Artifactory Repository Password'
+    required: true
+  github-token:
+    description: 'GitHub Token'
+    required: true
+  build-run-id:
+    description: 'The run id of the build to pull the artifact from'
+    required: true
+  commit-id:
+    description: 'The commit id that triggered the build'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: 'Set up JDK'
+      uses: actions/setup-java@v4
+      with:
+        java-version: 11
+        distribution: temurin
+
+    - name: 'Get Date'
+      id: get-date
+      run: |
+        echo "date=$(/bin/date -u "+%Y-%m")" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: 'Download Maven Repo'
+      uses: actions/download-artifact@v4
+      with:
+        name: maven-repo
+        path: ~/.m2/repository
+
+    - name: Download latest CLI artifact
+      id: download-cli-artifacts
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        name: cli-artifacts-*
+        name_is_regexp: true
+        workflow: cli-build-artifacts.yml
+        workflow_conclusion: success
+        branch: master
+        search_artifacts: true
+        if_no_artifact_found: warn
+
+#    - name: 'Download CLI Artifacts'
+#      id: download-cli-artifacts
+#      uses: actions/download-artifact@v4
+#      with:
+#        pattern: cli-artifacts-*
+#        path: ${{ github.workspace }}/tools/dotcms-cli/cli/target
+#        merge-multiple: true
+#        run-id: ${{ github.event.workflow_run.id }}
+#        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 'List CLI Artifacts'
+      run: |
+        ls -R ${{ github.workspace }}/tools/dotcms-cli/cli/target
+      shell: bash
+
+    - name: 'Maven settings.xml setup'
+      uses: whelk-io/maven-settings-xml-action@v22
+      with:
+        servers: '[{ "id": "dotcms-libs", "username": "${{ secrets.EE_REPO_USERNAME }}", "password": "${{ secrets.EE_REPO_PASSWORD }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ secrets.EE_REPO_USERNAME }}", "password": "${{ secrets.EE_REPO_PASSWORD }}" }]'
+
+    - name: 'Deploy CLI Artifacts'
+      if: ${{ step.download-cli-artifacts.outputs.found_artifact == 'true' }}
+      run: |
+        JVM_TEST_MAVEN_OPTS="-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+        ./mvnw -ntp \
+          ${JVM_TEST_MAVEN_OPTS} \
+          -Dprod=true \
+          -DskipTests=true \
+          -DskipITs=true \
+          deploy \
+          -pl :dotcms-cli
+      shell: bash

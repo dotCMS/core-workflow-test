@@ -182,6 +182,18 @@ jobs:
           path: image.tar
 
   #
+  # Run CLI build artifacts
+  #
+  build-cli:
+    name: CLI Build
+    needs: changes
+    if: ${{ needs.changes.outputs.cli == 'true' || needs.changes.outputs.backend == 'true' }}
+    uses: ./.github/workflows/cli-build-artifacts.yml
+    with:
+      buildNativeImage: true
+      branch: ${{ github.ref }}
+
+  #
   # Run all JVM Unit Tests in parallel with other tests
   #
   linux-jvm-tests:
@@ -242,7 +254,7 @@ jobs:
     name: CLI Tests - JDK ${{matrix.java.name}}
     runs-on: ubuntu-20.04
     if: ${{ needs.changes.outputs.cli == 'true' || needs.changes.outputs.backend == 'true' }}
-    needs: [ changes, build-jdk11 ]
+    needs: [ changes, build-jdk11, build-cli ]
     timeout-minutes: 240
     env:
       MAVEN_OPTS: -Xmx2048m
