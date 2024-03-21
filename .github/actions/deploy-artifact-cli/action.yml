@@ -1,9 +1,6 @@
 name: 'Deploy CLI Artifact'
 description: 'Deploy the dotCMS CLI artifacts to Artifactory'
 inputs:
-  buildNativeImage:
-    description: 'Build native image'
-    required: true
   branch:
     description: 'Branch to build from'
     required: true
@@ -44,15 +41,27 @@ runs:
         name: maven-repo
         path: ~/.m2/repository
 
-    - name: 'Download CLI Artifacts'
+    - name: Download latest CLI artifact
       id: download-cli-artifacts
-      uses: actions/download-artifact@v4
+      uses: dawidd6/action-download-artifact@v2
       with:
-        pattern: cli-artifacts-*
-        path: ${{ github.workspace }}/tools/dotcms-cli/cli/target
-        merge-multiple: true
-        run-id: ${{ github.event.workflow_run.id }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        name: cli-artifacts-*
+        name_is_regexp: true
+        workflow: cli-build-artifacts.yml
+        workflow_conclusion: success
+        branch: master
+        search_artifacts: true
+        if_no_artifact_found: warn
+
+#    - name: 'Download CLI Artifacts'
+#      id: download-cli-artifacts
+#      uses: actions/download-artifact@v4
+#      with:
+#        pattern: cli-artifacts-*
+#        path: ${{ github.workspace }}/tools/dotcms-cli/cli/target
+#        merge-multiple: true
+#        run-id: ${{ github.event.workflow_run.id }}
+#        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 'List CLI Artifacts'
       run: |
@@ -65,7 +74,9 @@ runs:
         servers: '[{ "id": "dotcms-libs", "username": "${{ secrets.EE_REPO_USERNAME }}", "password": "${{ secrets.EE_REPO_PASSWORD }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ secrets.EE_REPO_USERNAME }}", "password": "${{ secrets.EE_REPO_PASSWORD }}" }]'
 
     - name: 'Deploy CLI Artifacts'
+      if: ${{ step.download-cli-artifacts.outputs.found_artifact == 'true' }}
       run: |
+        JVM_TEST_MAVEN_OPTS="-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
         ./mvnw -ntp \
           ${JVM_TEST_MAVEN_OPTS} \
           -Dprod=true \
