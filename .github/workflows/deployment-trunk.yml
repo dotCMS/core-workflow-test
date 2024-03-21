@@ -18,7 +18,10 @@ on:
   workflow_dispatch:
     inputs:
       trigger_sha:
-        description: 'SHA for manual trigger (leave empty for HEAD of master)'
+        description: 'SHA for manual trigger'
+        required: false
+      build_run_id:
+        description: 'The run id of the build to pull the artifact from'
         required: false
       skip_checks:
         description: 'Set to true to skip checks'
@@ -34,53 +37,17 @@ permissions:
   contents: read
   actions: read # allow access to other job artifacts with GITHUB_TOKEN
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      calculated_run_id: ${{ steps.set_run_id.outputs.calculated_run_id }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@master
-      - name: Setup node
-        uses: actions/setup-node@master
-        with:
-          node-version: '20.x'
-      - name: Set manual run ID
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_id }}
-        id: manual_run_id
-        run: echo "calculated_run_id=${{ github.event.inputs.run_id }}" >> $GITHUB_OUTPUT
-
-      - name: Fetch latest successful Maven CICD Pipeline run ID
-        if: ${{ github.event_name == 'workflow_dispatch' && !github.event.inputs.run_id }}
-        id: fetch_latest_run_id
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data } = await github.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'maven-cicd-pipeline.yml',
-              branch: 'master',
-              per_page: 1
-            });
-            return data.total_count > 0 ? data.workflow_runs[0].id : null;
-          result-encoding: string
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set dynamic run ID
-        if: ${{ github.event_name == 'workflow_dispatch' && !github.event.inputs.run_id }}
-        id: dynamic_run_id 
-        run: echo "calculated_run_id=${{ steps.fetch_latest_run_id.outputs.result }}" >> $GITHUB_OUTPUT
-
   deploy_check:
     runs-on: ubuntu-latest
     outputs:
       should_deploy: ${{ steps.check.outputs.should_deploy }}
+      is_latest: ${{ steps.check.outputs.is_latest }}
     steps:
       - name: Checkout core
         uses: actions/checkout@v4
 
       - name: Download latest artifact
+        id: deployment-status
         uses: dawidd6/action-download-artifact@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -100,36 +67,59 @@ jobs:
           workflow_conclusion: success
           branch: master
           event: push
+          commit: ${{ github.event.inputs.trigger_sha || github.event.workflow_run.head_sha }}
+          run_id: ${{ github.event.inputs.build_run_id || github.event.workflow_run.id }}
           search_artifacts: true
           if_no_artifact_found: warn
 
-      - name: Display Found Artifact
-        run: |
-          echo '${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha'
-        shell: bash
-
-      - name: Get the latest commit SHA from master and compare
+      - name: Get SHAs and check if we should deploy
         id: check
         run: |
-          LAST_DEPLOY_SHA=$(cat trunk_latest_sha.txt)
-          TRIGGER_SHA=${{ github.event.inputs.trigger_sha || github.event.workflow_run.head_sha }}
-          WORKFLOW_SUCCESS=${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.skip_checks == 'true' }}
-          FORCE_LATEST=${{ github.event.inputs.force_latest == 'true' }}
-          echo "Last Deploy SHA: $LAST_DEPLOY_SHA, Trigger SHA: $TRIGGER_SHA, Workflow success: $WORKFLOW_SUCCESS, Force latest: $FORCE_LATEST"
-
-          # Determine if deployment should proceed
-          SKIP_CHECKS=${{ github.event.inputs.skip_checks == 'true' }}
-          if [[ "$SKIP_CHECKS" == "true" ]] || (git merge-base --is-ancestor $LAST_DEPLOY_SHA $TRIGGER_SHA && [ "$WORKFLOW_SUCCESS" == "true" ]); then
-            echo "should_deploy=true" >> $GITHUB_ENV
+          run_sha='${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha'
+          build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
+          last_deployed_exists=${{ steps.deployment-status.outputs.found_artifact }} 
+          if [[ ${last_deployed_exists} == "true" ]]; then
+              last_deployed_sha=`${{ steps.deployment-status.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha`
           else
-            echo "Conditions for deployment not met. Latest: $LAST_DEPLOY_SHA, Trigger: $TRIGGER_SHA, Workflow success: $WORKFLOW_SUCCESS"
-            echo "should_deploy=false" >> $GITHUB_ENV
+              echo "No Last Deployed SHA found"
+          fi
+          
+          if [[ ${build_artifact_exists} == "true" ]]; then
+              build_sha=`${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.head_sha`
+              echo "Build SHA: $build_sha"
+          else
+             echo "No build artifact found, nothing to deploy"
+             echo "should_deploy=false" >> $GITHUB_OUTPUT
+             exit 0
+          fi
+          
+          if [[ ${last_deployed_exists} == "true" ]]; then
+              echo "Found last deployed artifact with SHA: $last_deployed_sha"
+              last_deployed_is_ancestor=`git merge-base --is-ancestor $last_deployed_sha $build_sha`
+          else
+              last_deployed_is_ancestor=false
+          fi
+          
+          
+          SKIP_CHECKS=${{ github.event.inputs.skip_checks == 'true' }}
+          FORCE_LATESST=${{ github.event.inputs.force_latest == 'true' }}
+          
+          if [[ ${SKIP_CHECKS} == "true" || ${last_deployed_is_ancestor} == true || last_deployed_exists != "true" ]]; then
+                echo "should_deploy=true" >> $GITHUB_OUTPUT
+            else
+                echo "should_deploy=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if [[ ${FORCE_LATESST} == "true" || ${last_deployed_is_ancestor} == true ]]; then
+                echo "setting latest on deployment" >> $GITHUB_OUTPUT
+                echo "is_latest=true" >> $GITHUB_OUTPUT
+            else
+                echo "is_latest=false" >> $GITHUB_OUTPUT
           fi
         shell: bash
-
   deployment:
     if: needs.deploy_check.outputs.should_deploy == 'true'
-    needs: [setup,deploy_check]
+    needs: [deploy_check]
     runs-on: ubuntu-latest
     environment: trunk
     steps:
@@ -147,7 +137,7 @@ jobs:
           commit_id: ${{ github.event.workflow_run.head_sha }}"
           ref: master
           snapshot: true
-          latest: true
+          latest: ${{ needs.deploy_check.outputs.is_latest == 'true' }}
           do_deploy: ${{ vars.DOCKER_DEPLOY || 'true' }} # default to true, set to disable in fork
           docker_io_username: ${{ secrets.DOCKER_USERNAME }}
           docker_io_token: ${{ secrets.DOCKER_TOKEN }}
@@ -165,6 +155,7 @@ jobs:
           commit-id: ${{ github.event.workflow_run.head_sha }}
 
       - name: Create artifact with commit id
+        if: needs.deploy_check.outputs.is_latest == 'true'
         run: |
           echo "${{ github.event.workflow_run.head_sha }}" > trunk_latest_sha.txt
         shell: bash
