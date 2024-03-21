@@ -22,10 +22,12 @@ on:
         required: false
       skip_checks:
         description: 'Set to true to skip checks'
+        type: boolean
         required: false
         default: 'false'
       force_latest:
         description: 'Force upload of latest artifact even if conditions are not met does nothing if skip_checks is false'
+        type: boolean
         required: false
         default: 'false'
 
