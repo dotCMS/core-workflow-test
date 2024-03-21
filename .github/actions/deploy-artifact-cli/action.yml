@@ -35,12 +35,6 @@ runs:
         echo "date=$(/bin/date -u "+%Y-%m")" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: 'Download Maven Repo'
-      uses: actions/download-artifact@v4
-      with:
-        name: maven-repo
-        path: ~/.m2/repository
-
     - name: Download latest CLI artifact
       id: download-cli-artifacts
       uses: dawidd6/action-download-artifact@v2
