@@ -188,7 +188,7 @@ jobs:
     uses: ./.github/workflows/cli-build-artifacts.yml
     with:
       buildNativeImage: true
-      branch: ${{ github.ref_name }}
+      branch: ${{ github.ref }}
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 

@@ -26,6 +26,10 @@ env:
   BRANCH: ${{ inputs.branch || github.ref_name }}
   SKIP_TESTS: true
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   os-runners:
     name: 'Get OS matrix'
