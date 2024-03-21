@@ -157,9 +157,10 @@ jobs:
       - name: Create artifact with commit id
         if: needs.deploy_check.outputs.is_latest == 'true'
         run: |
-          echo "${{ github.event.workflow_run.head_sha }}" > trunk_latest_sha.txt
+          echo "${{ needs.deploy_check.outputs.build_sha }}" > trunk_latest_sha.txt
         shell: bash
       - name: Upload artifact
+        if: needs.deploy_check.outputs.is_latest == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: trunk_latest_sha
