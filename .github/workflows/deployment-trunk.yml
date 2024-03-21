@@ -39,6 +39,8 @@ jobs:
     outputs:
       should_deploy: ${{ steps.check.outputs.should_deploy }}
       is_latest: ${{ steps.check.outputs.is_latest }}
+      build_sha: ${{ steps.check.outputs.build_sha }}
+      run_id: ${{ steps.check.outputs.run_id }}
     steps:
       - name: Checkout core
         uses: actions/checkout@v4
