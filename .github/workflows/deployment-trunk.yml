@@ -4,7 +4,7 @@
 name: Trunk Deployment
 
 # The workflow run name is 'Trunk Deployment' appended with the name of the workflow run that triggered this workflow.
-run-name: Trunk Deployment - ${{ github.event.workflow_run.name }}
+run-name: Trunk Deployment - ${{ github.event.workflow_run.name }} - Event: ${{ github.event_name }}
 
 # The concurrency group is 'trunk-deployment'. This ensures that only one run of this workflow can be in progress at a time.
 concurrency: trunk-deployment
@@ -122,7 +122,7 @@ jobs:
           fi
           
           if [[ ${FORCE_LATESST} == "true" || ${last_deployed_is_ancestor} == true ]]; then
-                echo "setting latest on deployment" >> $GITHUB_OUTPUT
+                echo "setting latest on deployment"
                 echo "is_latest=true" >> $GITHUB_OUTPUT
             else
                 echo "is_latest=false" >> $GITHUB_OUTPUT
