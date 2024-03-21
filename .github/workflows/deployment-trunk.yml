@@ -144,8 +144,8 @@ jobs:
         uses: ./.github/actions/deploy-artifact-docker
         with:
           docker_platforms: linux/amd64,linux/arm64
-          build_run_id: ${{ needs.setup.outputs.run_id }}
-          commit_id: ${{ needs.setup.outputs.build_sha }}"
+          build_run_id: ${{ needs.deploy_check.outputs.run_id }}
+          commit_id: ${{ needs.deploy_check.outputs.build_sha }}
           ref: master
           snapshot: true
           latest: ${{ needs.deploy_check.outputs.is_latest == 'true' }}
