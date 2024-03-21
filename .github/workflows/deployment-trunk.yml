@@ -109,7 +109,11 @@ jobs:
           
           if [[ ${last_deployed_exists} == "true" ]]; then
               echo "Found last deployed artifact with SHA: $last_deployed_sha"
-              last_deployed_is_ancestor=`git merge-base --is-ancestor $last_deployed_sha $build_sha`
+              if git merge-base --is-ancestor ${{ env.last_deployed_sha }} ${{ env.build_sha }}; then
+                last_deployed_is_ancestor=true
+              else
+                last_deployed_is_ancestor=false
+              fi
           else
               last_deployed_is_ancestor=false
           fi
