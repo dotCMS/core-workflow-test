@@ -185,7 +185,7 @@ jobs:
   # Run CLI build artifacts
   #
   build-cli:
-    name: Build CLI Artifacts
+    name: CLI Build
     needs: changes
     if: ${{ needs.changes.outputs.build == 'true' }}
     uses: ./.github/workflows/cli-build-artifacts.yml
