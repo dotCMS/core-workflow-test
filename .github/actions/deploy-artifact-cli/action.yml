@@ -64,7 +64,7 @@ runs:
         servers: '[{ "id": "dotcms-libs", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }]'
 
     - name: 'Deploy CLI Artifacts'
-      if: ${{ step.download-cli-artifacts.outputs.found_artifact == 'true' }}
+      if: ${{ steps.download-cli-artifacts.outputs.found_artifact == 'true' }}
       run: |
         JVM_TEST_MAVEN_OPTS="-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
         ./mvnw -ntp \
