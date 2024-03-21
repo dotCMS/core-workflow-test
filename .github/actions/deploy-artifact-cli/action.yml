@@ -48,11 +48,13 @@ runs:
         if_no_artifact_found: warn
 
     - name: 'List CLI Artifacts'
+      if: ${{ steps.download-cli-artifacts.outputs.found_artifact == 'true' }}
       run: |
         ls -R ${{ github.workspace }}/tools/dotcms-cli/cli/target
       shell: bash
 
     - name: 'Maven settings.xml setup'
+      if: ${{ steps.download-cli-artifacts.outputs.found_artifact == 'true' }}
       uses: whelk-io/maven-settings-xml-action@v22
       with:
         servers: '[{ "id": "dotcms-libs", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }]'
