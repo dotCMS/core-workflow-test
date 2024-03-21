@@ -189,6 +189,8 @@ jobs:
     with:
       buildNativeImage: true
       branch: ${{ github.ref_name }}
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
   #
   # Run all JVM Unit Tests in parallel with other tests

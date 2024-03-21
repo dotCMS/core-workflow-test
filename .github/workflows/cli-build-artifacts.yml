@@ -15,6 +15,9 @@ on:
       artifact-url:
         description: 'The URL of the uploaded artifact'
         value: ${{ jobs.build.outputs.artifact-url }}
+    secrets:
+      github-token:
+        required: true
 
 env:
   JAVA_VERSION: 11
@@ -56,6 +59,7 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.github-token }}
           ref: ${{ env.BRANCH }}
 
       - name: 'Cleanup Ubuntu Runner'
