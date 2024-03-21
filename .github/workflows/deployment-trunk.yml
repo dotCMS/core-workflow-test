@@ -17,9 +17,6 @@ on:
       - master
   workflow_dispatch:
     inputs:
-      trigger_sha:
-        description: 'SHA for manual trigger'
-        required: false
       build_run_id:
         description: 'The run id of the build to pull the artifact from'
         required: false
@@ -67,7 +64,6 @@ jobs:
           workflow_conclusion: success
           branch: master
           event: push
-          commit: ${{ github.event.inputs.trigger_sha || github.event.workflow_run.head_sha }}
           run_id: ${{ github.event.inputs.build_run_id || github.event.workflow_run.id }}
           search_artifacts: true
           if_no_artifact_found: warn
