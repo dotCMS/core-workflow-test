@@ -44,24 +44,12 @@ runs:
         run-id: ${{ inputs.build-run-id }}
         github-token: ${{ inputs.github-token }}        
 
-    # - name: Download latest CLI artifact
-    #   id: download-cli-artifacts
-    #   uses: dawidd6/action-download-artifact@master
-    #   with:
-    #     name: cli-artifacts-*
-    #     name_is_regexp: true
-    #     workflow: maven-cicd-pipeline.yml
-    #     workflow_conclusion: success
-    #     branch: master
-    #     event: push
-    #     search_artifacts: true
-    #     if_no_artifact_found: warn
-    #     commit: ${{ inputs.commit-id }}
-
     - name: 'Check artifact download'
       id: check-artifacts
       run: |
-        if [[ "${{ steps.download-cli-artifacts.outputs.download-path }}" == *"/tools/dotcms-cli/cli/target" ]]; then
+        PATH="/tools/dotcms-cli/cli/target"
+      
+        if [[ ${{ steps.download-cli-artifacts.outputs.download-path }} =~ $PATH ]]; then
           found=true
         else
           found=false
