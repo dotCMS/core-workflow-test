@@ -182,17 +182,6 @@ jobs:
           path: image.tar
 
   #
-  # Run CLI build artifacts
-  #
-  build-cli:
-    name: CLI Build
-    needs: changes
-    uses: ./.github/workflows/cli-build-artifacts.yml
-    with:
-      buildNativeImage: true
-      branch: ${{ github.ref }}
-
-  #
   # Run all JVM Unit Tests in parallel with other tests
   #
   linux-jvm-tests:
@@ -540,6 +529,17 @@ jobs:
             target/build-report.json
             LICENSE
           retention-days: 2
+  #
+  # Run CLI build artifacts
+  #
+  build-cli:
+    name: CLI Build
+    needs: [build-jdk11,linux-jvm-tests,linux-integration-tests,linux-postman-tests]
+    uses: ./.github/workflows/cli-build-artifacts.yml
+    with:
+      buildNativeImage: true
+      branch: ${{ github.ref }}
+          
   sonarqube:
     name: SonarQube Scan
     runs-on: ubuntu-latest
