@@ -47,11 +47,12 @@ runs:
     - name: 'Check artifact download'
       id: check-artifacts
       run: |
-        if [[ -n "${{ steps.download-cli-artifacts.outputs.download-path }}" ]]; then
+        PATH="/tools/dotcms-cli/cli/target"
+        if [[ ${{ steps.download-cli-artifacts.outputs.download-path }} =~ $PATH ]]; then
           found=true
         else
           found=false
-        if
+        fi
         echo "found=$found" >> "$GITHUB_OUTPUT"
       shell: bash
 
