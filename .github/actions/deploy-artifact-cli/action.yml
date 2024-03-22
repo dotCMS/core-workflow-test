@@ -36,6 +36,7 @@ runs:
       shell: bash
 
     - name: 'Download all build artifacts'
+      id: download-cli-artifacts
       uses: actions/download-artifact@v4
       with:
         path: ${{ github.workspace }}/tools/dotcms-cli/cli/target
@@ -57,20 +58,31 @@ runs:
     #     if_no_artifact_found: warn
     #     commit: ${{ inputs.commit-id }}
 
+    - name: 'Check artifact download'
+      id: check-artifacts
+      run: |
+        if [[ "${{ steps.download-cli-artifacts.outputs.download-path }}" == "$GITHUB_WORKSPACE/tools/dotcms-cli/cli/target" ]]; then
+          found=true
+        else
+          found=false
+        if
+        echo "found=$found" >> "$GITHUB_OUTPUT"
+      shell: bash
+
     - name: 'List CLI Artifacts'
-      if: ${{ steps.download-cli-artifacts.outputs.found_artifact == 'true' }}
+      if: ${{ steps.check-artifacts.outputs.found == "true" }}
       run: |
         ls -R ${{ github.workspace }}/tools/dotcms-cli/cli/target
       shell: bash
 
     - name: 'Maven settings.xml setup'
-      if: ${{ steps.download-cli-artifacts.outputs.found_artifact == 'true' }}
+      if: ${{ steps.check-artifacts.outputs.found == "true" }}
       uses: whelk-io/maven-settings-xml-action@v22
       with:
         servers: '[{ "id": "dotcms-libs", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }]'
 
     - name: 'Deploy CLI Artifacts'
-      if: ${{ steps.download-cli-artifacts.outputs.found_artifact == 'true' }}
+      if: ${{ steps.check-artifacts.outputs.found == "true" }}
       run: |
         JVM_TEST_MAVEN_OPTS="-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
         ./mvnw -ntp \
