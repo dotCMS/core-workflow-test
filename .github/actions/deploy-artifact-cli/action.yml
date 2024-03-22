@@ -61,7 +61,7 @@ runs:
     - name: 'Check artifact download'
       id: check-artifacts
       run: |
-        if [[ "${{ steps.download-cli-artifacts.outputs.download-path }}" == "$GITHUB_WORKSPACE/tools/dotcms-cli/cli/target" ]]; then
+        if [[ "${{ steps.download-cli-artifacts.outputs.download-path }}" == *"/tools/dotcms-cli/cli/target" ]]; then
           found=true
         else
           found=false
