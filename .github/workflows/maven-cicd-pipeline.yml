@@ -242,7 +242,7 @@ jobs:
     name: CLI Tests - JDK ${{matrix.java.name}}
     runs-on: ubuntu-20.04
     if: ${{ needs.changes.outputs.cli == 'true' || needs.changes.outputs.backend == 'true' }}
-    needs: [ changes, build-jdk11, build-cli ]
+    needs: [ changes, build-jdk11 ]
     timeout-minutes: 240
     env:
       MAVEN_OPTS: -Xmx2048m
