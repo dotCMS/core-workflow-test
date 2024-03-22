@@ -47,9 +47,7 @@ runs:
     - name: 'Check artifact download'
       id: check-artifacts
       run: |
-        PATH="/tools/dotcms-cli/cli/target"
-      
-        if [[ ${{ steps.download-cli-artifacts.outputs.download-path }} =~ $PATH ]]; then
+        if [[ -n "${{ steps.download-cli-artifacts.outputs.download-path }}" ]]; then
           found=true
         else
           found=false
