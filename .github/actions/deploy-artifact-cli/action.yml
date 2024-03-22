@@ -41,8 +41,7 @@ runs:
         path: ${{ github.workspace }}/tools/dotcms-cli/cli/target
         pattern: cli-artifacts-*
         run-id: ${{ inputs.build-run-id }}
-      secrets:
-        github-token: ${{ secrets.github-token }}        
+        github-token: ${{ inputs.github-token }}        
 
     - name: 'List CLI Artifacts'
       if: ${{ steps.download-cli-artifacts.outputs.found_artifact == 'true' }}
