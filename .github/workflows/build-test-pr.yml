@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-test:
-    name: PR Build-Test
+    name: Build-Test
     uses: ./.github/workflows/reusable-ci-build-test.yml
     with:
       type: pr
