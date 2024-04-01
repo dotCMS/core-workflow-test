@@ -59,11 +59,10 @@ jobs:
           jvm_unit_test=${{ steps.filter.outputs.jvm_unit_test }}
 
           # Check if the commit is to the master branch
-          is_master=$(echo ${{ github.ref }} | sed -n 's/refs\/heads\/master/&/p')
           skip_tests=${CICD_SKIP_TESTS:-false}  # Use environment variable, default to 'false'
 
           # Adjust outputs based on conditions
-          if [ "${{ github.event.inputs.is-full }}" == "true" ]; then
+          if [ "${{ inputs.is-full }}" == "true" ]; then
             echo "Running build and all tests for merge group."
             build=true
             frontend=true
