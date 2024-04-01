@@ -1,4 +1,4 @@
-name: PR Checks - ${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}
+name: PR Checks
 on:
   pull_request:
     branches:
