@@ -1,0 +1,24 @@
+name: Master Checks
+on:
+  push:
+    branches:
+      - master
+permissions:
+  contents: read
+  actions: read # allow access to other job artifacts with GITHUB_TOKEN
+jobs:
+  find-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Build Artifact
+        id: deployment-status
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-test-merge_group.yml
+          commit: ${{ github.sha }}
+          workflow_conclusion: success
+          search_artifacts: true
+          name: workflow-data
+          path: .
+          if_no_artifact_found: warn
