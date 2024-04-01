@@ -5,7 +5,6 @@ import com.dotcms.cli.common.OutputOptionMixin;
 public interface DotCommand {
 
     String getName();
-
     OutputOptionMixin getOutput();
 
 }
