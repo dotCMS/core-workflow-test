@@ -4,7 +4,7 @@
 name: Trunk Deployment
 
 # The workflow run name is 'Trunk Deployment' appended with the name of the workflow run that triggered this workflow.
-run-name: Trunk Deployment - ${{ github.event.workflow_run.name }}
+run-name: Deploy Trunk-${{ github.event.workflow_dispatch.build_run_id || github.event.workflow_run.display_title }}
 
 # The concurrency group is 'trunk-deployment'. This ensures that only one run of this workflow can be in progress at a time.
 concurrency: trunk-deployment
@@ -30,7 +30,6 @@ on:
         type: boolean
         required: false
         default: false
-
 # The workflow has read access to the repository contents and actions.
 permissions:
   contents: read
@@ -38,18 +37,17 @@ permissions:
 jobs:
   deploy_check:
     runs-on: ubuntu-latest
+    # if event type is workflow_dispatch or conclusion of the workflow_run is success
+    if: (github.repository == 'dotcms/core' || github.repository == 'dotcms/core-workflow-test' ) &&  ( github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' )
     outputs:
       should_deploy: ${{ steps.check.outputs.should_deploy }}
       is_latest: ${{ steps.check.outputs.is_latest }}
       build_sha: ${{ steps.check.outputs.build_sha }}
       run_id: ${{ steps.check.outputs.run_id }}
     steps:
-      - name: Checkout core
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: master         # Specify the branch to check out
-          fetch-depth: 0      # Indicates to fetch all history for all branches and tags
-
+          fetch-depth: 0
       - name: Download latest artifact
         id: deployment-status
         uses: dawidd6/action-download-artifact@v2
@@ -67,15 +65,16 @@ jobs:
         run: |
           branch=''
           runid='${{ github.event.inputs.build_run_id || github.event.workflow_run.id }}'
-          
+          search_artifacts=false
           if [[ "$runid" == "" ]]; then
             branch='master'
             runid=''
+            search_artifacts=true
           fi
 
           echo "branch=$branch" >> $GITHUB_OUTPUT
           echo "runid=$runid" >> $GITHUB_OUTPUT
-
+          echo "search_artifacts=$search_artifacts" >> $GITHUB_OUTPUT
       - name: Download Build Status
         id: data-download
         uses: dawidd6/action-download-artifact@v2
@@ -86,7 +85,7 @@ jobs:
           branch: ${{ steps.lookup-type.outputs.branch }}
           event: push
           run_id: ${{ steps.lookup-type.outputs.runid }}
-          search_artifacts: true
+          search_artifacts: ${{ steps.lookup-type.outputs.search_artifacts }}
           if_no_artifact_found: warn
 
       - name: Get SHAs and check if we should deploy
@@ -131,15 +130,17 @@ jobs:
           
           
           SKIP_CHECKS="${{ github.event.inputs.skip_checks == 'true' }}"
-          FORCE_LATESST="${{ github.event.inputs.force_latest == 'true' }}"
-          
+          FORCE_LATEST="${{ github.event.inputs.force_latest == 'true' }}"
+          echo "SKIP_CHECKS = ${SKIP_CHECKS}"
+          echo "FORCE_LATEST = ${FORCE_LATEST}"
+
           if [[ ${SKIP_CHECKS} == "true" || "${last_deployed_is_ancestor}" == "true" || "${last_deployed_exists}" != "true" ]]; then
                 echo "should_deploy=true" >> $GITHUB_OUTPUT
             else
                 echo "should_deploy=false" >> $GITHUB_OUTPUT
           fi
           
-          if [[ ${FORCE_LATESST} == "true" || ${last_deployed_is_ancestor} == true ]]; then
+          if [[ ${FORCE_LATEST} == "true" || ${last_deployed_is_ancestor} == true ]]; then
                 echo "setting latest on deployment"
                 echo "is_latest=true" >> $GITHUB_OUTPUT
             else
@@ -155,9 +156,9 @@ jobs:
     environment: trunk
     steps:
       # The repository is checked out using the 'actions/checkout' action.
-      - name: Checkout core
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       # A Docker image is built and pushed using the 'deploy-artifact-docker' action.
       - name: Build/Push Docker Image
         id: docker_build

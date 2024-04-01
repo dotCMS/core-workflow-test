@@ -17,7 +17,7 @@ export class DotWysiwygPluginService {
     private readonly dialogService: DialogService = inject(DialogService);
     private readonly dotUploadFileService: DotUploadFileService = inject(DotUploadFileService);
     private readonly ngZone: NgZone = inject(NgZone);
-
+    // Test change do not add to core
     initializePlugins(editor: Editor): void {
         this.dotImagePlugin(editor);
     }
