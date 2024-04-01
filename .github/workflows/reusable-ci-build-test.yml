@@ -12,16 +12,16 @@ on:
         required: false
         type: boolean
         default: false
-      use-merge-build:
+      artifact-run-id:
         required: false
-        type: boolean
-        default: false
+        type: string
 env:
   JVM_TEST_MAVEN_OPTS: "-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
   DOCKER_PLATFORMS: "linux/amd64,linux/arm64"
   REGISTRY: ghcr.io
   DOCKER_IMAGE: dotcms/dotcms_test
   DOCKER_TAG: run-${{ github.run_id }}
+  ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id || github.run_id }}
 
 jobs:
   #
