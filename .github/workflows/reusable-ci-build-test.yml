@@ -41,6 +41,9 @@ jobs:
       cli: ${{ steps.filter-rewrite.outputs.cli }}
     steps:
       - uses: actions/checkout@v4
+      - name: Setup master branch locally without switching current branch
+        if: github.ref != 'refs/heads/master'
+        run: git fetch origin master:master
       - uses: dorny/paths-filter@v3.0.1
         id: filter
         with:
