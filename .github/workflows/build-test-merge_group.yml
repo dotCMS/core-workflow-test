@@ -5,7 +5,7 @@ on:
     branches: [master]
 jobs:
   build-test:
-    name: PR Build/Test
+    name: Build-Test # Must be the same for PR to use same required check names
     uses: ./.github/workflows/reusable-ci-build-test.yml
     with:
       type: merge_group
