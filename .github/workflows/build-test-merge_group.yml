@@ -1,12 +1,12 @@
 name: Merge Group Checks
+on:
   merge_group:
     types: [checks_requested]
     branches: [master]
 jobs:
   build-test:
-    name: Build-Test # Must be the same for PR to use same required check names
+    name: PR Build/Test
     uses: ./.github/workflows/reusable-ci-build-test.yml
     with:
       type: merge_group
-      build: all
-      test: all
+      is-full: true
