@@ -50,7 +50,7 @@ export class DotWysiwygPluginService {
     }
 
     private dotFilePlugin(editor: Editor) {
-        editor.on('drop', (event) => {
+        editor.on('drop', async (event) => {
             const file = event.dataTransfer.files[0];
 
             // Check if the file is an image
