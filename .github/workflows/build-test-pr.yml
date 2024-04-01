@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-test:
-    name: Build-Test # Must be the same for build queue to use same required check names
+    name: PR Build-Test
     uses: ./.github/workflows/reusable-ci-build-test.yml
     with:
       type: pr
