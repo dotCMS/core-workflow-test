@@ -1,5 +1,4 @@
-name: Merge Group Checks - #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}
-on:
+name: Merge Group Checks
   merge_group:
     types: [checks_requested]
     branches: [master]
