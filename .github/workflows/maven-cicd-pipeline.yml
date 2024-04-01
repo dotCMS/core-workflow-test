@@ -545,21 +545,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-jdk11,linux-jvm-tests,linux-integration-tests,linux-postman-tests,linux-frontend-tests,linux-cli-tests]
     if: |
-      $(always() && !cancelled()) &&
-      (needs.changes.outputs.build == 'true') &&
-      (github.repository == 'dotCMS/core') &&
-      (github.ref == 'refs/heads/master' || github.event_name == 'pull_request')
+      always()
     steps:
       - name: Test sonarqube
         shell: bash
         run: |
-          echo "always=${{ always() }}"
           echo "not cancelled=${{ !cancelled() }}"
           echo "needs.changes.outputs.build=${{ needs.changes.outputs.build }}
           echo "github.repository=${{ github.repository }}
           echo "github.ref=${{ github.ref }}"
           echo "github.event_name=${{ github.event_name }}
-          echo "always and not cancelled =${{ always() && !cancelled() }}"
+          echo "always and not cancelled =${{ !cancelled() }}"
           echo "ref pull=${{ github.ref == 'refs/heads/master' || github.event_name == 'pull_request' }}
   sonarqube:
     name: SonarQube Scan
