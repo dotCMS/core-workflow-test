@@ -1,0 +1,83 @@
+name: Reusable Finalize
+on:
+  workflow_call:
+    inputs:
+      incremental:
+        description: 'Indicates if the workflow is incremental or not'
+        required: true
+        type: boolean
+        default: false
+    outputs:
+      build: ${{ jobs.changes.outputs.build }}
+      backend: ${{ jobs.changes.outputs.backend }}
+      frontend: ${{ jobs.changes.outputs.frontend }}
+      jvm_unit_test: ${{ jobs.changes.outputs.jvm_unit_test }}
+      cli: ${{ jobs.changes.outputs.cli }}
+jobs:
+  initialize: # This is used as a required check to indicate that the workflow has started and is running
+    name: Initialize
+    runs-on: ubuntu-20.04
+    if: always()
+    steps:
+      - name: Initialize
+        id: initialize
+        shell: bash
+        run: |
+            echo "Initializing..."
+  changes:
+    name: Check Changed Files
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+        build: ${{ steps.filter-rewrite.outputs.build }}
+        backend: ${{ steps.filter-rewrite.outputs.backend }}
+        frontend: ${{ steps.filter-rewrite.outputs.frontend }}
+        jvm_unit_test: ${{ steps.filter-rewrite.outputs.jvm_unit_test }}
+        cli: ${{ steps.filter-rewrite.outputs.cli }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3.0.1
+        if: inputs.incremental == true
+        id: filter
+        with:
+          filters: .github/filters.yaml
+          list-files: 'escape'
+      - name: Rewrite Filter
+        id: filter-rewrite
+        env:
+          CICD_SKIP_TESTS: ${{ vars.CICD_SKIP_TESTS }}
+        run: |
+          # Default action outcomes based on paths-filter action outputs
+          frontend=${{ steps.filter.outputs.frontend || 'true'}}
+          cli=${{ steps.filter.outputs.cli || 'true' }}
+          backend=${{ steps.filter.outputs.backend || 'true' }}
+          build=${{ steps.filter.outputs.build || 'true' }}
+          jvm_unit_test=${{ steps.filter.outputs.jvm_unit_test || 'true' }}
+
+          # Check if the commit is to the master branch
+          skip_tests=${CICD_SKIP_TESTS:-false}  # Use environment variable, default to 'false'
+
+          # The below line ensures that if skip_tests is true, all tests are set to false.
+          if [ "$skip_tests" == "true" ]; then
+            echo "Skipping tests as per CICD_SKIP_TESTS flag."
+            frontend=false
+            cli=false
+            backend=false
+            jvm_unit_test=false
+          fi
+          
+          echo "build=${build}"
+          echo "frontend=${frontend}"
+          echo "cli=${cli}"
+          echo "backend=${backend}"
+          echo "jvm_unit_test=${jvm_unit_test}"
+
+          # Export the outcomes as GitHub Actions outputs
+          echo "frontend=${frontend}" >> $GITHUB_OUTPUT
+          echo "cli=${cli}" >> $GITHUB_OUTPUT
+          echo "backend=${backend}" >> $GITHUB_OUTPUT
+          echo "build=${build}" >> $GITHUB_OUTPUT
+          echo "jvm_unit_test=${jvm_unit_test}" >> $GITHUB_OUTPUT
+
+  #
