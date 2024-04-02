@@ -15,6 +15,9 @@ on:
       artifact-run-id:
         required: false
         type: string
+    secrets:
+      license:
+        required: true
 env:
   JVM_TEST_MAVEN_OPTS: "-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
   DOCKER_PLATFORMS: "linux/amd64,linux/arm64"
@@ -274,7 +277,7 @@ jobs:
       - id: prepare-license
         name: Prepare license
         env:
-          DOTCMS_LICENSE_KEY: ${{ secrets.DOTCMS_LICENSE }}
+          DOTCMS_LICENSE_KEY: ${{ secrets.license }}
         run: |
           DOTCMS_LICENSE_PATH=~/.dotcms/license
           mkdir -p ${DOTCMS_LICENSE_PATH}
