@@ -423,7 +423,7 @@ jobs:
           path: ~/.m2/repository
       - name: Build
         env:
-          DOT_DOTCMS_LICENSE: ${{ secrets.DOTCMS_LICENSE }}
+          DOT_DOTCMS_LICENSE: ${{ secrets.license }}
         run: eval ./mvnw -Pcoverage -Dprod $JVM_TEST_MAVEN_OPTS verify -pl :dotcms-integration -Dcoreit.test.skip=false ${{ matrix.suites.maven_args}} ${{ matrix.java.maven_args}}
       - name: Prepare reports archive (if maven failed)
         if: failure()
@@ -494,7 +494,7 @@ jobs:
         run: |
           mkdir -p ~/.dotcms/license/
           touch ~/.dotcms/license/license.dat
-          echo "${{ secrets.DOTCMS_LICENSE }}" > ~/.dotcms/license/license.dat
+          echo "${{ secrets.license }}" > ~/.dotcms/license/license.dat
       - id: run-postman-tests
         name: Run Postman Tests
         timeout-minutes: 90
