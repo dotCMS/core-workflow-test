@@ -17,3 +17,5 @@ jobs:
     uses: ./.github/workflows/reusable-ci-build-test.yml
     with:
       type: pr
+    secrets:
+      license: ${{ secrets.DOTCMS_LICENSE }}
