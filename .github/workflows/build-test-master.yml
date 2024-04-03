@@ -27,7 +27,10 @@ jobs:
   test:
     name: PR Test
     needs: [ initialize,build ]
-    if: ${{ always() }} 
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     uses: ./.github/workflows/reusable-ci-test.yml
     with:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
