@@ -26,7 +26,7 @@ jobs:
   build:
     name: PR Build
     needs: [ initialize ]
-    if: needs.initialize.outputs.found_artifacts == 'false' && needs.initialize.outputs.build == 'true'
+    if: needs.initialize.outputs.found_artifacts == 'false'
     uses: ./.github/workflows/reusable-ci-build.yml
     permissions:
       contents: read
