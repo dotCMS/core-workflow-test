@@ -67,17 +67,19 @@ jobs:
           build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
           if [[ ${build_artifact_exists} == "true" ]]; then
               run_id=`echo '${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.id'`
-              found_artifacts=false
+              found_artifacts=true
               echo "Merge Group Artifact Run id: $run_id"
           else
              echo "No Merge Group artifact found"
              run_id="${{ github.run_id }}"
-             if [[ "${{ inputs.build-on-missing-artifacts }}" != "true" ]]; then
-               exit 1
-             fi
+             found_artifacts=false
           fi
           echo "run_id=$run_id" >> $GITHUB_OUTPUT
           echo "found_artifacts=$found_artifacts" >> $GITHUB_OUTPUT
+          if [[ "${found_artifacts}" != "true" && "${{ inputs.build-on-missing-artifacts }}" != "true" ]]; then
+            echo "build-on-missing-artifacts set to false. Failing build"
+            exit 1
+          fi
   changes:
     name: Check Changed Files
     needs: [ check-previous-build ] 
