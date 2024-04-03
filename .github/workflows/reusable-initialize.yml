@@ -76,7 +76,7 @@ jobs:
           fi
           echo "run_id=$run_id" >> $GITHUB_OUTPUT
           echo "found_artifacts=$found_artifacts" >> $GITHUB_OUTPUT
-          if [[ "${found_artifacts}" != "true" && "${{ inputs.build-on-missing-artifacts }}" != "true" ]]; then
+          if [[ "${{ inputs.reuse-previous-build }}" == "true" && "${found_artifacts}" != "true" && "${{ inputs.build-on-missing-artifacts }}" != "true" ]]; then
             echo "build-on-missing-artifacts set to false. Failing build"
             exit 1
           fi
