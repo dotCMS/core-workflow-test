@@ -19,7 +19,7 @@ jobs:
   build:
     name: PR Build
     needs: [ initialize ]
-    if: needs.initialize.outputs.build == 'true'
+    if: needs.initialize.outputs.found_artifacts == 'false' && needs.initialize.outputs.build == 'true'
     uses: ./.github/workflows/reusable-ci-build.yml
     permissions:
       contents: read
@@ -29,6 +29,7 @@ jobs:
     needs: [ initialize,build ]
     uses: ./.github/workflows/reusable-ci-test.yml
     with:
+      artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
       integration: ${{ needs.initialize.outputs.backend == 'true' }}
       postman: ${{ needs.initialize.outputs.backend == 'true' }}
       frontend: ${{ needs.initialize.outputs.frontend == 'true' }}
@@ -38,8 +39,10 @@ jobs:
       DOTCMS_LICENSE: ${{ secrets.DOTCMS_LICENSE }}
   sonar:
     name: PR SonarQube
-    needs: [ test ]
+    needs: [ initialize,test ]
     uses: ./.github/workflows/reusable-sonarqube.yml
+    with:
+        run-id: ${{ needs.initialize.outputs.artifact-run-id }}
   finalize:
     name: Finalize
     needs: [ sonar ]
