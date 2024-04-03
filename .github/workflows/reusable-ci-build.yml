@@ -107,7 +107,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: "build-report-Initial Artifact Build"
+          name: "build-reports-Initial Artifact Build"
           path: |
             target/build-report.json
             LICENSE
