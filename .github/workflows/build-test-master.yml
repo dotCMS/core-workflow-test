@@ -10,9 +10,6 @@ on:
         required: false
         type: boolean
         default: false
-permissions:
-  contents: read
-  actions: read # allow access to other job artifacts with GITHUB_TOKEN
 jobs:
   initialize:
     name: Initialize
@@ -24,6 +21,9 @@ jobs:
     needs: [ initialize ]
     if: needs.initialize.outputs.build == 'true'
     uses: ./.github/workflows/reusable-ci-build.yml
+    permissions:
+      contents: read
+      packages: write
   test:
     name: PR Test
     needs: [ initialize,build ]
