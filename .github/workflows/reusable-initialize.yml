@@ -1,4 +1,4 @@
-name: Reusable Finalize
+name: Reusable Initialize
 on:
   workflow_call:
     inputs:
