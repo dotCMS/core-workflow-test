@@ -2,10 +2,10 @@ name: Reusable CI Build Test
 on:
   workflow_call:
     inputs:
-      run-id:
+      artifact-run-id:
         description: 'The run id of the build to download artifacts from.'
-        type: number
         required: true
+        type: string
 jobs:
   sonarqube:
     name: SonarQube Scan
@@ -33,7 +33,7 @@ jobs:
       - name: Download Maven Repo
         uses: actions/download-artifact@v4
         with:
-          run-id: ${{ inputs.run-id }}
+          run-id: ${{ inputs.artifact-run-id }}
           name: maven-repo
           path: ~/.m2/repository
         continue-on-error: true
@@ -49,7 +49,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v3.0.0
         with:
           name: build-reports-test-.*
-          run_id: ${{ inputs.run-id }}
+          run_id: ${{ inputs.artifact-run-id }}
           name_is_regexp: true
           path: dotcms-core/target/build-reports
           if_no_artifact_found: warn
