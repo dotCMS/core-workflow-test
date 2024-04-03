@@ -7,12 +7,22 @@ on:
         required: true
         type: boolean
         default: false
+      reuse-previous-build:
+        description: 'Indicates if the workflow should reuse the previous build'
+        required: false
+        type: boolean
+        default: false
     outputs:
-      build: ${{ jobs.changes.outputs.build }}
-      backend: ${{ jobs.changes.outputs.backend }}
-      frontend: ${{ jobs.changes.outputs.frontend }}
-      jvm_unit_test: ${{ jobs.changes.outputs.jvm_unit_test }}
-      cli: ${{ jobs.changes.outputs.cli }}
+      build:
+        value: ${{ jobs.changes.outputs.build }}
+      backend:
+        value: ${{ jobs.changes.outputs.backend }}
+      frontend:
+        value: ${{ jobs.changes.outputs.frontend }}
+      jvm_unit_test:
+        value: ${{ jobs.changes.outputs.jvm_unit_test }}
+      cli:
+        value: ${{ jobs.changes.outputs.cli }}
 jobs:
   initialize: # This is used as a required check to indicate that the workflow has started and is running
     name: Initialize
@@ -24,6 +34,41 @@ jobs:
         shell: bash
         run: |
             echo "Initializing..."
+  check-previous-build:
+    name: Check Previous Build
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-run-id: ${{ steps.check.outputs.run_id }}
+      found_artifacts: ${{ steps.check.outputs.found_artifacts }}
+    steps:
+      - name: Download Build Artifact
+        id: data-download
+        uses: dawidd6/action-download-artifact@v2
+        if: ${{ inputs.reuse-previous-build == true }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          #workflow: build-test-merge_group.yml
+          commit: ${{ github.sha }}
+          workflow_conclusion: success
+          search_artifacts: true
+          name: workflow-data
+          path: .
+          if_no_artifact_found: warn
+      - name: Get SHAs and check if we should deploy
+        id: check
+        run: |
+          build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
+          if [[ ${build_artifact_exists} == "true" ]]; then
+              run_id=`echo '${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.id'`
+              found_artifacts=false
+              echo "Merge Group Artifact Run id: $run_id"
+          else
+             echo "No Merge Group artifact found"
+             run_id="${{ github.run_id }}"
+             do_build=true
+          fi
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
+          echo "found_artifacts=$found_artifacts" >> $GITHUB_OUTPUT
   changes:
     name: Check Changed Files
     runs-on: ubuntu-latest
@@ -79,5 +124,3 @@ jobs:
           echo "backend=${backend}" >> $GITHUB_OUTPUT
           echo "build=${build}" >> $GITHUB_OUTPUT
           echo "jvm_unit_test=${jvm_unit_test}" >> $GITHUB_OUTPUT
-
-  #
