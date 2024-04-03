@@ -53,6 +53,7 @@ jobs:
           commit: ${{ github.sha }}
           workflow_conclusion: success
           search_artifacts: true
+          dry-run: true
           name: workflow-data
           path: .
           if_no_artifact_found: warn
