@@ -82,6 +82,7 @@ jobs:
         cli: ${{ steps.filter-rewrite.outputs.cli }}
     steps:
       - uses: actions/checkout@v4
+        if: ${{ inputs.incremental }}
       - uses: dorny/paths-filter@v3.0.1
         if: ${{ inputs.incremental }}
         id: filter
