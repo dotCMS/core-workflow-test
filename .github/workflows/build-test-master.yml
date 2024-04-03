@@ -21,8 +21,8 @@ jobs:
     name: Initialize
     uses: ./.github/workflows/reusable-initialize.yml
     with:
-      reuse-previous-build: ${{ inputs.reuse-previous-build || true }}
-      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts || false }}
+      reuse-previous-build: ${{ inputs.reuse-previous-build }}
+      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts }}
   build:
     name: PR Build
     needs: [ initialize ]
