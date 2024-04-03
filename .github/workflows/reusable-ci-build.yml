@@ -22,7 +22,7 @@ jobs:
   # Provides local maven repo for subsequent steps
   #
   build-jdk11:
-    name: "Initial JDK 11 Build"
+    name: "Initial Artifact Build"
     runs-on: ubuntu-20.04
     if: inputs.core-build == true
     env:
@@ -103,6 +103,15 @@ jobs:
         with:
           name: docker-image
           path: image.tar
+      - name: core-build-report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: "build-report-Initial Artifact Build"
+          path: |
+            target/build-report.json
+            LICENSE
+          retention-days: 2
 
     #
     # Run CLI build artifacts
