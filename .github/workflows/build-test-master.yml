@@ -22,7 +22,7 @@ jobs:
     uses: ./.github/workflows/reusable-initialize.yml 
     with:
       reuse-previous-build: ${{ inputs.reuse-previous-build || github.event_name != 'workflow_dispatch' }}
-      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts || github.event_name == 'workflow_dispatch' }}
+      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts || github.event_name != 'workflow_dispatch' }}
   build:
     name: PR Build
     needs: [ initialize ]
