@@ -27,7 +27,7 @@ jobs:
   test:
     name: PR Test
     needs: [ initialize,build ]
-    if: ${{ !cancelled() && !failure() }} 
+    if: ${{ always() && !cancelled() && !failure() }} 
     uses: ./.github/workflows/reusable-ci-test.yml
     with:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
