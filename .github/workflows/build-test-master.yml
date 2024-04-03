@@ -47,7 +47,7 @@ jobs:
     if: always() && !failure() && !cancelled()
     uses: ./.github/workflows/reusable-sonarqube.yml
     with:
-        run-id: ${{ needs.initialize.outputs.artifact-run-id }}
+      artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
   finalize:
     name: Finalize
     if: always()
