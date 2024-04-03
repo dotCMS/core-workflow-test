@@ -2,6 +2,9 @@ name: Reusable CI Build Test
 on:
   workflow_call:
     inputs:
+      run-all-tests:
+        type: boolean
+        default: false
       artifact-run-id:
         required: false
         type: string
@@ -43,7 +46,7 @@ jobs:
   linux-jvm-tests:
     name: JVM Unit Tests - JDK ${{matrix.java.name}}
     runs-on: ubuntu-20.04
-    if: inputs.jvm_unit_test
+    if: inputs.jvm_unit_test || inputs.run-all-tests
     timeout-minutes: 240
     env:
       MAVEN_OPTS: -Xmx2048m
@@ -97,7 +100,7 @@ jobs:
   linux-cli-tests:
     name: CLI Tests - JDK ${{matrix.java.name}}
     runs-on: ubuntu-20.04
-    if: inputs.cli
+    if: inputs.cli || inputs.run-all-tests
     timeout-minutes: 240
     env:
       MAVEN_OPTS: -Xmx2048m
@@ -170,7 +173,7 @@ jobs:
   linux-frontend-tests:
     name: Frontend Unit Tests
     runs-on: ubuntu-20.04
-    if: inputs.frontend
+    if: inputs.frontend || inputs.run-all-tests
     timeout-minutes: 240
     env:
       MAVEN_OPTS: -Xmx2048m
@@ -239,7 +242,7 @@ jobs:
     name: JVM IT Tests - JDK ${{matrix.java.name}} ${{matrix.suites.name}}
     runs-on: ubuntu-20.04
     # Skip master in forks
-    if: inputs.integration
+    if: inputs.integration || inputs.run-all-tests
     timeout-minutes: 240
     env:
       MAVEN_OPTS: -Xmx2048m
@@ -299,7 +302,7 @@ jobs:
   linux-postman-tests:
     name: Run Postman Tests - ${{matrix.collection_group}}
     runs-on: ubuntu-latest
-    if: inputs.postman
+    if: inputs.postman || inputs.run-all-tests
     strategy:
       fail-fast: false
       matrix:
