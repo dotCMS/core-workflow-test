@@ -10,6 +10,10 @@ on:
         required: false
         type: boolean
         default: false
+      run-all-tests: 
+        description: 'Run all tests'
+        type: boolean
+        default: false
 jobs:
   initialize:
     name: Initialize
@@ -30,12 +34,8 @@ jobs:
     if: always() && !failure() && !cancelled()
     uses: ./.github/workflows/reusable-ci-test.yml
     with:
+      run-all-tests: ${{ inputs.run-all-tests || false }}
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
-      integration: ${{ needs.initialize.outputs.backend == 'true' }}
-      postman: ${{ needs.initialize.outputs.backend == 'true' }}
-      frontend: ${{ needs.initialize.outputs.frontend == 'true' }}
-      cli: ${{ needs.initialize.outputs.cli == 'true' }}
-      jvm_unit_test: true
     secrets:
       DOTCMS_LICENSE: ${{ secrets.DOTCMS_LICENSE }}
   sonar:
