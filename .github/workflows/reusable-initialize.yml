@@ -10,6 +10,10 @@ on:
         description: 'Indicates if the workflow should reuse the previous build'
         type: boolean
         default: false
+      build-on-missing-artifacts:
+        description: 'If artifacts from previous build cannot be found should we build now or error. Only applicable if reuse-previous-build is set'
+        type: boolean
+        default: false
     outputs:
       artifact-run-id:
         value: ${{ jobs.check-previous-build.outputs.artifact-run-id }}
@@ -68,7 +72,9 @@ jobs:
           else
              echo "No Merge Group artifact found"
              run_id="${{ github.run_id }}"
-             do_build=true
+             if [[ "${{ inputs.build-on-missing-artifacts }}" != "true" ]]; then
+               exit 1
+             fi
           fi
           echo "run_id=$run_id" >> $GITHUB_OUTPUT
           echo "found_artifacts=$found_artifacts" >> $GITHUB_OUTPUT
