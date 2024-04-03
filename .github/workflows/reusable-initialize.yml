@@ -81,7 +81,7 @@ jobs:
   changes:
     name: Check Changed Files
     needs: [ check-previous-build ] 
-    if: always() && !failed() && !cancelled()
+    if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     outputs:
         build: ${{ steps.filter-rewrite.outputs.build }}
