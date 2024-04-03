@@ -4,12 +4,10 @@ on:
     inputs:
       incremental:
         description: 'Indicates if the workflow is incremental or not'
-        required: true
         type: boolean
         default: false
       reuse-previous-build:
         description: 'Indicates if the workflow should reuse the previous build'
-        required: false
         type: boolean
         default: false
     outputs:
