@@ -7,7 +7,9 @@ on:
     inputs:
       reuse-previous-build:
         description: 'Indicates if the workflow should reuse the previous build'
-        required: false
+        type: boolean
+        default: true
+      build-on-missing-artifacts:
         type: boolean
         default: false
       run-all-tests: 
@@ -20,6 +22,7 @@ jobs:
     uses: ./.github/workflows/reusable-initialize.yml
     with:
       reuse-previous-build: ${{ inputs.reuse-previous-build || true }}
+      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts || false }}
   build:
     name: PR Build
     needs: [ initialize ]
