@@ -71,8 +71,6 @@ jobs:
   changes:
     name: Check Changed Files
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
     outputs:
         build: ${{ steps.filter-rewrite.outputs.build }}
         backend: ${{ steps.filter-rewrite.outputs.backend }}
