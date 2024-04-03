@@ -80,6 +80,8 @@ jobs:
           echo "found_artifacts=$found_artifacts" >> $GITHUB_OUTPUT
   changes:
     name: Check Changed Files
+    needs: [ check-previous-build ] 
+    if: always() && !failed() && !cancelled()
     runs-on: ubuntu-latest
     outputs:
         build: ${{ steps.filter-rewrite.outputs.build }}
