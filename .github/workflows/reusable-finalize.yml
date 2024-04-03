@@ -3,7 +3,7 @@ on:
   workflow_call:
       inputs:
         artifact-run-id:
-          required: false
+          required: true
           type: string
 jobs:
   prepare-report-data:
@@ -21,6 +21,7 @@ jobs:
           name_is_regexp: true
           path: /tmp/build-step-reports
           if_no_artifact_found: warn
+          run_id: ${{ inputs.artifact-run-id }}
       - name: Prepare workflow data
         id: prepare-workflow-data
         env:
