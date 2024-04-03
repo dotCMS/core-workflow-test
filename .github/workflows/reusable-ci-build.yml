@@ -3,11 +3,9 @@ on:
   workflow_call:
     inputs:
       core-build:
-        required: true
         type: boolean
         default: true
       native-cli-build:
-        required: false
         type: boolean
         default: false
 env:
