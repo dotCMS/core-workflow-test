@@ -4,6 +4,7 @@ on:
     inputs:
       incremental:
         description: 'Indicates if the workflow is incremental or not'
+        required: true
         type: boolean
         default: false
       reuse-previous-build:
@@ -12,6 +13,10 @@ on:
         type: boolean
         default: false
     outputs:
+      artifact-run-id:
+        value: ${{ jobs.check-previous-build.outputs.artifact-run-id }}
+      found_artifacts:
+        value: ${{ jobs.check-previous-build.outputs.found_artifacts }}
       build:
         value: ${{ jobs.changes.outputs.build }}
       backend:
