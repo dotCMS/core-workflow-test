@@ -46,5 +46,6 @@ jobs:
         run-id: ${{ needs.initialize.outputs.artifact-run-id }}
   finalize:
     name: Finalize
+    if: always()
     needs: [ sonar ]
     uses: ./.github/workflows/reusable-finalize.yml
