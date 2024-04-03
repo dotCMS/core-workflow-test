@@ -15,7 +15,7 @@ jobs:
     name: Initialize
     uses: ./.github/workflows/reusable-initialize.yml
     with:
-      reuse-previous-build: ${{ inputs.reuse-previous-build }}
+      reuse-previous-build: ${{ inputs.reuse-previous-build || true }}
   build:
     name: PR Build
     needs: [ initialize ]
