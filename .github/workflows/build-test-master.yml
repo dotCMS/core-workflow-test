@@ -19,10 +19,10 @@ on:
 jobs:
   initialize:
     name: Initialize
-    uses: ./.github/workflows/reusable-initialize.yml
+    uses: ./.github/workflows/reusable-initialize.yml 
     with:
-      reuse-previous-build: ${{ (github.event_name == "workflow_dispatch" && inputs.reuse-previous-build ) || true }}
-      build-on-missing-artifacts: ${{ (github.event_name == "workflow_dispatch" && inputs.build-on-missing-artifacts ) || false}}
+      reuse-previous-build: ${{ inputs.reuse-previous-build || github.event_name != 'workflow_dispatch' }}
+      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts || github.event_name == 'workflow_dispatch' }}
   build:
     name: PR Build
     needs: [ initialize ]
