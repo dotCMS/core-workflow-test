@@ -83,7 +83,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3.0.1
-        if: inputs.incremental == true
+        if: ${{ inputs.incremental }}
         id: filter
         with:
           filters: .github/filters.yaml
