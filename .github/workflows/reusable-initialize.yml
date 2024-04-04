@@ -58,7 +58,7 @@ jobs:
           workflow_conclusion: success
           search_artifacts: true
           dry_run: true
-          name: workflow-data
+          name: maven-repo
           path: .
           if_no_artifact_found: warn
       - name: Get SHAs and check if we should deploy
