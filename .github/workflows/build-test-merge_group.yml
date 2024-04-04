@@ -7,10 +7,8 @@ jobs:
   initialize:
     name: Initialize
     uses: ./.github/workflows/reusable-initialize.yml
-    with:
-      incremental: true
   build:
-    name: PR Build
+    name: Merge Group Build
     needs: [ initialize ]
     if: needs.initialize.outputs.found_artifacts == 'false'
     uses: ./.github/workflows/reusable-ci-build.yml
@@ -18,7 +16,7 @@ jobs:
       contents: read
       packages: write
   test:
-    name: PR Test
+    name: Merge Group Test
     needs: [ initialize,build ]
     if: always() && !failure() && !cancelled()
     uses: ./.github/workflows/reusable-ci-test.yml
@@ -30,13 +28,8 @@ jobs:
       cli: ${{ needs.initialize.outputs.cli == 'true' }}
     secrets:
       DOTCMS_LICENSE: ${{ secrets.DOTCMS_LICENSE }}
-  sonar:
-    name: PR SonarQube
-    needs: [ test ]
-    if: always() && !failure() && !cancelled()
-    uses: ./.github/workflows/reusable-sonarqube.yml
   finalize:
     name: Finalize
     if: always()
-    needs: [ sonar ]
+    needs: [ test ]
     uses: ./.github/workflows/reusable-finalize.yml
