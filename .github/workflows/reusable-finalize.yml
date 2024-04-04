@@ -15,13 +15,12 @@ jobs:
     steps:
       - name: Download build reports
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v3.0.0
+        uses: actions/download-artifact@v4
         with:
-          name: "build-reports-*"
-          name_is_regexp: true
           path: /tmp/build-step-reports
-          if_no_artifact_found: warn
-          run_id: ${{ inputs.artifact-run-id }}
+          pattern: build-reports-*
+          merge-multiple: true
+          run-id: ${{ inputs.artifact-run-id }}
       - name: Prepare workflow data
         id: prepare-workflow-data
         env:
