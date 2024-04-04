@@ -46,18 +46,18 @@ runs:
         echo "runid=$runid" >> $GITHUB_OUTPUT
         echo "search_artifacts=$search_artifacts" >> $GITHUB_OUTPUT
           
-      - name: Download Build Status
-        id: data-download
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          name: 'workflow-data'
-          workflow: maven-cicd-pipeline.yml
-          workflow_conclusion: success
-          branch: ${{ steps.lookup-type.outputs.branch }}
-          event: push
-          run_id: ${{ steps.lookup-type.outputs.runid }}
-          search_artifacts: ${{ steps.lookup-type.outputs.search_artifacts }}
-          if_no_artifact_found: warn
+    - name: Download Build Status
+      id: data-download
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        name: 'workflow-data'
+        workflow: maven-cicd-pipeline.yml
+        workflow_conclusion: success
+        branch: ${{ steps.lookup-type.outputs.branch }}
+        event: push
+        run_id: ${{ steps.lookup-type.outputs.runid }}
+        search_artifacts: ${{ steps.lookup-type.outputs.search_artifacts }}
+        if_no_artifact_found: warn
 
     - name: 'Download all build artifacts'
       id: download-cli-artifacts
