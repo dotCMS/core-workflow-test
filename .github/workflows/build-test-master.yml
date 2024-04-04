@@ -52,10 +52,74 @@ jobs:
     uses: ./.github/workflows/reusable-sonarqube.yml
     with:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
+    #
+    # Run CLI build artifacts
+    #
+  build-cli:
+    name: CLI Build
+    needs: [ test ]
+    if: always() && !failure() && !cancelled()
+    uses: ./.github/workflows/cli-build-artifacts.yml
+    with:
+      buildNativeImage: true
+      branch: ${{ github.ref }}
+
+  deployment:
+    needs: [ initialize,build,test ]
+    if: always() && !failure() && !cancelled()
+    runs-on: ubuntu-latest
+    environment: trunk
+    steps:
+      # The repository is checked out using the 'actions/checkout' action.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # A Docker image is built and pushed using the 'deploy-artifact-docker' action.
+      - name: Build/Push Docker Image
+        id: docker_build
+        uses: ./.github/actions/deploy-artifact-docker
+        with:
+          docker_platforms: linux/amd64,linux/arm64
+          build_run_id: ${{ needs.initialize.outputs.artifact-run-id }}
+          commit_id: ${{ github.sha }}
+          ref: master
+          snapshot: true
+          latest: true
+          do_deploy: ${{ vars.DOCKER_DEPLOY || 'true' }} # default to true, set to disable in fork
+          docker_io_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_io_token: ${{ secrets.DOCKER_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # The CLI artifacts are built and uploaded to Artifactory using the 'deploy-artifact-cli' action.
+      - name: CLI Deploy
+        id: cli_deploy
+        uses: ./.github/actions/deploy-artifact-cli
+        with:
+          branch: master
+          artifactory-repo-username: ${{ secrets.EE_REPO_USERNAME }}
+          artifactory-repo-password: ${{ secrets.EE_REPO_PASSWORD }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          build-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
+          commit-id: ${{ github.sha }}
+
+      # A Slack notification is sent using the 'action-slack-notify' action if the repository is 'dotcms/core'.
+      - name: Slack Notification
+        if: github.repository == 'dotcms/core'
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.DEVELOPERS_SLACK_WEBHOOK }}
+          SLACK_USERNAME: dotBot
+          SLACK_TITLE: "Attention dotters: Docker image built!"
+          SLACK_MSG_AUTHOR: " "
+          MSG_MINIMAL: true
+          SLACK_FOOTER: ""
+          SLACK_ICON: https://avatars.githubusercontent.com/u/1005263?s=200&v=4
+          SLACK_MESSAGE: "This automated script is happy to announce that a new docker image has been built for *master* with tags: [${{ steps.docker_build.outputs.tags }}] :docker:"
+
   finalize:
     name: Finalize
     if: always()
-    needs: [ initialize,sonar ]
+    needs: [ initialize,sonar,deployment ]
     uses: ./.github/workflows/reusable-finalize.yml
     with:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
