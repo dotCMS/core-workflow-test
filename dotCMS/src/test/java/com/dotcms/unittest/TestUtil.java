@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * @author Geoff M. Granum
+ * @author Geoff M. Granum.
  */
 public class TestUtil {
 
