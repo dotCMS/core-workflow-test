@@ -45,6 +45,7 @@ runs:
         echo "branch=$branch" >> $GITHUB_OUTPUT
         echo "runid=$runid" >> $GITHUB_OUTPUT
         echo "search_artifacts=$search_artifacts" >> $GITHUB_OUTPUT
+      shell: bash        
           
     - name: Download Build Status
       id: data-download
