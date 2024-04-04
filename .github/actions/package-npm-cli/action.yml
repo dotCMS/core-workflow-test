@@ -17,6 +17,47 @@ runs:
       with:
         ref: ${{ inputs.branch }}
 
+      - name: Download latest artifact
+        id: deployment-status
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: deployment-trunk.yml
+          branch: master
+          workflow_conclusion: success
+          search_artifacts: true
+          name: trunk_latest_sha
+          path: .
+          if_no_artifact_found: warn
+      - name: Set options for artifact lookup
+        id: lookup-type
+        run: |
+          branch=''
+          runid='${{ github.event.inputs.build_run_id || github.event.workflow_run.id }}'
+          search_artifacts=false
+          if [[ "$runid" == "" ]]; then
+            branch='master'
+            runid=''
+            search_artifacts=true
+          fi
+
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+          echo "runid=$runid" >> $GITHUB_OUTPUT
+          echo "search_artifacts=$search_artifacts" >> $GITHUB_OUTPUT
+          
+      - name: Download Build Status
+        id: data-download
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: 'workflow-data'
+          workflow: maven-cicd-pipeline.yml
+          workflow_conclusion: success
+          branch: ${{ steps.lookup-type.outputs.branch }}
+          event: push
+          run_id: ${{ steps.lookup-type.outputs.runid }}
+          search_artifacts: ${{ steps.lookup-type.outputs.search_artifacts }}
+          if_no_artifact_found: warn
+
     - name: 'Download all build artifacts'
       id: download-cli-artifacts
       uses: actions/download-artifact@v4
@@ -24,7 +65,8 @@ runs:
         pattern: cli-artifacts-*
         path: ${{ github.workspace }}/artifacts
         github-token: ${{ inputs.github-token }} # token with actions:read permissions on target repo
-        merge-multiple: true
+        run-id: ${{ steps.lookup-type.outputs.runid }}
+        merge-multiple: true      
 
     - name: 'Check artifact download'
       id: check-artifacts
