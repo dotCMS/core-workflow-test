@@ -1,0 +1,45 @@
+name: 'Package CLI project'
+description: 'Package the dotCMS CLI as an NPM project.'
+inputs:
+  branch:
+    description: 'Branch to build from'
+    required: false
+    default: 'master'
+  github-token:
+    description: 'GitHub Token'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.branch }}
+
+    - name: 'Download all build artifacts'
+      id: download-cli-artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: cli-artifacts-*
+        path: ${{ github.workspace }}/artifacts
+        github-token: ${{ inputs.github-token }} # token with actions:read permissions on target repo
+        merge-multiple: true
+
+    - name: 'Check artifact download'
+      id: check-artifacts
+      run: |
+        PATH="/artifacts"
+        if [[ ${{ steps.download-cli-artifacts.outputs.download-path }} =~ $PATH ]]; then
+          found=true
+        else
+          found=false
+        fi
+        echo "found=$found" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: 'List CLI Artifacts'
+      if: ${{ steps.check-artifacts.outputs.found == true }}
+      run: |
+        ls -R ${{ github.workspace }}/artifacts
+      shell: bash
