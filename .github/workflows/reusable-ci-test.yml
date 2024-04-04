@@ -36,7 +36,7 @@ env:
   DOCKER_PLATFORMS: "linux/amd64,linux/arm64"
   REGISTRY: ghcr.io
   DOCKER_IMAGE: dotcms/dotcms_test
-  DOCKER_TAG: run-${{ github.run_id }}
+  DOCKER_TAG: run-${{ inputs.artifact-run-id || github.run_id }}
   ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id || github.run_id }}
 
 jobs:
