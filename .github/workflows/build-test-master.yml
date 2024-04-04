@@ -64,5 +64,3 @@ jobs:
     if: always()
     needs: [ finalize ]
     uses: ./.github/workflows/build-report.yml
-    with:
-      artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
