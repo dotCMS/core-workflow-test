@@ -21,7 +21,7 @@ runs:
       id: deployment-status
       uses: dawidd6/action-download-artifact@v2
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ inputs.github-token }}
         workflow: deployment-trunk.yml
         branch: master
         workflow_conclusion: success
