@@ -5,9 +5,6 @@ on:
       core-build:
         type: boolean
         default: true
-      native-cli-build:
-        type: boolean
-        default: false
 env:
   JVM_TEST_MAVEN_OPTS: "-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
   DOCKER_PLATFORMS: "linux/amd64,linux/arm64"
@@ -112,14 +109,3 @@ jobs:
             target/build-report.json
             LICENSE
           retention-days: 2
-
-    #
-    # Run CLI build artifacts
-    #
-  build-cli:
-    if: inputs.build-native-cli == true
-    name: CLI Build Native
-    uses: ./.github/workflows/cli-build-artifacts.yml
-    with:
-      buildNativeImage: true
-      branch: ${{ github.ref }}
