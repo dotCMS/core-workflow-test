@@ -104,7 +104,7 @@ jobs:
           name: docker-image
           path: image.tar
       - name: core-build-report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: "build-reports-Initial Artifact Build"
