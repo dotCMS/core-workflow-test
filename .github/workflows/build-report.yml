@@ -28,15 +28,31 @@ jobs:
           name: 'workflow-data'
           run_id: ${{ inputs.run-id }}
           if_no_artifact_found: warn
-
-      - uses: dorny/test-reporter@v1.8.0
+      - name: Download build reports
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v3.1.4
+        with:
+          name: build-reports-test-.*
+          name_is_regexp: true
+          path: /tmp/build-reports-test
+          if_no_artifact_found: warn
+      - name: reports debug
+        run: |
+          echo "Found reports:"
+          ls -l /tmp/build-reports-test
+          report-json=${{ steps.data-download.outputs.artifacts }}
+          echo "Report JSON: $report-json"
+      - uses: phoenix-actions/test-reporting@v14
         id: test-reporter
         if: steps.data-download.outputs.found_artifact == 'true'
         continue-on-error: true
         with:
-          artifact: /^build-reports-test-(.*)/        # artifact name uses runid from caller event is workflow_run
-          name: 'MVN Test Report $1'               # Name of the check run which will be created
-          path: '**/target/**/TEST-*.xml'                     # Path to test results (inside artifact .zip)
+          output-to: step-summary
+          #artifact: /^build-reports-test-(.*)/        # artifact name uses runid from caller event is workflow_run
+          #name: 'MVN Test Report $1'               # Name of the check run which will be created
+          name: 'Test Report'
+          path: '/tmp/build-reports-test/**/target/**/TEST-*.xml'
+          #path: '**/target/**/TEST-*.xml'                     # Path to test results (inside artifact .zip)
           reporter: java-junit            # Format of test results
           fail-on-error: true
           list-tests: 'failed'
@@ -72,7 +88,7 @@ jobs:
               test_conclusion="Not Run"
               test_passed=0
               test_failed=0
-              test_skipped=9
+              test_skipped=0
               test_elapsed=0
             else
               test_conclusion=${{ steps.test-reporter.outputs.conclusion }}
@@ -80,6 +96,7 @@ jobs:
               test_failed=${{ steps.test-reporter.outputs.failed }}
               test_skipped=${{ steps.test-reporter.outputs.skipped }}
               test_elapsed=${{ steps.test-reporter.outputs.time }}
+              test_results_url=${{ steps.test-reporter.outputs.runHtmlUrl }}
             fi
             
             
@@ -102,7 +119,7 @@ jobs:
           
             echo "json=$json" >> $GITHUB_OUTPUT
             echo "trigger_event_name=$trigger_event_name" >> $GITHUB_OUTPUT
-            echo "has-json=true" >> $GITHUB_OUTPUT
+            echo "has_json=true" >> $GITHUB_OUTPUT
             echo "status=$status" >> $GITHUB_OUTPUT
             echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
             echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
@@ -210,7 +227,7 @@ jobs:
           echo "payload=$(echo $payload | jq -c .)" >> $GITHUB_OUTPUT
           echo "payload=$payload"
       - name: Post to Slack
-        if: steps.workflow-data.outputs.has-json == 'true' && github.repository == 'dotcms/core'
+        if: steps.workflow-data.outputs.has_json == 'true' && github.repository == 'dotcms/core'
         uses: slackapi/slack-github-action@v1.24.0
         with:
           channel-id: ${{ vars.SLACK_REPORT_CHANNEL }}
