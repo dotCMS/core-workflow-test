@@ -4,6 +4,12 @@ on:
   workflow_run:
     workflows: ['PR Check','Merge Group Check']
     types: [completed]
+  workflow_call:
+    inputs:
+      run-id:
+        description: 'The run id of the build to report on'
+        type: number
+        default: ${{ github.run_id }}
 permissions:
   checks: write
 
