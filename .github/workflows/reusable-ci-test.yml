@@ -6,7 +6,7 @@ on:
         type: boolean
         default: false
       artifact-run-id:
-        required: false
+        default: ${{ github.run_id }}
         type: string
       jvm_unit_test:
         required: false

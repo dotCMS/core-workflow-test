@@ -4,7 +4,7 @@ on:
     inputs:
       artifact-run-id:
         description: 'The run id of the build to download artifacts from.'
-        required: true
+        default: ${{ github.run_id }}
         type: string
 jobs:
   sonarqube:
