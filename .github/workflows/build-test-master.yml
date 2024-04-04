@@ -70,6 +70,7 @@ jobs:
     uses: ./.github/workflows/reusable-deployment.yml
     with:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
+      environment: trunk
       snapshot: true
       latest: true
   finalize:
