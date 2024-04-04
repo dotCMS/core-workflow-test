@@ -70,6 +70,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.ARTIFACT_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           name: maven-repo
           path: ~/.m2/repository
       - name: Build
@@ -119,6 +120,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.ARTIFACT_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           name: docker-image
           path: /tmp/docker-image
       - name: Load Docker image from tar file
@@ -132,6 +134,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.ARTIFACT_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           name: maven-repo
           path: ~/.m2/repository
       - id: prepare-license
@@ -193,6 +196,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.ARTIFACT_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           name: maven-repo
           path: ~/.m2/repository
         continue-on-error: true
@@ -271,6 +275,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.ARTIFACT_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           name: maven-repo
           path: ~/.m2/repository
       - name: Build
@@ -316,12 +321,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.ARTIFACT_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           name: maven-repo
           path: ~/.m2/repository
       - name: Download Docker image artifact
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.ARTIFACT_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           name: docker-image
           path: /tmp/docker-image
       - name: Load Docker image from tar file
