@@ -41,6 +41,9 @@ jobs:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
     secrets:
       DOTCMS_LICENSE: ${{ secrets.DOTCMS_LICENSE }}
+    permissions:
+      contents: read
+      packages: write
   sonar:
     name: PR SonarQube
     needs: [ initialize,test ]
