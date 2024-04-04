@@ -8,7 +8,8 @@ on:
 jobs:
   create-package:
     runs-on: ubuntu-latest
-    steps:
+    steps:    
+      - uses: actions/checkout@v4
       - name: Create NPM Package
         uses: ./.github/actions/package-npm-cli
         with:
