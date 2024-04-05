@@ -8,6 +8,13 @@ inputs:
   github-token:
     description: 'GitHub Token'
     required: true
+  npm-package-name:
+    description: 'NPM package name'
+    required: false
+    default: 'dotcli'
+  npm-package-scope:
+    description: 'NPM package scope'
+    default: '@dotcms'
 
 runs:
   using: "composite"
@@ -17,6 +24,38 @@ runs:
       with:
         ref: ${{ inputs.branch }}
 
+    - name: Download Build Artifact
+      id: data-download
+      uses: dawidd6/action-download-artifact@v3.1.4
+      with:
+        github_token: ${{ inputs.github-token }}
+        workflow: build-test-master.yml
+        #commit: ${{ github.sha }}
+        workflow_conclusion: success
+        search_artifacts: true
+        dry_run: true
+        name: cli-artifacts-*
+        name_is_regexp: true
+        path: .
+        if_no_artifact_found: warn
+
+    - name: Get SHAs and check if we should deploy
+      id: check
+      run: |
+        build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
+        if [[ ${build_artifact_exists} == "true" ]]; then
+            run_id=`echo '${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.id'`
+            found_artifacts=true
+            echo "Artifact Run id: $run_id"
+        else
+           echo "No artifact found"
+           run_id="${{ github.run_id }}"
+           found_artifacts=false
+        fi
+        echo "run_id=$run_id" >> $GITHUB_OUTPUT
+        echo "found_artifacts=$found_artifacts" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: 'Download all build artifacts'
       id: download-cli-artifacts
       uses: actions/download-artifact@v4
@@ -25,21 +64,114 @@ runs:
         path: ${{ github.workspace }}/artifacts
         github-token: ${{ inputs.github-token }} # token with actions:read permissions on target repo
         merge-multiple: true
-
-    - name: 'Check artifact download'
-      id: check-artifacts
-      run: |
-        PATH="/artifacts"
-        if [[ ${{ steps.download-cli-artifacts.outputs.download-path }} =~ $PATH ]]; then
-          found=true
-        else
-          found=false
-        fi
-        echo "found=$found" >> "$GITHUB_OUTPUT"
-      shell: bash
+        run-id: ${{ steps.check.outputs.run_id }}
 
     - name: 'List CLI Artifacts'
-      if: ${{ steps.check-artifacts.outputs.found == true }}
       run: |
+        echo "::group::CLI Artifacts"
+        echo "Artifacts"
         ls -R ${{ github.workspace }}/artifacts
+        echo "::endgroup::"
+      shell: bash
+
+    - name: 'Extract package version'
+      id: project
+      run: |
+        echo "::group::Extract package version"
+        version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout -pl :dotcms-cli)
+        echo "::debug::PROJECT VERSION: $version"
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "::endgroup::"
+      shell: bash
+    
+    # Determines the NPM package version and tag
+    # Distinguishes between snapshots and releases
+    - name: 'Dynamic configuration of NPM package Version and Tag'
+      run: |
+        echo "::group::NPM package Version and Tag"
+        MVN_PACKAGE_VERSION=$(echo ${{ steps.project.outputs.version }} | tr '[:lower:]' '[:upper:]')
+        PACKAGE_FULL_NAME=${{ inputs.npm-package-scope }}/${{ inputs.npm-package-name }}
+
+        # Check if the npm package exists
+        if ! npm view $PACKAGE_FULL_NAME &> /dev/null; then
+          echo "::error::The package $PACKAGE_FULL_NAME does not exist on npm."
+          exit 1
+        fi
+
+        # Check if the package is a snapshot
+        REGEX="([0-9]+\.[0-9]+\.[0-9]+)-SNAPSHOT"
+
+        if [[ $MVN_PACKAGE_VERSION =~ $REGEX ]]; then
+          echo "::debug::Snapshot version found."
+
+          NPM_PACKAGE_VERSION_TAG="rc"
+          MVN_BASE_VERSION="${BASH_REMATCH[1]}"
+
+          # Use regular expression to extract version components
+          if [[ $MVN_BASE_VERSION =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+            MAJOR=$(echo "${BASH_REMATCH[1]}" | sed "s/\b0\+\([1-9]\)/\1/g")
+            MINOR=$(echo "${BASH_REMATCH[2]}" | sed "s/\b0\+\([1-9]\)/\1/g")
+            PATCH=$(echo "${BASH_REMATCH[3]}" | sed "s/\b0\+\([1-9]\)/\1/g")
+            VERSION_NPM_FORMAT="${MAJOR}.${MINOR}.${PATCH}"
+
+            echo "::debug::VERSION_NPM_FORMAT: ${VERSION_NPM_FORMAT}"
+          else
+            echo "::error::Invalid Maven version format: $MVN_BASE_VERSION"
+            exit 1
+          fi
+
+          LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq -r 'map(select(test("-rc\\d+$"))) | max')
+
+          if [[ $LAST_RC_VERSION == "$VERSION_NPM_FORMAT"* ]]; then
+            NEXT_RC_VERSION=$(echo "$LAST_RC_VERSION" | awk -F '-rc' '{print $1 "-rc" $2 + 1}')
+            RC_SUFFIX=$(echo "$NEXT_RC_VERSION" | sed -n 's/.*-rc\([0-9]*\)/-rc\1/p')
+          else
+            RC_SUFFIX="-rc1"
+          fi;
+
+          NPM_PACKAGE_VERSION=${MVN_BASE_VERSION}${RC_SUFFIX}
+        else
+          echo "::debug::Release version found."
+          NPM_PACKAGE_VERSION_TAG="latest"
+          NPM_PACKAGE_VERSION=${MVN_PACKAGE_VERSION}
+        fi;
+        echo "::debug::NPM_PACKAGE_VERSION: $NPM_PACKAGE_VERSION"
+        echo "::debug::NPM_PACKAGE_VERSION_TAG: $NPM_PACKAGE_VERSION_TAG"
+
+        echo "NPM_PACKAGE_VERSION=$NPM_PACKAGE_VERSION" >> $GITHUB_ENV
+        echo "NPM_PACKAGE_VERSION_TAG=$NPM_PACKAGE_VERSION_TAG" >> $GITHUB_ENV
+        echo "::endgroup::"
+      shell: bash
+
+    # Sets up the NPM package
+    # Creates the bin folder with the binaries
+    # Adds the postinstall.js script
+    # Generates the package.json file with Jinja2
+    - name: 'NPM Package setup'
+      working-directory: ${{ github.workspace }}/tools/dotcms-cli/npm/
+      env:
+        MVN_PACKAGE_VERSION: ${{ steps.project.outputs.version }}
+      run: |
+        echo "::group::NPM Package setup"
+        echo "Adding bin folder with all the binaries"
+        mkdir -p bin
+        find ${{ github.workspace }}/artifacts/distributions/ -name "*.zip" -exec unzip -d bin {} \;
+
+        echo "Adding wrapper script"
+        mv src/postinstall.js.seed src/postinstall.js
+
+        echo "Adding README.md file"
+        cp ${{ github.workspace }}/tools/dotcms-cli/README.md .
+
+        echo "Adding package.json file"
+        jinja2 package.j2 -D packageName=${MVN_PACKAGE_NAME} -D npmPackageName=${NPM_PACKAGE_NAME} -D npmPackageVersion=${NPM_PACKAGE_VERSION} -D packageVersion=${MVN_PACKAGE_VERSION} --format json -o package.json
+        rm -f package.j2
+
+        cat package.json
+        cat src/postinstall.js
+        echo "::endgroup::"
+      shell: bash
+
+    - name: 'NPM Package tree'
+      run: ls -R ${{ github.workspace }}/tools/dotcms-cli/npm/
       shell: bash
