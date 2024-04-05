@@ -223,13 +223,13 @@ jobs:
         shell: bash
         run: find . -name '*-reports' -type d | tar -czf test-reports.tgz -T -
       - name: Upload reports Archive (if maven failed)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: test-reports-cli-native-${{ matrix.label }}
           path: 'test-reports.tgz'
       - name: cli-build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: "build-reports-test-cli - native ${{ matrix.label }}"
