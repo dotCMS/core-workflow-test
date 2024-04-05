@@ -59,20 +59,8 @@ runs:
         merge-multiple: true
         run-id: ${{ steps.check.outputs.run_id }}
 
-    - name: 'Check artifact download'
-      id: check-artifacts
-      run: |
-        PATH="/artifacts"
-        if [[ ${{ steps.download-cli-artifacts.outputs.download-path }} =~ $PATH ]]; then
-          found=true
-        else
-          found=false
-        fi
-        echo "found=$found" >> "$GITHUB_OUTPUT"
-      shell: bash
-
     - name: 'List CLI Artifacts'
-      if: ${{ steps.check-artifacts.outputs.found == true }}
+      if: ${{ steps.check.outputs.found_artifacts == "true" }}
       run: |
         ls -R ${{ github.workspace }}/artifacts
       shell: bash
