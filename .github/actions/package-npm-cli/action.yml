@@ -60,7 +60,6 @@ runs:
         run-id: ${{ steps.check.outputs.run_id }}
 
     - name: 'List CLI Artifacts'
-      if: ${{ steps.check.outputs.found_artifacts == true }}
       run: |
         ls -R ${{ github.workspace }}/artifacts
       shell: bash
