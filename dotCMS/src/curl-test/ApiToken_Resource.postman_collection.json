@@ -243,8 +243,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code should be 401\", function () {",
-                  "    pm.response.to.have.status(401);",
+                  "pm.test(\"Status code should be 401 - Fake breaking test, do not merge to core \", function () {",
+                  "    pm.response.to.have.status(200);",
                   "});",
                   ""
                 ],
