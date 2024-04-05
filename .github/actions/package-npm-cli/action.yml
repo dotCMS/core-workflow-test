@@ -145,7 +145,8 @@ runs:
       shell: bash
 
     - name: 'Install Jinja2'
-      run: pip install jinja2-cli      
+      run: pip install jinja2-cli
+      shell: bash
 
     # Sets up the NPM package
     # Creates the bin folder with the binaries
