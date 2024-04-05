@@ -43,6 +43,7 @@ runs:
         pattern: cli-artifacts-*
         run-id: ${{ inputs.build-run-id }}
         github-token: ${{ inputs.github-token }}
+        merge-multiple: true
 
     - name: 'List CLI Artifacts'
       run: |
