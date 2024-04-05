@@ -19,7 +19,7 @@ runs:
 
     - name: Download latest artifact
       id: deployment-status
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v3
       with:
         github_token: ${{ inputs.github-token }}
         workflow: deployment-trunk.yml
@@ -49,7 +49,7 @@ runs:
           
     - name: Download Build Status
       id: data-download
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v3
       with:
         name: 'workflow-data'
         workflow: maven-cicd-pipeline.yml
@@ -62,7 +62,7 @@ runs:
 
     - name: 'Download all build artifacts'
       id: download-cli-artifacts
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v3
       with:
         name: cli-artifacts-*
         name_is_regexp: true        
