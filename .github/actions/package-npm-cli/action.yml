@@ -17,18 +17,29 @@ runs:
       with:
         ref: ${{ inputs.branch }}
 
-    - name: Download latest artifact
+    - name: 'Download all build artifacts'
       id: download-cli-artifacts
-      uses: dawidd6/action-download-artifact@v3.1.4
+      uses: actions/download-artifact@v4
       with:
-        github_token: ${{ inputs.github-token }}
-        name: cli-artifacts-*
-        name_is_regexp: true
-        path: .
-        if_no_artifact_found: warn        
+        pattern: cli-artifacts-*
+        path: ${{ github.workspace }}/artifacts
+        github-token: ${{ inputs.github-token }} # token with actions:read permissions on target repo
+        merge-multiple: true
+
+    - name: 'Check artifact download'
+      id: check-artifacts
+      run: |
+        PATH="/artifacts"
+        if [[ ${{ steps.download-cli-artifacts.outputs.download-path }} =~ $PATH ]]; then
+          found=true
+        else
+          found=false
+        fi
+        echo "found=$found" >> "$GITHUB_OUTPUT"
+      shell: bash
 
     - name: 'List CLI Artifacts'
-      if: ${{ steps.download-cli-artifacts.outputs.found_artifact == true }}
+      if: ${{ steps.check-artifacts.outputs.found == true }}
       run: |
-        ls -R ${{ github.workspace }}
+        ls -R ${{ github.workspace }}/artifacts
       shell: bash
