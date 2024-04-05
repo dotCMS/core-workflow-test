@@ -77,6 +77,11 @@ public class ContentletJsonAPITest extends IntegrationTestBase {
         site = new SiteDataGen().name(hostName).nextPersisted(true);
     }
 
+    @Test
+    public void fakeFailingTest() throws Exception {
+        assertTrue(false);
+    }
+    
     /**
      * Method to test {@link ContentletJsonAPI#toJson(Contentlet)} && {@link ContentletJsonAPI#mapContentletFieldsFromJson(String)}
      * Basic scenario we turn off the  SAVE_CONTENTLET_AS_JSON flag then we create some entries
