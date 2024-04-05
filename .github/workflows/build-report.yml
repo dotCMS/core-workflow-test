@@ -39,8 +39,8 @@ jobs:
       - name: reports debug
         run: |
           echo "Found reports:"
-          lfind /tmp/build-reports-test -maxdepth 1 -ls 2>/dev/null
-          report-json=${{ steps.data-download.outputs.artifacts }}
+          find /tmp/build-reports-test -maxdepth 1 -ls 2>/dev/null
+          report-json="${{ steps.data-download.outputs.artifacts }}"
           echo "Report JSON: $report-json"
       - uses: phoenix-actions/test-reporting@v14
         id: test-reporter
