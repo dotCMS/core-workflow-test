@@ -19,20 +19,16 @@ runs:
 
     - name: Download latest artifact
       id: download-cli-artifacts
-      uses: dawidd6/action-download-artifact@v3.1.4 
+      uses: dawidd6/action-download-artifact@v3.1.4
       with:
         github_token: ${{ inputs.github-token }}
-        workflow: deployment-trunk.yml
-        branch: master
-        workflow_conclusion: success
-        search_artifacts: true
         name: cli-artifacts-*
         name_is_regexp: true
         path: .
-        if_no_artifact_found: warn  
+        if_no_artifact_found: warn        
 
     - name: 'List CLI Artifacts'
       if: ${{ steps.download-cli-artifacts.outputs.found_artifact == true }}
       run: |
-        ls -R ${{ github.workspace }}/artifacts
+        ls -R ${{ github.workspace }}
       shell: bash
