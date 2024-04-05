@@ -14,6 +14,7 @@ inputs:
     default: 'dotcli'
   npm-package-scope:
     description: 'NPM package scope'
+    required: false
     default: '@dotcms'
 
 runs:
