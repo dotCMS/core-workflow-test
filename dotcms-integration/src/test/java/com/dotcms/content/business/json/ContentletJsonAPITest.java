@@ -79,6 +79,7 @@ public class ContentletJsonAPITest extends IntegrationTestBase {
 
     @Test
     public void fakeFailingTest() throws Exception {
+        // force failure
         assertTrue(false);
     }
     
