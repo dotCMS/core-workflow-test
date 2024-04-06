@@ -293,7 +293,7 @@ jobs:
           name: test-reports-linux-jvm${{matrix.java.name}}-${{matrix.suites.pathName}}
           path: 'test-reports.tgz'
       - name: failsafe-it-tests  # Uploads will be merged with same name
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: "build-reports-test-IT Tests - JDK ${{matrix.java.name}} - ${{matrix.suites.name}}"
@@ -379,7 +379,7 @@ jobs:
           name: test-reports-postman-${{ matrix.collection_group }}
           path: 'test-reports.tgz'
       - name: failsafe-postman-tests  # Uploads will be merged with same name
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: "build-reports-test-postman - ${{ matrix.collection_group }}"
