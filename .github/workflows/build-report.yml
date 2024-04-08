@@ -27,7 +27,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v3.1.4
         with:
           name: 'workflow-data'
-          run_id: ${{ context.payload.workflow_run.id || inputs.run-id }}
+          run_id: ${{ github.event.workflow_run.id || inputs.run-id }}
           if_no_artifact_found: warn
       - name: Download build reports
         id: download-artifact
@@ -36,14 +36,14 @@ jobs:
           name: build-reports-test-.*
           name_is_regexp: true
           path: /tmp/build-reports-test
-          run_id: ${{ context.payload.workflow_run.id || inputs.run-id }}
+          run_id: ${{ github.event.workflow_run.id || inputs.run-id }}
           if_no_artifact_found: warn
       - uses: phoenix-actions/test-reporting@v14
         id: test-reporter
         if: steps.data-download.outputs.found_artifact == 'true'
         continue-on-error: true
         with:
-          output-to: step-summary
+          output-to: 'checks'
           #artifact: /^build-reports-test-(.*)/        # artifact name uses runid from caller event is workflow_run
           #name: 'MVN Test Report $1'               # Name of the check run which will be created
           name: 'Test Report'
