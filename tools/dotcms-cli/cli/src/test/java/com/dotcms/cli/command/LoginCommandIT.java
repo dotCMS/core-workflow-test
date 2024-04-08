@@ -210,10 +210,10 @@ class LoginCommandIT extends CommandTest {
      */
     @Test
     @Order(6)
-    void Test_Command_Login_User_No_Password_Break_Test_NO_MERGE() throws Exception {
+    void Test_Command_Login_User_No_Password() throws Exception {
 
         final String user = "admin@dotCMS.com";
-        final String password = "admin-break-test";
+        final String password = "admin";
 
         // Set login options to your command
         PasswordOptions passwordOptions = new PasswordOptions();
