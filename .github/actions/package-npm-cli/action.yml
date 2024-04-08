@@ -121,7 +121,7 @@ runs:
             exit 1
           fi
 
-          LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq -r 'map(select(test("-rc\\d+$"))) | max')
+          LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq 'map(.| select(. | contains("${VERSION_NPM_FORMAT}")))' | jq -r 'map(select(test("-rc\\d+$"))) | max')
 
           if [[ $LAST_RC_VERSION == "$VERSION_NPM_FORMAT"* ]]; then
             NEXT_RC_VERSION=$(echo "$LAST_RC_VERSION" | awk -F '-rc' '{print $1 "-rc" $2 + 1}')
