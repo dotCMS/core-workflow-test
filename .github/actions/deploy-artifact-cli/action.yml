@@ -61,19 +61,19 @@ runs:
         echo "::endgroup::"
       shell: bash
 
-    - name: 'Maven settings.xml setup'
-      uses: whelk-io/maven-settings-xml-action@v20
-      with:
-        servers: '[{ "id": "dotcms-libs", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }]'
+    # - name: 'Maven settings.xml setup'
+    #   uses: whelk-io/maven-settings-xml-action@v20
+    #   with:
+    #     servers: '[{ "id": "dotcms-libs", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }, { "id": "dotcms-libs-snapshot", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }]'
 
-    - name: 'Deploy CLI Artifacts'
-      run: |
-        JVM_TEST_MAVEN_OPTS="-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
-        ./mvnw -ntp \
-          ${JVM_TEST_MAVEN_OPTS} \
-          -Dprod=true \
-          -DskipTests=true \
-          -DskipITs=true \
-          deploy \
-          -pl :dotcms-cli
-      shell: bash
+    # - name: 'Deploy CLI Artifacts'
+    #   run: |
+    #     JVM_TEST_MAVEN_OPTS="-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+    #     ./mvnw -ntp \
+    #       ${JVM_TEST_MAVEN_OPTS} \
+    #       -Dprod=true \
+    #       -DskipTests=true \
+    #       -DskipITs=true \
+    #       deploy \
+    #       -pl :dotcms-cli
+    #   shell: bash
