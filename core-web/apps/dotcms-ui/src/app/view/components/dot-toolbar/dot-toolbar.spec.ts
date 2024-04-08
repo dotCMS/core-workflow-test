@@ -128,11 +128,11 @@ describe('DotToolbarComponent', () => {
         spyOn(comp, 'siteChange').and.callThrough();
     }));
 
-    it(`should has a crumbtrail`, () => {
+    it(`should has a crumbtrail - Force Break test DO NOT merge`, () => {
         fixture.detectChanges();
 
         const crumbtrail: DebugElement = fixture.debugElement.query(By.css('dot-crumbtrail'));
-        expect(crumbtrail).not.toBeNull();
+        expect(crumbtrail).toBeNull();
     });
 
     it(`should NOT go to site browser when site change in any portlet but edit page`, () => {
