@@ -63,6 +63,7 @@ jobs:
             echo "::notice::NPM package found. Proceeding..."
             cat ${{ github.workspace }}/npm-package/package.json
           fi
+          echo "::endgroup::"
 
       - name: 'Publish to NPM registry'
         if: success()
