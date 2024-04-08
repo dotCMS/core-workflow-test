@@ -50,6 +50,17 @@ runs:
         ls -R ${{ github.workspace }}/tools/dotcms-cli/cli/target
       shell: bash
 
+    - name: 'Var checking'
+      run: |
+        echo "::group::Var checking"
+        if [[ -n "${{ inputs.artifactory-repo-username }}" ]] && [[ -n "${{ inputs.artifactory-repo-password }}" ]]; then
+          echo "::notice::Credentials are not empty."
+        else
+          echo "::error::Some credentials are empty."
+        fi
+        echo "::endgroup::"
+      shell: bash
+
     - name: 'Maven settings.xml setup'
       uses: whelk-io/maven-settings-xml-action@v22
       with:
