@@ -17,6 +17,20 @@ inputs:
     required: false
     default: '@dotcms'
 
+outputs:
+  run-id:
+    description: 'Run id'
+    value: $GITHUB_RUN_ID
+  artifact-id:
+    description: 'Artifact id'
+    value: 'npm-package-artifact'
+  npm-package-version:
+      description: 'NPM package version'
+      value: ${{ steps.npm-version-tag.outputs.npm-package-version }}
+  npm-package-version-tag:
+    description: 'NPM package version tag'
+    value: ${{ steps.npm-version-tag.outputs.npm-package-version-tag }}
+
 runs:
   using: "composite"
   steps:
@@ -88,6 +102,7 @@ runs:
     # Determines the NPM package version and tag
     # Distinguishes between snapshots and releases
     - name: 'Dynamic configuration of NPM package Version and Tag'
+      id: npm-version-tag
       run: |
         echo "::group::NPM package Version and Tag"
         MVN_PACKAGE_VERSION=$(echo ${{ steps.project.outputs.version }} | tr '[:lower:]' '[:upper:]')
@@ -139,8 +154,8 @@ runs:
         echo "::debug::NPM_PACKAGE_VERSION: $NPM_PACKAGE_VERSION"
         echo "::debug::NPM_PACKAGE_VERSION_TAG: $NPM_PACKAGE_VERSION_TAG"
 
-        echo "NPM_PACKAGE_VERSION=$NPM_PACKAGE_VERSION" >> $GITHUB_ENV
-        echo "NPM_PACKAGE_VERSION_TAG=$NPM_PACKAGE_VERSION_TAG" >> $GITHUB_ENV
+        echo "npm-package-version=$NPM_PACKAGE_VERSION" >> $GITHUB_OUTPUT
+        echo "npm-package-version-tag=$NPM_PACKAGE_VERSION_TAG" >> $GITHUB_OUTPUT
         echo "::endgroup::"
       shell: bash
 
@@ -155,6 +170,9 @@ runs:
     - name: 'NPM Package setup'
       working-directory: ${{ github.workspace }}/tools/dotcms-cli/npm/
       env:
+        NPM_PACKAGE_NAME: ${{ inputs.npm-package-name }}
+        NPM_PACKAGE_VERSION: ${{ steps.npm-version-tag.outputs.npm-package-version }}
+        MVN_PACKAGE_NAME: dotcms-cli
         MVN_PACKAGE_VERSION: ${{ steps.project.outputs.version }}
       run: |
         echo "::group::NPM Package setup"
@@ -180,3 +198,10 @@ runs:
     - name: 'NPM Package tree'
       run: ls -R ${{ github.workspace }}/tools/dotcms-cli/npm/
       shell: bash
+
+    - name: 'Upload NPM Package Artifact'
+      uses: actions/upload-artifact@v4
+      with:
+        name: npm-package-artifact
+        path: ${{ github.workspace }}/tools/dotcms-cli/npm/
+        retention-days: 2
