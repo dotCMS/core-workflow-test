@@ -43,7 +43,7 @@ jobs:
         if: steps.data-download.outputs.found_artifact == 'true'
         continue-on-error: true
         with:
-          output-to: step-summary
+          output-to: 'checks'
           #artifact: /^build-reports-test-(.*)/        # artifact name uses runid from caller event is workflow_run
           #name: 'MVN Test Report $1'               # Name of the check run which will be created
           name: 'Test Report'
