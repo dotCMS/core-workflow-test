@@ -136,6 +136,10 @@ runs:
             exit 1
           fi
 
+          echo "VERSION_NPM_FORMAT: ${VERSION_NPM_FORMAT}"
+          LAST_RC_VERSIONS=$(npm view $PACKAGE_FULL_NAME versions --json | jq 'map(.| select(. | contains("${VERSION_NPM_FORMAT}")))'
+          echo "LAST_RC_VERSIONS: ${LAST_RC_VERSIONS}"
+
           LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq 'map(.| select(. | contains("${VERSION_NPM_FORMAT}")))' | jq -r 'map(select(test("-rc\\d+$"))) | max')
 
           if [[ $LAST_RC_VERSION == "$VERSION_NPM_FORMAT"* ]]; then
