@@ -3,6 +3,8 @@
 
 name: CLI NPM build (nightly)
 on:
+  schedule:
+    - cron: "18 5 * * *" # every night  
   workflow_dispatch:
   
 jobs:
