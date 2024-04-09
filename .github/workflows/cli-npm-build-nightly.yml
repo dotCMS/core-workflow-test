@@ -13,8 +13,6 @@ jobs:
       ref: master
       npm-package-name: 'dotcli'
       npm-package-scope: '@dotcms'
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: read
       packages: write      
@@ -30,7 +28,6 @@ jobs:
       run-id: ${{ needs.build-package.outputs.run-id }}
       npm-package-version-tag: ${{ needs.build-package.outputs.npm-package-version-tag }}
     secrets:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         npm-token: ${{ secrets.NPM_TOKEN }}
     permissions:
       contents: read
