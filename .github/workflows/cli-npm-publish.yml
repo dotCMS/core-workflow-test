@@ -32,9 +32,9 @@ jobs:
     steps:
       - name: Inputs
         run: |
-          echo "::notice::Artifact-Id ${{ inputs.artifact-id }}"
-          echo "::notice::Run-Id ${{ inputs.run-id }}"
-          echo "::notice::NPM-Package-Version-Tag ${{ inputs.npm-package-version-tag }}"
+          echo "::notice::Artifact-Id: ${{ inputs.artifact-id }}"
+          echo "::notice::Run-Id: ${{ inputs.run-id }}"
+          echo "::notice::NPM-Package-Version-Tag: ${{ inputs.npm-package-version-tag }}"
           
       - name: 'Checkout'
         uses: actions/checkout@v4
