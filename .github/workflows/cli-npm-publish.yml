@@ -19,9 +19,6 @@ on:
         required: true
         type: string
     secrets:
-      github-token:
-        description: 'GitHub Personal Access Token'
-        required: true
       npm-token:
         description: 'NPM registry token'
         required: false
@@ -37,7 +34,6 @@ jobs:
         run: |
           echo "::notice::Artifact-Id ${{ inputs.artifact-id }}"
           echo "::notice::Run-Id ${{ inputs.run-id }}"
-          echo "::notice::GitHub-Token ${{ inputs.github-token }}"
           echo "::notice::NPM-Package-Version-Tag ${{ inputs.npm-package-version-tag }}"
           
       - name: 'Checkout'
@@ -58,7 +54,7 @@ jobs:
           path: ${{ github.workspace }}/npm-package
           name: ${{ inputs.artifact-id }}
           run-id: ${{ inputs.run-id }}
-          github-token: ${{ inputs.github-token }} # token with actions:read permissions on target repo
+          github-token: ${{ secrets.GITHUB_TOKEN }} # token with actions:read permissions on target repo
 
       - name: 'Validate NPM package'
         run: |
