@@ -15,9 +15,9 @@ jobs:
     name: Build NPM Package
     uses: ./.github/workflows/npm-packager.yml
     with:
-      ref: ${{ env.REF }}
-      npm-package-name: ${{ env.NPM_PACKAGE_NAME }}
-      npm-package-scope: ${{ env.NPM_PACKAGE_SCOPE }}
+      ref: $REF
+      npm-package-name: $PACKAGE_NAME
+      npm-package-scope: $NPM_PACKAGE_SCOPE
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
