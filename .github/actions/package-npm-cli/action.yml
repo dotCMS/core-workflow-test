@@ -20,7 +20,7 @@ inputs:
 outputs:
   run-id:
     description: 'Run id'
-    value: $GITHUB_RUN_ID
+    value: ${{ steps.extract-metadata.outputs.run-id }}
   artifact-id:
     description: 'Artifact id'
     value: 'npm-package-artifact'
@@ -87,6 +87,12 @@ runs:
         echo "Artifacts"
         ls -R ${{ github.workspace }}/artifacts
         echo "::endgroup::"
+      shell: bash
+
+    - name: 'Extract run-id'
+      id: extract-metadata
+      run: |
+        echo "run-id=${{ github.run_id }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: 'Extract package version'
