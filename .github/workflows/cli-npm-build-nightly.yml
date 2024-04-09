@@ -8,7 +8,7 @@ on:
 jobs:
   build-package:
     name: Build NPM Package
-    uses: ./.github/workflows/npm-packager.yml
+    uses: ./.github/workflows/cli-npm-package.yml
     with:
       ref: master
       npm-package-name: 'dotcli'
@@ -23,7 +23,7 @@ jobs:
     name: Publish NPM Package
     needs: [ build-package ]
     if: success()
-    uses: ./.github/workflows/publish-npm-package.yml
+    uses: ./.github/workflows/cli-npm-publish.yml
     with:
       ref: master
       artifact-id: ${{ needs.create-package.outputs.artifact-id }}
