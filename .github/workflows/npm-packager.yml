@@ -31,18 +31,6 @@ on:
       npm-package-version-tag:
         description: 'NPM package version tag'
         value: ${{ jobs.package.outputs.npm-package-version-tag }}
-        
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch to build from'
-        required: false
-      npm-package-name:
-        description: 'NPM package name'
-        required: false
-      npm-package-scope:
-        description: 'NPM package scope'
-        required: false      
 
 defaults:
   run:
@@ -99,7 +87,7 @@ jobs:
         with:
           pattern: cli-artifacts-*
           path: ${{ github.workspace }}/artifacts
-          github-token: ${{ inputs.github-token }}
+          github-token: ${{ inputs.github-token || secrets.GITHUB_TOKEN  }}
           merge-multiple: true
           run-id: ${{ steps.check.outputs.run_id }}
 
