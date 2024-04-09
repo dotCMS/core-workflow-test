@@ -1,33 +1,33 @@
-#  This job publish the dotCLI NPM package: @dotcms/dotcms-cli@rc
+#  This job publish the dotCLI NPM package: @dotcms/dotcli@rc
 #  every night. The package is built from the master branch.
 
 name: Publish dotCLI NPM (nightly)
 on:
   workflow_dispatch:
 
+env:
+  NPM_PACKAGE_NAME: 'dotcli'
+  NPM_PACKAGE_SCOPE: '@dotcms'
+  REF: master
+
 jobs:
-  create-package:
-    runs-on: ubuntu-latest
-    outputs:
-      artifact-id: ${{ steps.create-package.outputs.artifact-id }}
-      run-id: ${{ steps.create-package.outputs.run-id }}
-      npm-package-version-tag: ${{ steps.create-package.outputs.npm-package-version-tag }}
-    steps:    
-      - uses: actions/checkout@v4
-      - name: Create NPM Package
-        id: create-package
-        uses: ./.github/actions/package-npm-cli
-        with:
-          branch: master
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+  build-package:
+    name: Build NPM Package
+    uses: ./.github/workflows/npm-packager.yml
+    with:
+      ref: ${{ env.REF }}
+      npm-package-name: ${{ env.NPM_PACKAGE_NAME }}
+      npm-package-scope: ${{ env.NPM_PACKAGE_SCOPE }}
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
   publish-package:
     name: Publish NPM Package
-    needs: [ create-package ]
+    needs: [ build-package ]
     if: success()
     uses: ./.github/workflows/publish-npm-package.yml
     with:
-      ref: master
+      ref: ${{ env.REF }}
       artifact-id: ${{ needs.create-package.outputs.artifact-id }}
       run-id: ${{ needs.create-package.outputs.run-id }}
       npm-package-version-tag: ${{ needs.create-package.outputs.npm-package-version-tag }}
