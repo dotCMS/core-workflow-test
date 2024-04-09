@@ -35,7 +35,11 @@ jobs:
     steps:
       - name: Inputs
         run: |
-          echo 
+          echo "::notice::Artifact-Id ${{ inputs.artifact-id }}"
+          echo "::notice::Run-Id ${{ inputs.run-id }}"
+          echo "::notice::GitHub-Token ${{ inputs.github-token }}"
+          echo "::notice::NPM-Package-Version-Tag ${{ inputs.npm-package-version-tag }}"
+          
       - name: 'Checkout'
         uses: actions/checkout@v4
         with:
