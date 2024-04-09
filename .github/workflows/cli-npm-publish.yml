@@ -19,7 +19,7 @@ on:
         required: true
         type: string
     secrets:
-      gh-pat:
+      github-token:
         description: 'GitHub Personal Access Token'
         required: true
       npm-token:
@@ -51,7 +51,7 @@ jobs:
           path: ${{ github.workspace }}/npm-package
           name: ${{ inputs.artifact-id }}
           run-id: ${{ inputs.run-id }}
-          github-token: ${{ secrets.gh-pat }} # token with actions:read permissions on target repo
+          github-token: ${{ secrets.github-token }} # token with actions:read permissions on target repo
 
       - name: 'Validate NPM package'
         run: |
