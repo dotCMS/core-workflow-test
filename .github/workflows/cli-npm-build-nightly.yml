@@ -1,7 +1,7 @@
 #  This job publish the dotCLI NPM package: @dotcms/dotcli@rc
 #  every night. The package is built from the master branch.
 
-name: Publish dotCLI NPM (nightly)
+name: dotCLI NPM build (nightly)
 on:
   workflow_dispatch:
 
@@ -27,7 +27,7 @@ jobs:
     if: success()
     uses: ./.github/workflows/publish-npm-package.yml
     with:
-      ref: ${{ env.REF }}
+      ref: $REF
       artifact-id: ${{ needs.create-package.outputs.artifact-id }}
       run-id: ${{ needs.create-package.outputs.run-id }}
       npm-package-version-tag: ${{ needs.create-package.outputs.npm-package-version-tag }}
