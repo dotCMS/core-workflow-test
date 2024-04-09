@@ -1,7 +1,7 @@
 #  This job publish the dotCLI NPM package: @dotcms/dotcli@rc
 #  every night. The package is built from the master branch.
 
-name: dotCLI NPM build (nightly)
+name: CLI NPM build (nightly)
 on:
   workflow_dispatch:
   
