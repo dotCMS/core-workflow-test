@@ -26,9 +26,9 @@ jobs:
     uses: ./.github/workflows/cli-npm-publish.yml
     with:
       ref: master
-      artifact-id: ${{ needs.create-package.outputs.artifact-id }}
-      run-id: ${{ needs.create-package.outputs.run-id }}
-      npm-package-version-tag: ${{ needs.create-package.outputs.npm-package-version-tag }}
+      artifact-id: ${{ needs.build-package.outputs.artifact-id }}
+      run-id: ${{ needs.build-package.outputs.run-id }}
+      npm-package-version-tag: ${{ needs.build-package.outputs.npm-package-version-tag }}
     secrets:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         npm-token: ${{ secrets.NPM_TOKEN }}
