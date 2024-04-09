@@ -4,10 +4,6 @@
 name: dotCLI NPM build (nightly)
 on:
   workflow_dispatch:
-
-env:
-  NPM_PACKAGE_NAME: 'dotcli'
-  NPM_PACKAGE_SCOPE: '@dotcms'
   
 jobs:
   build-package:
@@ -15,8 +11,8 @@ jobs:
     uses: ./.github/workflows/npm-packager.yml
     with:
       ref: master
-      npm-package-name: $PACKAGE_NAME
-      npm-package-scope: $NPM_PACKAGE_SCOPE
+      npm-package-name: 'dotcli'
+      npm-package-scope: '@dotcms'
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
     permissions:
