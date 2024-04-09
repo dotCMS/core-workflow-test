@@ -140,7 +140,7 @@ runs:
           LAST_RC_VERSIONS=$(npm view $PACKAGE_FULL_NAME versions --json)
           echo "LAST_RC_VERSIONS: ${LAST_RC_VERSIONS}"
 
-          LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq 'map(.| select(. | contains("${VERSION_NPM_FORMAT}")))' | jq -r 'map(select(test("-rc\\d+$"))) | max')
+          LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq --arg filter $VERSION_NPM_FORMAT 'map(.| select(. | contains($filter)))' | jq -r 'map(select(test("-rc\\d+$"))) | max')
 
           if [[ $LAST_RC_VERSION == "$VERSION_NPM_FORMAT"* ]]; then
             NEXT_RC_VERSION=$(echo "$LAST_RC_VERSION" | awk -F '-rc' '{print $1 "-rc" $2 + 1}')
