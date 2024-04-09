@@ -30,7 +30,7 @@ env:
   NODE_VERSION: 19
 
 jobs:
-  publish-npm-package:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
