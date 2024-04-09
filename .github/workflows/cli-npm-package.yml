@@ -14,10 +14,6 @@ on:
         description: 'NPM package scope'
         required: false
         type: string
-    secrets:
-      github-token:
-        description: 'GitHub Token'
-        required: false
     outputs:
       run-id:
         description: 'Run id'
@@ -41,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       run-id: ${{ steps.extract-metadata.outputs.run-id }}
-      artifact-id: ${{ steps.upload-package.outputs.artifact-id }}
+      artifact-id: npm-package-artifact
       npm-package-version: ${{ steps.npm-version-tag.outputs.npm-package-version }}
       npm-package-version-tag: ${{ steps.npm-version-tag.outputs.npm-package-version-tag }}
     steps:
@@ -56,7 +52,7 @@ jobs:
         id: data-download
         uses: dawidd6/action-download-artifact@v3.1.4
         with:
-          github_token: ${{ inputs.github-token || secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-test-master.yml
           #commit: ${{ github.sha }}
           workflow_conclusion: success
@@ -89,7 +85,7 @@ jobs:
         with:
           pattern: cli-artifacts-*
           path: ${{ github.workspace }}/artifacts
-          github-token: ${{ inputs.github-token || secrets.GITHUB_TOKEN  }}
+          github-token: ${{ secrets.GITHUB_TOKEN  }}
           merge-multiple: true
           run-id: ${{ steps.check.outputs.run_id }}
 
