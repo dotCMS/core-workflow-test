@@ -13,7 +13,7 @@ on:
       run-id:
         description: 'Run id'
         required: true
-        type: number
+        type: string
       npm-package-version-tag:
         description: 'NPM package version tag'
         required: true
