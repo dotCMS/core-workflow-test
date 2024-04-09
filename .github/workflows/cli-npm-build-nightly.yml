@@ -8,18 +8,20 @@ on:
 env:
   NPM_PACKAGE_NAME: 'dotcli'
   NPM_PACKAGE_SCOPE: '@dotcms'
-  REF: master
-
+  
 jobs:
   build-package:
     name: Build NPM Package
     uses: ./.github/workflows/npm-packager.yml
     with:
-      ref: $REF
+      ref: master
       npm-package-name: $PACKAGE_NAME
       npm-package-scope: $NPM_PACKAGE_SCOPE
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      packages: write      
 
   publish-package:
     name: Publish NPM Package
@@ -27,7 +29,7 @@ jobs:
     if: success()
     uses: ./.github/workflows/publish-npm-package.yml
     with:
-      ref: $REF
+      ref: master
       artifact-id: ${{ needs.create-package.outputs.artifact-id }}
       run-id: ${{ needs.create-package.outputs.run-id }}
       npm-package-version-tag: ${{ needs.create-package.outputs.npm-package-version-tag }}
