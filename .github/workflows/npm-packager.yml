@@ -17,7 +17,7 @@ on:
     secrets:
       github-token:
         description: 'GitHub Token'
-        required: true
+        required: false
     outputs:
       run-id:
         description: 'Run id'
@@ -31,6 +31,17 @@ on:
       npm-package-version-tag:
         description: 'NPM package version tag'
         value: ${{ jobs.package.outputs.npm-package-version-tag }}
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch to build from'
+        required: false
+      npm-package-name:
+        description: 'NPM package name'
+        required: false
+      npm-package-scope:
+        description: 'NPM package scope'
+        required: false      
 
 defaults:
   run:
@@ -54,7 +65,7 @@ jobs:
         id: data-download
         uses: dawidd6/action-download-artifact@v3.1.4
         with:
-          github_token: ${{ inputs.github-token }}
+          github_token: ${{ inputs.github-token }} || $GITHUB_TOKEN
           workflow: build-test-master.yml
           #commit: ${{ github.sha }}
           workflow_conclusion: success
