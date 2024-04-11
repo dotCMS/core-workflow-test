@@ -1,0 +1,113 @@
+name: CLI JReleaser
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'Branch to build from'
+        required: false
+        type: string
+
+  workflow_run:
+    workflows: ["Release Process"]
+    types:
+      - completed
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: ./.github/actions/cleanup-runner
+
+      - name: 'Get Date'
+        id: get-date
+        run: |
+          echo "DATE=$(/bin/date -u "+%Y-%m")" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Download Built Artifact
+        id: data-download
+        uses: dawidd6/action-download-artifact@v3.1.4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-test-master.yml
+          #commit: ${{ github.sha }}
+          workflow_conclusion: success
+          search_artifacts: true
+          dry_run: true
+          name: cli-artifacts-*
+          name_is_regexp: true
+          path: .
+          if_no_artifact_found: warn
+
+      - name: Get SHAs and check if we should deploy
+        id: check
+        run: |
+          build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
+          if [[ ${build_artifact_exists} == "true" ]]; then
+              run_id=`echo '${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.id'`
+              found_artifacts=true
+              echo "Artifact Run id: $run_id"
+          else
+             echo "No artifact found"
+             run_id="${{ github.run_id }}"
+             found_artifacts=false
+          fi
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
+          echo "found_artifacts=$found_artifacts" >> $GITHUB_OUTPUT
+
+      - name: 'Download all build artifacts'
+        id: download-cli-artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cli-artifacts-*
+          path: ${{ github.workspace }}/artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN  }}
+          merge-multiple: true
+          run-id: ${{ steps.check.outputs.run_id }}
+
+      - name: 'Set up Java'
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      - name: 'Cache Maven packages'
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ steps.get-date.outputs.DATE }}-${{ github.run_id }}
+
+      - name: 'Extract package version'
+        id: project
+        run: |
+          echo "::group::Extract package version"
+          version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout -pl :dotcms-cli)
+          echo "PROJECT VERSION: $version"
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "::endgroup::"          
+
+      # Creates automated releases using JReleaser
+      # Generates builds for different platforms
+      # Signs artifacts
+      # Publishes to artifact repositories
+      - name: 'JReleaser'
+        env:
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JRELEASER_PROJECT_VERSION: ${{ steps.project.outputs.version }}
+          JRELEASER_ARTIFACTORY_USERNAME: ${{ secrets.EE_REPO_USERNAME }}
+          JRELEASER_ARTIFACTORY_PASSWORD: ${{ secrets.EE_REPO_PASSWORD }}
+          JRELEASER_SLACK_WEBHOOK: ${{ secrets.RELEASE_SLACK_WEBHOOK }}
+          JRELEASER_SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        working-directory: ${{ github.workspace }}
+        run: |
+          tools/dotcms-cli/mvnw -B -Prelease jreleaser:full-release -DartifactsDir=artifacts -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE
+
