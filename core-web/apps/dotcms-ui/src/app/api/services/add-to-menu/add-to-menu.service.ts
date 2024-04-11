@@ -23,6 +23,8 @@ export interface DotCustomToolToLayout {
 }
 
 /**
+ * Test Change do not merge
+ *
  * Provides methods to create and assign custom tools portlet to layout menu.
  * @export
  * @class DotAddToMenuService
