@@ -39,7 +39,7 @@ jobs:
         id: initialize
         shell: bash
         run: |
-            echo "Initializing..."
+          echo "Initializing..."
   check-previous-build:
     name: Check Previous Build
     runs-on: ubuntu-latest
@@ -61,7 +61,7 @@ jobs:
           name: maven-repo
           path: .
           if_no_artifact_found: warn
-      - name: Get SHAs and check if we should deploy
+      - name: Set Outputs
         id: check
         run: |
           build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
@@ -82,15 +82,15 @@ jobs:
           fi
   changes:
     name: Check Changed Files
-    needs: [ check-previous-build ] 
+    needs: [ check-previous-build ]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     outputs:
-        build: ${{ steps.filter-rewrite.outputs.build }}
-        backend: ${{ steps.filter-rewrite.outputs.backend }}
-        frontend: ${{ steps.filter-rewrite.outputs.frontend }}
-        jvm_unit_test: ${{ steps.filter-rewrite.outputs.jvm_unit_test }}
-        cli: ${{ steps.filter-rewrite.outputs.cli }}
+      build: ${{ steps.filter-rewrite.outputs.build }}
+      backend: ${{ steps.filter-rewrite.outputs.backend }}
+      frontend: ${{ steps.filter-rewrite.outputs.frontend }}
+      jvm_unit_test: ${{ steps.filter-rewrite.outputs.jvm_unit_test }}
+      cli: ${{ steps.filter-rewrite.outputs.cli }}
     steps:
       - uses: actions/checkout@v4
         if: ${{ inputs.incremental }}

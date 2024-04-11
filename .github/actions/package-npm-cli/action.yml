@@ -20,7 +20,7 @@ inputs:
 outputs:
   run-id:
     description: 'Run id'
-    value: $GITHUB_RUN_ID
+    value: ${{ steps.extract-metadata.outputs.run-id }}
   artifact-id:
     description: 'Artifact id'
     value: 'npm-package-artifact'
@@ -89,6 +89,12 @@ runs:
         echo "::endgroup::"
       shell: bash
 
+    - name: 'Extract run-id'
+      id: extract-metadata
+      run: |
+        echo "run-id=${{ github.run_id }}" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: 'Extract package version'
       id: project
       run: |
@@ -136,7 +142,11 @@ runs:
             exit 1
           fi
 
-          LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq 'map(.| select(. | contains("${VERSION_NPM_FORMAT}")))' | jq -r 'map(select(test("-rc\\d+$"))) | max')
+          echo "VERSION_NPM_FORMAT: ${VERSION_NPM_FORMAT}"
+          LAST_RC_VERSIONS=$(npm view $PACKAGE_FULL_NAME versions --json)
+          echo "LAST_RC_VERSIONS: ${LAST_RC_VERSIONS}"
+
+          LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq --arg filter $VERSION_NPM_FORMAT 'map(.| select(. | contains($filter)))' | jq -r 'map(select(test("-rc\\d+$"))) | max')
 
           if [[ $LAST_RC_VERSION == "$VERSION_NPM_FORMAT"* ]]; then
             NEXT_RC_VERSION=$(echo "$LAST_RC_VERSION" | awk -F '-rc' '{print $1 "-rc" $2 + 1}')

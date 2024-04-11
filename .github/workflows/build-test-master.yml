@@ -13,14 +13,14 @@ on:
         type: boolean
         description: 'Indicates if the workflow should build on missing artifacts'
         default: false
-      run-all-tests: 
+      run-all-tests:
         description: 'Run all tests'
         type: boolean
         default: false
 jobs:
   initialize:
     name: Initialize
-    uses: ./.github/workflows/reusable-initialize.yml 
+    uses: ./.github/workflows/reusable-initialize.yml
     with:
       reuse-previous-build: ${{ inputs.reuse-previous-build || github.event_name != 'workflow_dispatch' }}
       build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts || github.event_name != 'workflow_dispatch' }}
@@ -65,7 +65,7 @@ jobs:
       branch: ${{ github.ref }}
 
   deployment:
-    needs: [ initialize,build-cli,test ]
+    needs: [ initialize,build-cli,sonar,test ]
     if: always() && !failure() && !cancelled()
     uses: ./.github/workflows/reusable-deployment.yml
     with:

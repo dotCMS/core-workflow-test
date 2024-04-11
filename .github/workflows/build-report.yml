@@ -94,8 +94,8 @@ jobs:
               test_elapsed=${{ steps.test-reporter.outputs.time }}
               test_results_url=${{ steps.test-reporter.outputs.runHtmlUrl }}
             fi
-            
-            
+          
+          
             if [[ "$status" == "SUCCESS" ]]; then
               echo "status_icon=✅" >> $GITHUB_OUTPUT
             else
@@ -111,7 +111,7 @@ jobs:
             else 
                echo "report_type=$trigger_event_name" >> $GITHUB_OUTPUT
             fi
-            
+          
           
             echo "json=$json" >> $GITHUB_OUTPUT
             echo "trigger_event_name=$trigger_event_name" >> $GITHUB_OUTPUT

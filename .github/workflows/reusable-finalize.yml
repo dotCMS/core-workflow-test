@@ -1,10 +1,10 @@
 name: Reusable Finalize
 on:
   workflow_call:
-      inputs:
-        artifact-run-id:
-          default: ${{ github.run_id }}
-          type: string
+    inputs:
+      artifact-run-id:
+        default: ${{ github.run_id }}
+        type: string
 jobs:
   prepare-report-data:
     name: Prepare Report Data
