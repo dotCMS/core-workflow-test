@@ -12,19 +12,19 @@ on:
         type: boolean
         description: 'Indicates if the workflow should build on missing artifacts'
         default: true
-      run-all-tests: 
+      run-all-tests:
         description: 'Run all tests'
         type: boolean
         default: true
 jobs:
   initialize:
     name: Initialize
-    uses: ./.github/workflows/reusable-initialize.yml 
+    uses: ./.github/workflows/reusable-initialize.yml
     with:
-      reuse-previous-build: ${{ inputs.reuse-previous-build }}
-      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts }}
+      reuse-previous-build: ${{ inputs.reuse-previous-build }} # false unless set manually on workflow_dispatch
+      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts }} # false unless set manually on workflow_dispatch
   build:
-    name: PR Build
+    name: Nightly Build
     needs: [ initialize ]
     if: needs.initialize.outputs.found_artifacts == 'false'
     uses: ./.github/workflows/reusable-ci-build.yml
@@ -32,7 +32,7 @@ jobs:
       contents: read
       packages: write
   test:
-    name: PR Test
+    name: Nightly Test
     needs: [ initialize,build ]
     if: always() && !failure() && !cancelled()
     uses: ./.github/workflows/reusable-ci-test.yml
@@ -45,7 +45,7 @@ jobs:
       contents: read
       packages: write
   build-cli:
-    name: CLI Build
+    name: Nightly CLI Build
     needs: [ test ]
     if: always() && !failure() && !cancelled()
     uses: ./.github/workflows/cli-build-artifacts.yml
@@ -61,6 +61,7 @@ jobs:
       environment: nightly
       snapshot: true
       latest: true
+      deploy-dev-image: true
   finalize:
     name: Finalize
     if: always()
