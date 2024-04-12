@@ -391,7 +391,7 @@ jobs:
               exit 1
             fi
 
-            LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq -r 'map(select(test("-rc\\d+$"))) | max')
+            LAST_RC_VERSION=$(npm view $PACKAGE_FULL_NAME versions --json | jq --arg filter $VERSION_NPM_FORMAT 'map(.| select(. | contains($filter)))' | jq -r 'map(select(test("-rc\\d+$"))) | max')
 
             if [[ $LAST_RC_VERSION == "$VERSION_NPM_FORMAT"* ]]; then
               NEXT_RC_VERSION=$(echo "$LAST_RC_VERSION" | awk -F '-rc' '{print $1 "-rc" $2 + 1}')
@@ -451,7 +451,7 @@ jobs:
 
   clean-up:
     name: "Clean Up"
-    if: always()
+    if: (always() && !cancelled())
     needs: [ precheck, build, release, publish-npm-package ]
     runs-on: ubuntu-latest
     steps:
