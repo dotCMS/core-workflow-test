@@ -42,7 +42,12 @@ jobs:
         run: |
           echo "::group::"
           echo "$GITHUB_CONTEXT"
-          RELEASE_VERSION=${{ inputs.version }}
+
+          if [[ "$GITHUB_EVENT_NAME" == 'workflow_run' ]]; then
+            RELEASE_VERSION=${{ github.event.workflow_run.inputs }}
+          else
+            RELEASE_VERSION=${{ inputs.version }}
+          fi  
           echo "::notice:: Event name: $GITHUB_EVENT_NAME"
           echo "::notice:: Release version: $RELEASE_VERSION"
           echo "::endgroup::"
