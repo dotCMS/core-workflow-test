@@ -35,7 +35,7 @@ env:
 
 jobs:
   precheck:
-    if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ ( github.event_name == 'release' && github.event.release.tag_name =~ '^v\d+\.\d+\.\d+$' ) || ( github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' ) }}
     name: 'Pre-check'
     runs-on: ubuntu-latest
     outputs:
@@ -97,6 +97,7 @@ jobs:
         id: version
         working-directory: ${{ github.workspace }}/tools/dotcms-cli
         run: |
+          RELEASE_VERSION=$RELEASE_VERSION
           # RELEASE_VERSION=${{ github.event.inputs.version }}
           HEAD=${{ github.ref_name }}
 
