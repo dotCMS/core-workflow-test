@@ -35,7 +35,7 @@ env:
 
 jobs:
   precheck:
-    if: ${{ ( github.event_name == 'release' && github.event.release.tag_name =~ '^v\d+\.\d+\.\d+$' ) || ( github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' ) }}
+    if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     name: 'Pre-check'
     runs-on: ubuntu-latest
     outputs:
@@ -52,7 +52,8 @@ jobs:
           echo "$GITHUB_CONTEXT"
 
           if [[ "$GITHUB_EVENT_NAME" == 'release' ]]; then
-            RELEASE_VERSION=${{ github.event.release.tag_name }}
+            TAG_NAME=${{ github.event.release.tag_name }}
+            RELEASE_VERSION=${TAG_NAME:1}
           else
             RELEASE_VERSION=${{ inputs.version }}
           fi
