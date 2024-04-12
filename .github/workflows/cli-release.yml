@@ -12,6 +12,9 @@ on:
     types:
       - completed
 
+  release:
+    types: [ created ]
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
@@ -32,7 +35,7 @@ env:
 
 jobs:
   precheck:
-    if: ${{ github.event.name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.name == 'release' || github.event.name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     name: 'Pre-check'
     runs-on: ubuntu-latest
     steps:
@@ -43,8 +46,8 @@ jobs:
           echo "::group::"
           echo "$GITHUB_CONTEXT"
 
-          if [[ "$GITHUB_EVENT_NAME" == 'workflow_run' ]]; then
-            RELEASE_VERSION=${{ github.event.workflow_run.inputs.version }}
+          if [[ "$GITHUB_EVENT_NAME" == 'release' ]]; then
+            RELEASE_VERSION=${{ github.event.release.tag_name }}
           else
             RELEASE_VERSION=${{ inputs.version }}
           fi
