@@ -1,0 +1,47 @@
+name: dotCLI Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        default: '1.0.0-SNAPSHOT'
+        required: false
+        
+  workflow_run:
+    workflows: ["dotCLI Release trigger"]
+    types:
+      - completed
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  JAVA_VERSION: 11
+  JAVA_DISTRO: temurin
+  GRAALVM_VERSION: '22.1.0'
+  MVN_PACKAGE_TYPE: 'uber-jar'
+  NPM_PACKAGE_SCOPE: '@dotcms'
+  NPM_PACKAGE_NAME: 'dotcli'
+  MVN_PACKAGE_NAME: 'dotcms-cli'
+  NODE_VERSION: 19
+
+jobs:
+  precheck:
+    if: github.event.workflow_run.conclusion == 'success'
+    name: 'Pre-check'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Log GitHub context'
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "::group::"
+          echo "$GITHUB_CONTEXT"
+          RELEASE_VERSION=${{ inputs.version }}
+          echo "::notice:: Release version: $GITHUB_CONTEXT"
+          echo "::endgroup::"
