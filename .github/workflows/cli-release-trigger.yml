@@ -12,7 +12,7 @@ defaults:
 
 jobs:
   core-release:
-    name: 'Pre-check'
+    name: Core Release Simulator
     runs-on: ubuntu-latest
     steps:
       - name: 'Log GitHub context'
