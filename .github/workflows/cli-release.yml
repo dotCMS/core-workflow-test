@@ -43,5 +43,6 @@ jobs:
           echo "::group::"
           echo "$GITHUB_CONTEXT"
           RELEASE_VERSION=${{ inputs.version }}
-          echo "::notice:: Release version: $GITHUB_CONTEXT"
+          echo "::notice:: Event name: $GITHUB_EVENT_NAME"
+          echo "::notice:: Release version: $RELEASE_VERSION"
           echo "::endgroup::"
