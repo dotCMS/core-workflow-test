@@ -30,7 +30,7 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           NEEDS_DATA: ${{ inputs.needsData }}
         run: |
-        
+          echo "NEEDS_DATA=${NEEDS_DATA}"
           # Check for 'cancelled' and 'failure' results
           cancelled=false
           failure=false
@@ -38,7 +38,7 @@ jobs:
           # Using jq to parse the JSON and check the conditions
           if echo "$NEEDS_DATA" | jq 'any(.[]; .result == "cancelled")'; then
             cancelled=true
-          elif echo "NEEDS_DATA" | jq 'any(.[]; .result == "failure")'; then
+          elif echo "$NEEDS_DATA" | jq 'any(.[]; .result == "failure")'; then
             failure=true
           fi
 
