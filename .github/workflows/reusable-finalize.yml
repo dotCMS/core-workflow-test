@@ -35,10 +35,10 @@ jobs:
           cancelled=false
           failure=false
           
-          # Using jq to parse the JSON and check the conditions
-          if echo "$NEEDS_DATA" | jq 'any(.[]; .result == "cancelled")'; then
+          # Using jq to parse the JSON and check the conditions, with -e option
+          if echo "$NEEDS_DATA" | jq -e 'any(.[]; .result == "cancelled")' >/dev/null; then
             cancelled=true
-          elif echo "$NEEDS_DATA" | jq 'any(.[]; .result == "failure")'; then
+          elif echo "$NEEDS_DATA" | jq -e 'any(.[]; .result == "failure")' >/dev/null; then
             failure=true
           fi
 
