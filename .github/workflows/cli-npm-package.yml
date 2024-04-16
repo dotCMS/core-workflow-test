@@ -1,4 +1,4 @@
-name: 'NPM packager'
+name: 'NPM package'
 on:
   workflow_call:
     inputs:
