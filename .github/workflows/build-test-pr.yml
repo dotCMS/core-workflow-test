@@ -49,7 +49,7 @@ jobs:
   finalize:
     name: Finalize
     if: always()
-    needs: [ initialize, build, test, sonar ]
+    needs: [ sonar,test ]
     uses: ./.github/workflows/reusable-finalize.yml
     with:
       needsData: ${{ toJson(needs) }}
