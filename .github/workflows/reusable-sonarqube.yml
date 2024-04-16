@@ -17,7 +17,7 @@ jobs:
     name: SonarQube Scan
     runs-on: ubuntu-latest
     if: |
-      (github.ref == 'refs/heads/master' || github.event_name == 'pull_request') && github.repository == 'dotCMS/core'
+      (github.ref == 'refs/heads/master' || github.event_name == 'pull_request')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,6 +38,7 @@ jobs:
       - name: Download Maven Repo
         uses: actions/download-artifact@v4
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ inputs.artifact-run-id }}
           name: maven-repo
           path: ~/.m2/repository
@@ -59,6 +60,7 @@ jobs:
           path: dotcms-core/target/build-reports
           if_no_artifact_found: warn
       - name: Maven Build No Test
+        if: github.repository == 'dotCMS/core'
         env:
           MAVEN_OPTS: "-Xmx2048m"
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -69,8 +71,8 @@ jobs:
           ./mvnw $JVM_TEST_MAVEN_OPTS -Dsonar.log.level=DEBUG org.sonarsource.scanner.maven:sonar-maven-plugin:sonar '-Dcoverage.execution.locations=build-reports/**/*.exec' -Dsonar.projectKey=dotCMS_core_AYSbIemxK43eThAXTlt- -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.token=$SONAR_TOKEN
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
+        if: github.repository == 'dotCMS/core'
         uses: sonarsource/sonarqube-quality-gate-action@master
-        continue-on-error: ${{ github.repository != 'dotCMS/core' }}
         # Force to fail step after specific time.
         timeout-minutes: 10
         with:
