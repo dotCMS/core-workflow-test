@@ -64,7 +64,7 @@ jobs:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
       environment: nightly
       deploy-dev-image: false
-      publish-npm-package: ${{ inputs.publish-npm-package }}
+      publish-npm-package: ${{ inputs.publish-npm-package || false }}
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
