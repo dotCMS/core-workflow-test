@@ -218,20 +218,21 @@ runs:
       shell: bash
 
     - name: 'Validate NPM package'
+      working-directory: ${{ github.workspace }}/tools/dotcms-cli/npm/
       run: |
         echo "::group::NPM package contents"
-        if [ ! -f ${{ github.workspace }}/npm/package.json ]; then
+        if [ ! -f package.json ]; then
           echo "::error::NPM package not found. Exiting..."
           exit 1
         else
           echo "::notice::NPM package found. Proceeding..."
-          cat ${{ github.workspace }}/npm/package.json
+          cat package.json
         fi
         echo "::endgroup::"
       shell: bash
 
     - name: 'Publish to NPM registry'
-      working-directory: ${{ github.workspace }}/npm-package
+      working-directory: ${{ github.workspace }}/tools/dotcms-cli/npm/
       env:
         NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
         NPM_PACKAGE_VERSION_TAG: ${{ steps.npm-version-tag.outputs.npm-package-version-tag }}
