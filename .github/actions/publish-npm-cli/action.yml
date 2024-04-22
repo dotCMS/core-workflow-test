@@ -1,4 +1,4 @@
-name: 'Package CLI project'
+name: 'CLI Publish NPM Package'
 description: 'Package the dotCMS CLI as an NPM project.'
 inputs:
   ref:
@@ -31,6 +31,9 @@ inputs:
     description: 'Artifact id'
     required: false
     default: 'cli-artifacts-*'
+  reuse-previous-build:
+    description: 'Indicates if the workflow should reuse the previous build'
+    required: false
 
 runs:
   using: "composite"
@@ -54,8 +57,8 @@ runs:
       uses: dawidd6/action-download-artifact@v3.1.4
       with:
         github_token: ${{ inputs.github-token }}
-        workflow: ${{ inputs.workflow-to-search }}
-        #commit: ${{ github.sha }}
+        #workflow: ${{ inputs.workflow-to-search }}
+        commit: ${{ github.sha }}
         workflow_conclusion: success
         search_artifacts: true
         dry_run: true
@@ -70,6 +73,40 @@ runs:
         build_artifact_exists=${{ steps.data-download.outputs.found_artifact }}
         if [[ ${build_artifact_exists} == "true" ]]; then
             run_id=`echo '${{ steps.data-download.outputs.artifacts }}' | jq -r '.[0].workflow_run.id'`
+            found_artifacts=true
+            echo "Artifact Run id: $run_id"
+        else
+           echo "No artifact found"
+           run_id="${{ github.run_id }}"
+           found_artifacts=false
+        fi
+        echo "run_id=$run_id" >> $GITHUB_OUTPUT
+        echo "found_artifacts=$found_artifacts" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Download Previous Build Artifact
+      id: data-download-previous
+      uses: dawidd6/action-download-artifact@v3.1.4
+      if: ${{ inputs.reuse-previous-build == true }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        #workflow: build-test-merge_group.yml
+        workflow_search: true
+        #commit: ${{ github.sha }}
+        workflow_conclusion: success
+        search_artifacts: true
+        dry_run: true
+        name: ${{ inputs.artifact-id }}
+        path: .
+        if_no_artifact_found: warn
+
+    - name: 'Check if any previous artifact exists'
+      id: check-previous
+      if: ${{ inputs.reuse-previous-build == true && steps.data-download.outputs.found_artifact == 'false' }}
+      run: |
+        build_artifact_exists=${{ steps.data-download-previous.outputs.found_artifact }}
+        if [[ ${build_artifact_exists} == "true" ]]; then
+            run_id=`echo '${{ steps.data-download-previous.outputs.artifacts }}' | jq -r '.[0].workflow_run.id'`
             found_artifacts=true
             echo "Artifact Run id: $run_id"
         else
@@ -218,7 +255,7 @@ runs:
       shell: bash
 
     - name: 'Validate NPM package'
-      working-directory: ${{ github.workspace }}/tools/dotcms-cli/npm/
+      working-directory: ${{ github.workspace }}/tools/dotcms-cli/npm
       run: |
         echo "::group::NPM package contents"
         if [ ! -f package.json ]; then
@@ -232,7 +269,7 @@ runs:
       shell: bash
 
     - name: 'Publish to NPM registry'
-      working-directory: ${{ github.workspace }}/tools/dotcms-cli/npm/
+      working-directory: ${{ github.workspace }}/tools/dotcms-cli/npm
       env:
         NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
         NPM_PACKAGE_VERSION_TAG: ${{ steps.npm-version-tag.outputs.npm-package-version-tag }}
