@@ -1,0 +1,21 @@
+name: Tesing schedule
+on:
+  workflow_dispatch:
+    inputs:
+      publish-npm-package:
+        type: boolean
+        description: 'Publish NPM package?'
+        default: false
+
+jobs:
+  github-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Context
+        run: |
+          echo "::group:: Github Context"
+          echo ${{ github.event }}
+          echo ${{ github.event.workflow_dispatch }}
+          echo ${{ github.event.schedule }}
+          echo ${{ inputs.publish-npm-package }}
+          echo "::endgroup::"
