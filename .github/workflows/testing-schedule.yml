@@ -8,7 +8,7 @@ on:
         default: false
         
   schedule:
-    - cron: "3,6,9,12,15 * * * *"
+    - cron: "3,6,9,12,15,18,21,24,27,30 * * * *"
 
 jobs:
   github-context:
