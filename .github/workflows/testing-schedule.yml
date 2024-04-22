@@ -12,9 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Github Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github.event) }}      
         run: |
           echo "::group:: Github Context"
-          echo ${{ github.event }}
+          echo "Event: $GITHUB_CONTEXT"
           echo ${{ github.event.workflow_dispatch }}
           echo ${{ github.event.schedule }}
           echo ${{ inputs.publish-npm-package }}
