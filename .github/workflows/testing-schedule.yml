@@ -15,11 +15,13 @@ jobs:
     steps:
       - name: Github Context
         env:
-          GITHUB_CONTEXT: ${{ toJson(github.event) }}      
+          GITHUB_CONTEXT: ${{ toJson(github.event) }}
+          IS_WORKFLOW_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+          IS_SCHEDULE: ${{ github.event_name == 'schedule' }}
         run: |
           echo "::group:: Github Context"
           echo "Event: $GITHUB_CONTEXT"
-          echo "IS_WORKFLOW_DISPATCH: ${{ github.event.workflow_dispatch }}"
-          echo "IS_SCHEDULE: ${{ github.event.schedule }}:
+          echo "IS_WORKFLOW_DISPATCH: $IS_WORKFLOW_DISPATCH }}"
+          echo "IS_SCHEDULE: $IS_SCHEDULE"
           echo "PUBLISH_NPM_PACKAGE: ${{ inputs.publish-npm-package }}"
           echo "::endgroup::"
