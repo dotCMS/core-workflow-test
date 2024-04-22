@@ -87,7 +87,7 @@ runs:
     - name: Download Previous Build Artifact
       id: data-download-previous
       uses: dawidd6/action-download-artifact@v3.1.4
-      if: ${{ inputs.reuse-previous-build == true }}
+      if: ${{ inputs.reuse-previous-build == true && steps.data-download.outputs.found_artifact == 'false' }}
       with:
         github_token: ${{ inputs.github-token }}
         #workflow: build-test-merge_group.yml
