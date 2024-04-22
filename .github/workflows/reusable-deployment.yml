@@ -15,6 +15,9 @@ on:
       deploy-dev-image:
         default: false
         type: boolean
+      reuse-previous-build:
+        default: false
+        type: boolean
       publish-npm-package:
         default: false
         type: boolean
@@ -98,7 +101,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.NPM_TOKEN }}
-          reuse-previous-build: true
+          reuse-previous-build: ${{ inputs.reuse-previous-build || false }} 
 
       # A Slack notification is sent using the 'action-slack-notify' action if the repository is 'dotcms/core'.
       - name: Slack Notification
