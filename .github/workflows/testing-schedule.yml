@@ -5,7 +5,9 @@ on:
       publish-npm-package:
         type: boolean
         description: 'Publish NPM package?'
-        default: false
+        default: true
+  schedule:
+    - cron: "18 3 * * *" # every night
 
 jobs:
   github-context:
@@ -17,7 +19,7 @@ jobs:
         run: |
           echo "::group:: Github Context"
           echo "Event: $GITHUB_CONTEXT"
-          echo ${{ github.event.workflow_dispatch }}
-          echo ${{ github.event.schedule }}
-          echo ${{ inputs.publish-npm-package }}
+          echo "IS_WORKFLOW_DISPATCH: ${{ github.event.workflow_dispatch }}"
+          echo "IS_SCHEDULE: ${{ github.event.schedule }}:
+          echo "PUBLISH_NPM_PACKAGE: ${{ inputs.publish-npm-package }}"
           echo "::endgroup::"
