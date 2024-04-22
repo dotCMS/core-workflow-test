@@ -5,7 +5,8 @@ on:
       publish-npm-package:
         type: boolean
         description: 'Publish NPM package?'
-        default: true
+        default: false
+        
   schedule:
     - cron: "18 3 * * *" # every night
 
@@ -21,7 +22,12 @@ jobs:
         run: |
           echo "::group:: Github Context"
           echo "Event: $GITHUB_CONTEXT"
-          echo "IS_WORKFLOW_DISPATCH: $IS_WORKFLOW_DISPATCH }}"
+          echo "IS_WORKFLOW_DISPATCH: $IS_WORKFLOW_DISPATCH"
           echo "IS_SCHEDULE: $IS_SCHEDULE"
           echo "PUBLISH_NPM_PACKAGE: ${{ inputs.publish-npm-package }}"
           echo "::endgroup::"
+
+      - name: Checking status
+        if: ${{ ( github.event_name == 'workflow_dispatch' && inputs.publish-npm-package == true ) || github.event_name == 'schedule' }}
+        run: echo "THIS STEP MUST BE RUN"
+     
