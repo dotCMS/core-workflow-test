@@ -51,7 +51,7 @@ jobs:
           else
             RELEASE_VERSION=${{ github.event.inputs.version }}
           fi
-          
+
           echo "::notice:: Event name: $GITHUB_EVENT_NAME"
           echo "::notice:: Release version: $RELEASE_VERSION"
           echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
@@ -94,21 +94,23 @@ jobs:
         run: |
           RELEASE_VERSION=$RELEASE_VERSION
           HEAD=${{ github.ref_name }}
-          
+
           # Create a release branch for versioning updates
           AUXILIARY_BRANCH=version-update-${RELEASE_VERSION}-${{ github.run_id }}
           git checkout -b $AUXILIARY_BRANCH
-          
-          # Update version in pom.xml
-          ./mvnw -B -ntp versions:set versions:commit -DnewVersion=$RELEASE_VERSION
-          
-          # Commit version changes
-          git commit --allow-empty -a -m "Update dotCLI version to $RELEASE_VERSION"
-          git push origin $AUXILIARY_BRANCH
-          
+
           echo "RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
           echo "HEAD=$HEAD" >> "$GITHUB_OUTPUT"
           echo "AUXILIARY_BRANCH=$AUXILIARY_BRANCH" >> "$GITHUB_OUTPUT"
+
+#          # Update version in pom.xml
+#          ./mvnw -B -ntp versions:set versions:commit -DnewVersion=$RELEASE_VERSION
+#
+#          # Commit version changes
+#          git commit --allow-empty -a -m "Update 🏁 dotCLI version to $RELEASE_VERSION"
+#          git push origin $AUXILIARY_BRANCH
+
+
 
   # Build native executable per runner
   build:
@@ -271,71 +273,71 @@ jobs:
             ${{ github.workspace }}/tools/dotcms-cli/cli/target/distributions/*.zip
             ${{ github.workspace }}/tools/dotcms-cli/cli/target/distributions/*.tar.gz
 
-  release:
-    needs: [ precheck, build ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Check out repository'
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
-
-      - uses: ./.github/actions/cleanup-runner
-
-      - name: 'Create artifacts directory'
-        run: |
-          mkdir -p ${{ github.workspace }}/artifacts
-          echo "artifactsDir=${{ github.workspace }}/artifacts" >> "$GITHUB_ENV"
-
-      - name: 'Download all build artifacts'
-        uses: actions/download-artifact@v4
-        with:
-          path: ${{ github.workspace }}/artifacts
-          pattern: artifacts-*
-          merge-multiple: true
-
-      - name: 'List artifacts'
-        run: |
-          ls -R
-
-      - name: 'Set up Java'
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRO }}
-
-      - name: 'Cache Maven packages'
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ needs.precheck.outputs.DATE }}-${{ github.run_id }}
-
-      # Creates automated releases using JReleaser
-      # Generates builds for different platforms
-      # Signs artifacts
-      # Publishes to artifact repositories
-      - name: 'JReleaser'
-        env:
-          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JRELEASER_PROJECT_VERSION: ${{ needs.precheck.outputs.RELEASE_VERSION }}
-          JRELEASER_ARTIFACTORY_USERNAME: ${{ secrets.EE_REPO_USERNAME }}
-          JRELEASER_ARTIFACTORY_PASSWORD: ${{ secrets.EE_REPO_PASSWORD }}
-          JRELEASER_SLACK_WEBHOOK: ${{ secrets.RELEASE_SLACK_WEBHOOK }}
-          JRELEASER_SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        working-directory: ${{ github.workspace }}
-        run: |
-          tools/dotcms-cli/mvnw -B -Prelease jreleaser:full-release -DartifactsDir=artifacts -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE
+#  release:
+#    needs: [ precheck, build ]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: 'Check out repository'
+#        uses: actions/checkout@v4
+#        with:
+#          ref: ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
+#
+#      - uses: ./.github/actions/cleanup-runner
+#
+#      - name: 'Create artifacts directory'
+#        run: |
+#          mkdir -p ${{ github.workspace }}/artifacts
+#          echo "artifactsDir=${{ github.workspace }}/artifacts" >> "$GITHUB_ENV"
+#
+#      - name: 'Download all build artifacts'
+#        uses: actions/download-artifact@v4
+#        with:
+#          path: ${{ github.workspace }}/artifacts
+#          pattern: artifacts-*
+#          merge-multiple: true
+#
+#      - name: 'List artifacts'
+#        run: |
+#          ls -R
+#
+#      - name: 'Set up Java'
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: ${{ env.JAVA_VERSION }}
+#          distribution: ${{ env.JAVA_DISTRO }}
+#
+#      - name: 'Cache Maven packages'
+#        uses: actions/cache@v4
+#        with:
+#          path: ~/.m2/repository
+#          key: maven-${{ needs.precheck.outputs.DATE }}-${{ github.run_id }}
+#
+#      # Creates automated releases using JReleaser
+#      # Generates builds for different platforms
+#      # Signs artifacts
+#      # Publishes to artifact repositories
+#      - name: 'JReleaser'
+#        env:
+#          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          JRELEASER_PROJECT_VERSION: ${{ needs.precheck.outputs.RELEASE_VERSION }}
+#          JRELEASER_ARTIFACTORY_USERNAME: ${{ secrets.EE_REPO_USERNAME }}
+#          JRELEASER_ARTIFACTORY_PASSWORD: ${{ secrets.EE_REPO_PASSWORD }}
+#          JRELEASER_SLACK_WEBHOOK: ${{ secrets.RELEASE_SLACK_WEBHOOK }}
+#          JRELEASER_SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+#        working-directory: ${{ github.workspace }}
+#        run: |
+#          tools/dotcms-cli/mvnw -B -Prelease jreleaser:full-release -DartifactsDir=artifacts -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE
 
   publish-npm-package:
     name: "Publish NPM Package"
     if: success()  # Run only if explicitly indicated and successful
-    needs: [ precheck, build, release ]
+    needs: [ precheck, build ] #, release
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout code'
         uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.precheck.outputs.HEAD }}
+#        with:
+#          ref: ${{ needs.precheck.outputs.HEAD }}
 
       - uses: ./.github/actions/cleanup-runner
 
@@ -456,17 +458,17 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
           npm publish --access public --tag ${NPM_PACKAGE_VERSION_TAG}
 
-  clean-up:
-    name: "Clean Up"
-    if: ${{ needs.precheck.outputs.AUXILIARY_BRANCH != '' }}
-    needs: [ precheck, build, release, publish-npm-package ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.precheck.outputs.HEAD }}
-
-      - name: 'Delete release auxiliary branch - ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}'
-        run: |
-          git push origin --delete ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
+#  clean-up:
+#    name: "Clean Up"
+#    if: ${{ needs.precheck.outputs.AUXILIARY_BRANCH != '' }}
+#    needs: [ precheck, build, release, publish-npm-package ]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout Repository
+#        uses: actions/checkout@v4
+#        with:
+#          ref: ${{ needs.precheck.outputs.HEAD }}
+#
+#      - name: 'Delete release auxiliary branch - ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}'
+#        run: |
+#          git push origin --delete ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
