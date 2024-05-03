@@ -190,11 +190,10 @@ runs:
           echo "LAST_RC_VERSIONS: ${LAST_RC_VERSIONS}"
 
           # Extract max RC version
-          MAX_RC_VERSION=$(echo $LATEST_RC_VERSIONS | jq --arg filter $VERSION_NPM_FORMAT-rc 'map(.| select(. | contains($filter)) | sub($filter; "") | tonumber ) | $filter+"\(max)"')
+          MAX_RC_VERSION=$(echo $LATEST_RC_VERSIONS | jq --arg filter $VERSION_NPM_FORMAT-rc 'map(.| select(. | contains($filter)) | sub($filter; "") | tonumber ) | max')
 
-          if [[ $MAX_RC_VERSION == "$VERSION_NPM_FORMAT"* ]]; then
-            NEXT_RC_VERSION=$(echo "$MAX_RC_VERSION" | awk -F '-rc' '{print $1 "-rc" $2 + 1}')
-            RC_SUFFIX=$(echo "$NEXT_RC_VERSION" | sed -n 's/.*-rc\([0-9]*\)/-rc\1/p')
+          if [[ $MAX_RC_VERSION != null ]]; then
+            RC_SUFFIX="-rc$(( $MAX_RC_VERSION + 1 ))"
           else
             RC_SUFFIX="-rc1"
           fi;
