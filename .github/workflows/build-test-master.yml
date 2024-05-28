@@ -79,6 +79,8 @@ jobs:
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       EE_REPO_USERNAME: ${{ secrets.EE_REPO_USERNAME }}
       EE_REPO_PASSWORD: ${{ secrets.EE_REPO_PASSWORD }}
+      ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL }}
+      ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
       DEVELOPERS_SLACK_WEBHOOK: ${{ secrets.DEVELOPERS_SLACK_WEBHOOK }}
 
   finalize:
