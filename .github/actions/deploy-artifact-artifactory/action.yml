@@ -7,12 +7,6 @@ inputs:
   artifactory-repo-password:
     description: 'Artifactory Repository Password'
     required: true
-  artifactory-url:
-    description: 'Artifactory URL'
-    required: true
-  artifactory-token:
-    description: 'Artifactory Token'
-    required: true
   github-token:
     description: 'GitHub Token'
     required: true
@@ -71,23 +65,14 @@ runs:
         name: maven-repo
         path: ~/.m2/repository
 
-    - uses: jfrog/setup-jfrog-cli@v4
+    - name: 'Maven settings.xml setup'
+      uses: whelk-io/maven-settings-xml-action@v22
+      with:
+        servers: '[{ "id": "dotcms-libs-local", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }, { "id": "dotcms-libs-snapshot-local", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }]'
 
-    - name: 'Configure JFrog CLI'
-      run: jfrog config add artifactory-server --url=${{ inputs.artifactory-url }} --access-token=${{ inputs.artifactory-token }}
+    # Artifact deployment in the Artifactory excluding 'dotcms-integration' and 'dotcms-postman'
+    - name: 'Deploy Artifacts'
+      run: |
+        JVM_TEST_MAVEN_OPTS="-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+        eval ./mvnw -ntp deploy -Dprod=true -DskipTests=true -DskipITs=true $JVM_TEST_MAVEN_OPTS
       shell: bash
-
-    - run: jf --version
-      shell: bash
-
-#    - name: 'Maven settings.xml setup'
-#      uses: whelk-io/maven-settings-xml-action@v22
-#      with:
-#        servers: '[{ "id": "dotcms-libs-local", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }, { "id": "dotcms-libs-snapshot-local", "username": "${{ inputs.artifactory-repo-username }}", "password": "${{ inputs.artifactory-repo-password }}" }]'
-#
-#    # Artifact deployment in the Artifactory excluding 'dotcms-integration' and 'dotcms-postman'
-#    - name: 'Deploy Artifacts'
-#      run: |
-#        JVM_TEST_MAVEN_OPTS="-e -B --no-transfer-progress -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
-#        eval ./mvnw -ntp deploy -Dprod=true -DskipTests=true -DskipITs=true $JVM_TEST_MAVEN_OPTS
-#      shell: bash
