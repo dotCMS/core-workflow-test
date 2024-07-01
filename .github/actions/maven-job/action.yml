@@ -107,7 +107,6 @@ runs:
         run-id: ${{ inputs.artifacts-from }}
         github-token: ${{ inputs.github-token }}
         name: maven-repo
-        path: ~/.m2/repository
     - name: Restore Docker Image
       if: ${{ inputs.needs-docker-image == 'true' }}
       uses: actions/download-artifact@v4
@@ -120,9 +119,6 @@ runs:
         run-id: ${{ inputs.artifact-run-id }}
         github-token: ${{ inputs.github-token }}
         name: "build-classes-${{ inputs.stage-name }}"
-        path: |
-            **/target/classes/**/*.class
-            LICENSE
     - name: Run Maven Build
       shell: bash
       run: |
@@ -155,6 +151,9 @@ runs:
       uses: actions/upload-artifact@v4
       with:
           name: "build-classes-${{ inputs.stage-name }}"
+          path: |
+            **/target/classes/**/*.class
+            LICENSE
     # Save Caches
     - name: Delete Built Artifacts From Cache
       if: ${{ inputs.generate-artifacts == 'true' && steps.restore-cache-maven.outputs.cache-hit != 'true'}}
