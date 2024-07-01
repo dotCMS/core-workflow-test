@@ -17,6 +17,10 @@ inputs:
     description: 'Generate artifacts for the job'
     required: true
     default: 'false'
+  needs-history:
+    description: 'The runner needs the full git history'
+    required: true
+    default: 'false'
   generates-test-results:
     description: 'The job generates test results'
     required: true
@@ -34,10 +38,10 @@ inputs:
   maven-args:
     description: 'The maven arguments'
     required: false
-  needs-license:
-    description: 'The job requires a license'
-    required: true
-    default: 'false'
+  dotcms-license:
+    description: "DotCMS license key"
+    required: false
+
 runs:
   using: 'composite'
   steps:
@@ -46,11 +50,11 @@ runs:
       with:
         cleanup-runner: ${{ inputs.cleanup-runner }}
     - id: prepare-license
-      if: ${{ inputs.needs-license == 'true' }}
+      if: ${{ dotcms-license != '' }}
       name: Prepare license
       shell: bash
       env:
-        DOTCMS_LICENSE_KEY: ${{ secrets.DOTCMS_LICENSE }}
+        DOTCMS_LICENSE_KEY: ${{ inputs.dotcms-license }}
       run: |
         DOTCMS_LICENSE_PATH=~/.dotcms/license
         mkdir -p ${DOTCMS_LICENSE_PATH}
