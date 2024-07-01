@@ -109,7 +109,7 @@ jobs:
           stage-name: "IT Tests ${{ matrix.suites.name }}"
           maven-args: "${{ env.JVM_TEST_MAVEN_OPTS }} -Dit.test.forkcount=1 -Pcoverage verify -pl :dotcms-integration -Dcoreit.test.skip=false ${{ matrix.suites.maven_args}}"
           generates-test-results: true
-          needs-license: true
+          dotcms-license: ${{ secrets.DOTCMS_LICENSE }}
           requires-node: false
 
 
@@ -125,9 +125,7 @@ jobs:
       - uses: ./.github/actions/maven-job
         with:
           stage-name: "Postman ${{ matrix.collection_group }}"
-          maven-args: "-Pcoverage $JVM_TEST_MAVEN_OPTS verify \
-            -pl :dotcms-postman -Dpostman.test.skip=false \
-            -Dpostman.collections=${{ matrix.collection_group }}"
+          maven-args: "-Pcoverage $JVM_TEST_MAVEN_OPTS verify -pl :dotcms-postman -Dpostman.test.skip=false -Dpostman.collections=${{ matrix.collection_group }}"
           generates-test-results: true
-          needs-license: true
+          dotcms-license: ${{ secrets.DOTCMS_LICENSE }}
           requires-node: false
