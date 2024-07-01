@@ -17,10 +17,6 @@ inputs:
     description: 'Generate artifacts for the job'
     required: true
     default: 'false'
-  needs-history:
-    description: 'The runner needs the full git history'
-    required: true
-    default: 'false'
   generates-test-results:
     description: 'The job generates test results'
     required: true
@@ -49,7 +45,6 @@ runs:
       uses: ./.github/actions/prepare-maven
       with:
         cleanup-runner: ${{ inputs.cleanup-runner }}
-        needs-history: ${{ inputs.needs-history }}
     - id: prepare-license
       if: ${{ inputs.needs-license == 'true' }}
       name: Prepare license
