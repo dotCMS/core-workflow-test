@@ -121,8 +121,8 @@ runs:
     - name: Run Maven Build
       shell: bash
       run: |
-        echo "Building maven with args ${MAVEN_ARGS}"
-        ./mvnw -${MAVEN_ARGS} --file pom.xml
+        echo "Building maven with args ${{ inputs.maven-args }}"
+        ./mvnw ${{ inputs.maven-args }} --file pom.xml
     # Persist Artifacts
     - name: Persist Maven Repo
       if: ${{ inputs.generate-artifacts == 'true' }}
