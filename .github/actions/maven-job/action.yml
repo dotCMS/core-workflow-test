@@ -40,8 +40,11 @@ inputs:
     required: false
   dotcms-license:
     description: "DotCMS license key"
+    default: ""
     required: false
-
+  github-token:
+    decription: "The github token"
+    required: false
 runs:
   using: 'composite'
   steps:
@@ -50,7 +53,7 @@ runs:
       with:
         cleanup-runner: ${{ inputs.cleanup-runner }}
     - id: prepare-license
-      if: ${{ dotcms-license != '' }}
+      if: ${{ inputs.dotcms-license != '' }}
       name: Prepare license
       shell: bash
       env:
@@ -100,7 +103,7 @@ runs:
       uses: actions/download-artifact@v4
       with:
         run-id: ${{ inputs.artifacts-from }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
         name: maven-repo
         path: ~/.m2/repository
     - name: Restore Docker Image
@@ -113,7 +116,7 @@ runs:
       uses: actions/download-artifact@v4
       with:
         run-id: ${{ inputs.artifact-run-id }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
         name: "build-classes-${{ inputs.stage-name }}"
     - name: Run Maven Build
       shell: bash

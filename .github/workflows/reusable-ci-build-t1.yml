@@ -31,3 +31,4 @@ jobs:
           stage-name: "Initial Artifact Build"
           maven-args: "${{ env.JVM_TEST_MAVEN_OPTS }} install -Pvalidate --fail-at-end -Dgithub.event.name=${{ github.event_name }}"
           generate-artifacts: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}

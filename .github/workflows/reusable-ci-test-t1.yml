@@ -50,6 +50,7 @@ jobs:
           stage-name: "JVM Tests"
           maven-args: "-Pcoverage -Dprod ${{ env.JVM_TEST_MAVEN_OPTS }} test -pl :dotcms-core"
           generates-test-results: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   linux-cli-tests:
     name: CLI Tests
@@ -66,6 +67,7 @@ jobs:
           generates-test-results: true
           needs-license: true
           needs-docker-image: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   #
   # Run Frontend Tests
@@ -83,6 +85,7 @@ jobs:
           stage-name: "Frontend Tests"
           maven-args: "${{ env.JVM_TEST_MAVEN_OPTS }} -pl :dotcms-core-web test"
           generates-test-results: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   #
   # Run Legacy Integration test suite batches
@@ -111,6 +114,7 @@ jobs:
           generates-test-results: true
           dotcms-license: ${{ secrets.DOTCMS_LICENSE }}
           requires-node: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
 
   linux-postman-tests:
@@ -129,3 +133,4 @@ jobs:
           generates-test-results: true
           dotcms-license: ${{ secrets.DOTCMS_LICENSE }}
           requires-node: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
