@@ -22,6 +22,10 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: ./.github/actions/maven-job
         with:
           stage-name: "Initial Artifact Build"
