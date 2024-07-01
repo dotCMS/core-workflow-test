@@ -133,7 +133,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: docker-build-context
-        path: target/docker-build.tar
+        path: dotCMS/target/docker-build.tar
     - name: Save Docker image to a tar file
       if: ${{ inputs.generate-artifacts == 'true' }}
       shell: bash
