@@ -1,0 +1,19 @@
+# action.yml
+name: 'Prepare Maven'
+description: 'Prepare the runner for a Maven build'
+inputs:
+  cleanup-runner:
+    description: 'The runner requires extra disk space'
+    required: true
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - name: Cleanup Runner
+      if: ${{ inputs.cleanup-runner == 'true' }}
+      uses: ./.github/actions/cleanup-runner
+    - name: Setup Java
+      id: sdkman-java
+      uses: sdkman/sdkman-action@b1f9b696c79148b66d3d3a06f7ea801820318d0f
+      with:
+        candidate: java
