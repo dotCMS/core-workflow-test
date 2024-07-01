@@ -66,7 +66,6 @@ runs:
     # Restore Caches
     - name: Get Maven Month Cache Key
       id: get-month-key
-      if: ${{ inputs.generate-artifacts != 'true' }}
       shell: bash
       run: |
         echo "month-key=$(/bin/date -u "+%Y-%m")" >> $GITHUB_OUTPUT
