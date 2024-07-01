@@ -1,0 +1,207 @@
+# action.yml
+name: 'Maven Job'
+description: 'Setup and run a maven job'
+inputs:
+  stage-name:
+    description: 'The stage name'
+    required: true
+  needs-docker-image:
+    description: 'The runner needs the built dotcms docker image'
+    required: true
+    default: 'false'
+  cleanup-runner:
+    description: 'The runner requires extra disk space'
+    required: true
+    default: 'false'
+  generate-artifacts:
+    description: 'Generate artifacts for the job'
+    required: true
+    default: 'false'
+  needs-history:
+    description: 'The runner needs the full git history'
+    required: true
+    default: 'false'
+  generates-test-results:
+    description: 'The job generates test results'
+    required: true
+    default: 'false'
+  artifacts-from:
+    description: 'The job requires artifacts from another job'
+    required: false
+  requires-node:
+    description: 'The job requires nodejs'
+    required: true
+    default: 'true'
+  restore-classes:
+    description: 'The job requires classes from the initial build'
+    required: false
+  maven-args:
+    description: 'The maven arguments'
+    required: false
+  needs-license:
+    description: 'The job requires a license'
+    required: true
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - name: Prepare Maven
+      uses: ./.github/actions/prepare-maven
+      with:
+        cleanup-runner: ${{ inputs.cleanup-runner }}
+        needs-history: ${{ inputs.needs-history }}
+    - id: prepare-license
+      if: ${{ inputs.needs-license == 'true' }}
+      name: Prepare license
+      shell: bash
+      env:
+        DOTCMS_LICENSE_KEY: ${{ secrets.DOTCMS_LICENSE }}
+      run: |
+        DOTCMS_LICENSE_PATH=~/.dotcms/license
+        mkdir -p ${DOTCMS_LICENSE_PATH}
+        echo "${DOTCMS_LICENSE_KEY}" > ${DOTCMS_LICENSE_PATH}/license.dat
+        echo "DOTCMS_LICENSE_FILE=${DOTCMS_LICENSE_PATH}/license.dat" >> "$GITHUB_ENV"
+    # Restore Caches
+    - name: Get Maven Month Cache Key
+      id: get-month-key
+      if: ${{ inputs.generate-artifacts != 'true' }}
+      shell: bash
+      run: |
+        echo "month-key=$(/bin/date -u "+%Y-%m")" >> $GITHUB_OUTPUT
+    - name: Restore Maven Repository Cache
+      id: restore-cache-maven # Don't restore cache if we are using artifacts from another job
+      if: ${{ inputs.artifacts-from == '' }}
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-mavencore-${{ steps.get-month-key.outputs.month-key }}
+        restore-keys: |
+          ${{ runner.os }}-mavencore-
+    - name: Restore Node Binary Cache
+      id: restore-cache-node-binary
+      if: ${{ inputs.requires-node == 'true' }}
+      uses: actions/cache@v4
+      with:
+        path: |
+          installs
+        key: node-binary-${{ hashFiles('core-web/.nvmrc') }}
+    - name: Restore Yarn Cache
+      id: restore-cache-yarn
+      if: ${{ inputs.requires-node == 'true' }}
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ~/.cache/yarn
+        # if specific cache does not exist then can base upon latest version
+        key: yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: yarn-
+    ## Restore Artifacts
+    - name: Restore Maven Build Repo
+      if: ${{ inputs.artifacts-from != '' }}
+      uses: actions/download-artifact@v4
+      with:
+        run-id: ${{ inputs.artifacts-from }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        name: maven-repo
+        path: ~/.m2/repository
+    - name: Restore Docker Image
+      if: ${{ inputs.needs-docker-image == 'true' }}
+      uses: actions/download-artifact@v4
+      with:
+          name: docker-image
+    - name: Restore Classes
+      if: ${{ inputs.restore-classes == 'true' }}
+      uses: actions/download-artifact@v4
+      with:
+        run-id: ${{ inputs.artifact-run-id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        name: "build-classes-${{ inputs.stage-name }}"
+    - name: Run Maven Build
+      shell: bash
+      run: |
+        echo "Building maven with args ${MAVEN_ARGS}"
+        ./mvnw -${MAVEN_ARGS} --file pom.xml
+    # Persist Artifacts
+    - name: Persist Maven Repo
+      if: ${{ inputs.generate-artifacts == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: maven-repo
+    - name: Persist Docker Build Context
+      if: ${{ inputs.generate-artifacts == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-build-context
+        path: target/docker-build.tar
+    - name: Save Docker image to a tar file
+      if: ${{ inputs.generate-artifacts == 'true' }}
+      shell: bash
+      run: docker save dotcms/dotcms_test:1.0.0-SNAPSHOT > image.tar
+    - name: Upload Docker image as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-image-${{ inputs.stage-name }}
+        path: image.tar
+    - name: Persist Build Classes
+      if: ${{ inputs.generate-artifacts == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+          name: "build-classes-${{ inputs.stage-name }}"
+    # Save Caches
+    - name: Delete Built Artifacts From Cache
+      if: ${{ inputs.generate-artifacts == 'true' && steps.restore-cache-maven.outputs.cache-hit != 'true'}}
+      shell: bash
+      # This will not work when building release
+      run: find ~/.m2 -name \*-SNAPSHOT -type d -exec rm -rf {} +
+    - name: Cache Maven Repository
+      id: save-cache-maven
+      if: ${{ inputs.generate-artifacts == 'true' && steps.restore-cache-maven.outputs.cache-hit != 'true'}}
+      uses: actions/cache/save@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-mavencore-${{ steps.get-month-key.outputs.month-key }}
+    - name: Save Node Binary Cache
+      id: save-cache-node-binary
+      if: ${{ inputs.generate-artifacts == 'true' && steps.restore-cache-node-binary.outputs.cache-hit != 'true'}}
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          installs
+        key: node-binary-${{ hashFiles('core-web/.nvmrc') }}
+    - name: Restore Yarn Cache
+      id: save-cache-yarn
+      if: ${{ inputs.generate-artifacts == 'true' && steps.restore-cache-yarn.outputs.cache-hit != 'true'}}
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          ~/.cache/yarn
+        # if specific cache does not exist then can base upon latest version
+        key: yarn-${{ hashFiles('**/yarn.lock') }}
+    # Generate reports artifacts
+    - name: core-build-report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: "build-reports-${{ inputs.stage-name }}"
+        path: |
+          target/build-report.json
+          LICENSE
+        retention-days: 2
+    - name: failsafe-postman-tests  # Uploads will be merged with same name
+      uses: actions/upload-artifact@v4
+      if: ${{ inputs.generates-test-results == 'true' }}
+      with:
+        name: "build-reports-test-${{ inputs.stage-name }}"
+        path: |
+          dotcms-postman/target/failsafe-reports/*.xml
+          dotcms-postman/target/jacoco-report/*.exec
+          dotCMS/target/*-reports/TEST-*.xml
+          dotCMS/target/jacoco-report/*.exec
+          tools/dotcms-cli/**/target/failsafe-reports/*.xml
+          tools/dotcms-cli/**/target/jacoco-report/*.exec
+          core-web/target/*-reports/**/TEST-*.xml
+          dotcms-integration/target/failsafe-reports/*.xml
+          dotcms-integration/target/jacoco-report/*.exec
+          target/build-report.json
+          LICENSE
+        retention-days: 2
