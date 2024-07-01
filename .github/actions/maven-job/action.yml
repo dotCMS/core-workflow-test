@@ -120,6 +120,9 @@ runs:
         run-id: ${{ inputs.artifact-run-id }}
         github-token: ${{ inputs.github-token }}
         name: "build-classes-${{ inputs.stage-name }}"
+        path: |
+            **/target/classes/**/*.class
+            LICENSE
     - name: Run Maven Build
       shell: bash
       run: |
