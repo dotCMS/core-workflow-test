@@ -25,7 +25,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+      - name: Fetch base branch
+        run: git fetch origin master:refs/remotes/origin/master
       - uses: ./.github/actions/maven-job
         with:
           stage-name: "Initial Artifact Build"
