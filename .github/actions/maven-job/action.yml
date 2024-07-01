@@ -66,7 +66,6 @@ runs:
     # Restore Caches
     - name: Get Maven Month Cache Key
       id: get-month-key
-      if: ${{ inputs.generate-artifacts != 'true' }}
       shell: bash
       run: |
         echo "month-key=$(/bin/date -u "+%Y-%m")" >> $GITHUB_OUTPUT
@@ -121,8 +120,8 @@ runs:
     - name: Run Maven Build
       shell: bash
       run: |
-        echo "Building maven with args ${MAVEN_ARGS}"
-        ./mvnw -${MAVEN_ARGS} --file pom.xml
+        echo "Building maven with args ${{ inputs.maven-args }}"
+        ./mvnw ${{ inputs.maven-args }} --file pom.xml
     # Persist Artifacts
     - name: Persist Maven Repo
       if: ${{ inputs.generate-artifacts == 'true' }}
