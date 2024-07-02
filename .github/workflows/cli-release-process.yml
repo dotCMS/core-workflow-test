@@ -9,6 +9,10 @@ on:
         description: 'Release version'
         default: '1.0.0-SNAPSHOT'
         required: false
+      dry-run:
+        description: 'Dry run'
+        default: 'false'
+        required: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -295,7 +299,6 @@ jobs:
         with:
           path: ${{ github.workspace }}/artifacts
           pattern: artifacts-*
-          merge-multiple: true
 
       - name: 'List artifacts'
         run: |
@@ -323,8 +326,7 @@ jobs:
           JRELEASER_PROJECT_VERSION: ${{ needs.precheck.outputs.RELEASE_VERSION }}
           JRELEASER_ARTIFACTORY_USERNAME: ${{ secrets.EE_REPO_USERNAME }}
           JRELEASER_ARTIFACTORY_PASSWORD: ${{ secrets.EE_REPO_PASSWORD }}
-          JRELEASER_SLACK_WEBHOOK: ${{ secrets.RELEASE_SLACK_WEBHOOK }}
-          JRELEASER_SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          JRELEASER_DRY_RUN: ${{ github.event.inputs.dry-run }}
         working-directory: ${{ github.workspace }}
         run: |
           tools/dotcms-cli/mvnw -B -Prelease validate -DartifactsDir=artifacts -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE
