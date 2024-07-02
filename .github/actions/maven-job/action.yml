@@ -107,6 +107,7 @@ runs:
         run-id: ${{ inputs.artifacts-from }}
         github-token: ${{ inputs.github-token }}
         name: maven-repo
+        path: ~/.m2/repository
     - name: Restore Docker Image
       if: ${{ inputs.needs-docker-image == 'true' }}
       uses: actions/download-artifact@v4
