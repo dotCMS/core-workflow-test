@@ -157,5 +157,6 @@ jobs:
           generates-test-results: true
           dotcms-license: ${{ secrets.DOTCMS_LICENSE }}
           requires-node: false
+          needs-docker-image: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
