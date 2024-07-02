@@ -48,12 +48,15 @@ distributions:
     stereotype: CLI
     artifacts:
       - path: '{{artifactsDir}}/osx-aarch_64/dotcms-cli-{{projectVersion}}-runner.jar'
+        platform: 'osx-aarch_64'
         extraProperties:
           optional: 'true'
       - path: '{{artifactsDir}}/osx-x86_64/dotcms-cli-{{projectVersion}}-runner.jar'
+        platform: 'osx-x86_64'
         extraProperties:
           optional: 'true'
       - path: '{{artifactsDir}}/linux-x86_64/dotcms-cli-{{projectVersion}}-runner.jar'
+        platform: 'linux-x86_64'
         extraProperties:
           optional: 'true'
 
