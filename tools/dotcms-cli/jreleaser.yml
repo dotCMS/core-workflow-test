@@ -48,7 +48,6 @@ distributions:
     stereotype: CLI
     artifacts:
       - path: '{{artifactsDir}}/dotcms-cli-{{projectVersion}}-runner.jar'
-        transform: '{{artifactsDir}}/dotcms-cli-{{projectVersion}}.jar'
   dotcms-cli-native:
     type: BINARY
     artifacts:
