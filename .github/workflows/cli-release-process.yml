@@ -105,7 +105,6 @@ jobs:
     with:
       core-build: true
       ref: ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
-      validate: false
     permissions:
       contents: read
       packages: write
