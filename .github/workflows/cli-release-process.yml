@@ -105,10 +105,6 @@ jobs:
     with:
       core-build: true
       ref: ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
-      validate: false
-      version: ${{ needs.precheck.outputs.RELEASE_VERSION }}
-      generate-docker: false
-
     permissions:
       contents: read
       packages: write
@@ -151,7 +147,7 @@ jobs:
           JRELEASER_DRY_RUN: ${{ github.event.inputs.dry-run || 'false' }}
         with:
           stage-name: "JReleaser"
-          maven-args: "-B -Prelease validate -DartifactsDir=artifacts -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE"
+          maven-args: "-B -Prelease -DartifactsDir=artifacts -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE"
           artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
 
   publish-npm-package:
