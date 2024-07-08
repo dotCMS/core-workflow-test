@@ -8,6 +8,9 @@ on:
       branch:
         type: string
         required: true
+      artifact-run-id:
+        default: ${{ github.run_id }}
+        type: string
     outputs:
       artifact-id:
         description: 'The ID of the uploaded artifact'
@@ -22,6 +25,7 @@ env:
   GRAALVM_VERSION: '22.3.1'
   BRANCH: ${{ inputs.branch || github.ref_name }}
   SKIP_TESTS: true
+  ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id || github.run_id }}
 
 defaults:
   run:
@@ -66,6 +70,7 @@ jobs:
           maven-args: "package -Pnative -DskipTests=$SKIP_TESTS -pl :dotcms-cli"
           native: true
           generates-test-results: true
+          artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
 
 
       - name: 'Upload built distribution'
