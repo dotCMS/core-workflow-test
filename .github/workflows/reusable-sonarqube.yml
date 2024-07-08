@@ -36,7 +36,7 @@ jobs:
           restore-classes: true
           require-master: true
           cache-sonar: true
-          maven-args: $JVM_TEST_MAVEN_OPTS -Dsonar.ws.timeout=180 -Dsonar.log.level=DEBUG org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=dotCMS_core_AYSbIemxK43eThAXTlt- -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.token=$SONAR_TOKEN
+          maven-args: -Dsonar.ws.timeout=180 -Dsonar.log.level=DEBUG org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=dotCMS_core_AYSbIemxK43eThAXTlt- -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.token=${{ secrets.SONAR_TOKEN }}
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
         uses: sonarsource/sonarqube-quality-gate-action@master
