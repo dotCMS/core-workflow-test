@@ -25,10 +25,6 @@ inputs:
     description: 'Java will be installed separately, do not install it here'
     required: true
     default: 'false'
-  graalvm:
-    description: 'Install GraalVM'
-    required: true
-    default: 'false'
   cache-sonar:
     description: 'Cache the SonarQube files'
     required: false
@@ -64,7 +60,7 @@ inputs:
     default: 'false'
   native:
     description: 'Build native image.  Ensures that GraalVM is installed and adds correct parameters'
-    required: false
+    required: true
     default: 'false'
 runs:
   using: 'composite'
