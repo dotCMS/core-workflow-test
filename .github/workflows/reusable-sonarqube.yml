@@ -31,6 +31,7 @@ jobs:
       - name: Prepare Maven
         uses: ./.github/actions/maven-job
         with:
+          stage-name: "SonarQube Scan"
           no-java: true
           restore-classes: true
           require-master: true

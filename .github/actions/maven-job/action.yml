@@ -161,7 +161,7 @@ runs:
       with:
         run-id: ${{ inputs.artifacts-from }}
         github-token: ${{ inputs.github-token }}
-        name: "build-classes-${{ inputs.stage-name }}"
+        name: "build-classes"
 
     - id: run-maven-build
       name: Run Maven Build
@@ -214,7 +214,7 @@ runs:
       name: Upload Docker Image as Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: docker-image-${{ inputs.stage-name }}
+        name: docker-image
         path: /tmp/image.tar
 
     - id: persist-build-classes
@@ -222,7 +222,7 @@ runs:
       if: ${{ inputs.generate-artifacts == 'true' }}
       uses: actions/upload-artifact@v4
       with:
-        name: "build-classes-${{ inputs.stage-name }}"
+        name: "build-classes"
         path: |
           **/target/classes/**/*.class
           LICENSE
