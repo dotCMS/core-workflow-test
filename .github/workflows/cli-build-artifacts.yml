@@ -59,7 +59,6 @@ jobs:
     outputs:
       artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
       artifact-url: ${{ steps.upload-artifact.outputs.artifact-url }}
-      date: ${{ steps.get-date.outputs.date }}
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v4
