@@ -25,10 +25,6 @@ inputs:
     description: 'Java will be installed separately, do not install it here'
     required: true
     default: 'false'
-  graalvm:
-    description: 'Install GraalVM'
-    required: true
-    default: 'false'
   cache-sonar:
     description: 'Cache the SonarQube files'
     required: false
@@ -63,8 +59,8 @@ inputs:
     required: false
     default: 'false'
   native:
-    description: 'Build native image'
-    required: false
+    description: 'Build native image.  Ensures that GraalVM is installed and adds correct parameters'
+    required: true
     default: 'false'
 runs:
   using: 'composite'
@@ -75,7 +71,7 @@ runs:
         cleanup-runner: ${{ inputs.cleanup-runner }}
         no-java: ${{ inputs.no-java }}
         require-master: ${{ inputs.require-master }}
-        graalvm: ${{ inputs.graalvm }}
+        graalvm: ${{ inputs.native }}
 
     - id: setup-license
       if: ${{ inputs.dotcms-license != '' }}
