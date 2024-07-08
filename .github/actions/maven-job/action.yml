@@ -208,14 +208,14 @@ runs:
       name: Save Docker Image to Tar File
       if: ${{ inputs.generate-artifacts == 'true' }}
       shell: bash
-      run: docker save dotcms/dotcms-test:1.0.0-SNAPSHOT > image.tar
+      run: docker save dotcms/dotcms-test:1.0.0-SNAPSHOT > /tmp/image.tar
 
     - id: upload-docker-image
       name: Upload Docker Image as Artifact
       uses: actions/upload-artifact@v4
       with:
         name: docker-image-${{ inputs.stage-name }}
-        path: image.tar
+        path: /tmp/image.tar
 
     - id: persist-build-classes
       name: Persist Build Classes
