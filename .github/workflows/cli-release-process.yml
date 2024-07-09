@@ -298,8 +298,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
-
-      - uses: ./.github/actions/cleanup-runner
+      - uses: ./.github/actions/prepare-runner
+        with:
+          cleanup-runner: true
 
       - name: 'Create artifacts directory'
         run: |
@@ -316,11 +317,6 @@ jobs:
         run: |
           ls -R
 
-      - name: 'Set up Java'
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRO }}
 
       - name: 'Cache Maven packages'
         uses: actions/cache@v4

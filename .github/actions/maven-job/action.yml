@@ -209,6 +209,7 @@ runs:
     - id: upload-docker-image
       name: Upload Docker Image as Artifact
       uses: actions/upload-artifact@v4
+      if: ${{ inputs.generate-artifacts == 'true' }}
       with:
         name: docker-image
         path: /tmp/image.tar
