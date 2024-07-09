@@ -11,6 +11,11 @@ on:
       artifact-run-id:
         default: ${{ github.run_id }}
         type: string
+      version:
+        description: 'The version of the build'
+        required: true
+        type: string
+        default: '1.0.0-SNAPSHOT'
     outputs:
       artifact-id:
         description: 'The ID of the uploaded artifact'
@@ -71,6 +76,7 @@ jobs:
           native: true
           generates-test-results: true
           artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
+          version: ${{ inputs.version }}
 
       - name: 'Upload built distribution'
         id: upload-artifact

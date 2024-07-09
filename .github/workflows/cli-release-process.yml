@@ -122,6 +122,7 @@ jobs:
       buildNativeImage: true
       branch: ${{ github.ref }}
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
+      version: ${{ needs.precheck.outputs.RELEASE_VERSION }}
 
 
   release:
@@ -153,6 +154,7 @@ jobs:
           stage-name: "JReleaser"
           maven-args: "-B -Prelease validate -DartifactsDir=artifacts -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE"
           artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
+          version: ${{ needs.precheck.outputs.RELEASE_VERSION }}
 
   publish-npm-package:
     name: "Publish NPM Package"
