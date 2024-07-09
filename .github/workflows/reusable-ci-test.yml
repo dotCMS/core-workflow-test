@@ -75,7 +75,7 @@ jobs:
           maven-args: "-pl :dotcms-api-data-model,:dotcms-cli verify"
           generates-test-results: true
           cleanup-runner: true
-          dotcms-license: true
+          dotcms-license: ${{ secrets.DOTCMS_LICENSE }}
           needs-docker-image: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
