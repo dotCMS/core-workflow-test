@@ -13,6 +13,10 @@ inputs:
     description: 'Generate artifacts for the job'
     required: true
     default: 'false'
+  generate-docker:
+    description: 'Generate docker artifact'
+    required: true
+    default: 'false'
   needs-history:
     description: 'The runner needs the full git history'
     required: true
@@ -62,6 +66,10 @@ inputs:
     description: 'Build native image.  Ensures that GraalVM is installed and adds correct parameters'
     required: true
     default: 'false'
+  version:
+    description: 'The version of the build'
+    required: true
+    default: '1.0.0-SNAPSHOT'
 runs:
   using: 'composite'
   steps:
@@ -165,7 +173,7 @@ runs:
       run: |
         DEFAULT_ARGS="-e -B --no-transfer-progress --show-version -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Pprod"
         MAVEN_ARGS="${{ inputs.maven-args }}"
-        if [[ "${{ inputs.generate-artifacts }}" == "true" ]]; then
+        if [[ "${{ inputs.generate-docker }}" == "true" ]]; then
           DEFAULT_ARGS="$DEFAULT_ARGS -Ddocker.buildArchiveOnly=dotCMS/target"
         fi
         if [[ "${{ inputs.native }}" == "true" ]]; then
@@ -194,7 +202,7 @@ runs:
 
     - id: persist-docker-build-context
       name: Persist Docker Build Context
-      if: ${{ inputs.generate-artifacts == 'true' }}
+      if: ${{ inputs.generate-docker == 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: docker-build-context
@@ -202,14 +210,14 @@ runs:
 
     - id: save-docker-image
       name: Save Docker Image to Tar File
-      if: ${{ inputs.generate-artifacts == 'true' }}
+      if: ${{ inputs.generate-docker == 'true' }}
       shell: bash
       run: docker save dotcms/dotcms-test:1.0.0-SNAPSHOT > /tmp/image.tar
 
     - id: upload-docker-image
       name: Upload Docker Image as Artifact
       uses: actions/upload-artifact@v4
-      if: ${{ inputs.generate-artifacts == 'true' }}
+      if: ${{ inputs.generate-docker == 'true' }}
       with:
         name: docker-image
         path: /tmp/image.tar
