@@ -15,6 +15,20 @@ on:
         required: true
         default: ''
         type: string
+      validate:
+        description: "Run validation"
+        type: boolean
+        default: false
+      version:
+        description: 'The version of the build'
+        required: true
+        type: string
+        default: '1.0.0-SNAPSHOT'
+      generate-docker:
+        description: 'Generate docker artifact'
+        required: true
+        type: boolean
+        default: true
 jobs:
   #
   # Initial JDK 11 Build
@@ -51,14 +65,25 @@ jobs:
             echo ".mvn/maven.config is not modified in this PR."
           fi
 
+      - name: Set up validate profile
+        id: setup-validate-profile
+        run: |
+          if [ "${{ inputs.validate }}" == "true" ]; then
+            echo "VALIDATE_PROFILE=-Pvalidate" >> $GITHUB_ENV
+          else
+            echo "VALIDATE_PROFILE=" >> $GITHUB_ENV
+          fi
+
       - uses: ./.github/actions/maven-job
         with:
           stage-name: "Initial Artifact Build"
-          maven-args: "clean install -Pvalidate -DskipTests=true -Dgithub.event.name=${{ github.event_name }}"
+          maven-args: "clean install ${{ env.VALIDATE_PROFILE }} -DskipTests=true -Dgithub.event.name=${{ github.event_name }}"
           generate-artifacts: true
-          require-master: true
+          require-master: ${{ inputs.version == '1.0.0-SNAPSHOT' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cleanup-runner: true
+          version: ${{ inputs.version }}
+          generate-docker: ${{ inputs.generate-docker }}
 
       - name: Check for changes to source during build
         if: inputs.run-pr-checks
