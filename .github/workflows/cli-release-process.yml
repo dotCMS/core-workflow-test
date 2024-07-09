@@ -115,15 +115,14 @@ jobs:
 
   build-cli:
     name: Nightly CLI Build
-    needs: [ initialize,build ]
+    needs: [ initialize, precheck, build ]
     if: always() && !failure() && !cancelled()
     uses: ./.github/workflows/cli-build-artifacts.yml
     with:
       buildNativeImage: true
-      branch: ${{ github.ref }}
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
       version: ${{ needs.precheck.outputs.RELEASE_VERSION }}
-
+      branch: ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
 
   release:
     needs: [ precheck, build ]
