@@ -3,9 +3,18 @@ on:
   workflow_call:
     inputs:
       core-build:
+        description: "Run core build"
         type: boolean
         default: true
-
+      run-pr-checks:
+        description: "Run PR checks"
+        type: boolean
+        default: false
+      ref:
+        description: "Branch or tag ref"
+        required: true
+        default: ''
+        type: string
 jobs:
   #
   # Initial JDK 11 Build
@@ -22,8 +31,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        if: inputs.ref == ''
         with:
           fetch-depth: 0
+      - name: Checkout code with ref ${{ inputs.ref }}
+        if: inputs.ref != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Check if .mvn/maven.config is in the PR commit
+        if: inputs.run-pr-checks
+        run: |
+          if git diff --name-only origin/main...HEAD | grep -q '^\.mvn/maven.config$'; then
+            echo "Error: .mvn/maven.config should not be modified in PR commits. This should only be set on release branches."
+            exit 1
+          else
+            echo ".mvn/maven.config is not modified in this PR."
+          fi
+
       - uses: ./.github/actions/maven-job
         with:
           stage-name: "Initial Artifact Build"
@@ -32,10 +59,12 @@ jobs:
           require-master: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cleanup-runner: true
+
       - name: Check for changes to source during build
+        if: inputs.run-pr-checks
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo “Error: There are uncommitted changes in the working directory. These may have been modified by the build process.  Go back and run a full build before committing changes, or add these files to .gitignore if not required to be stored in the source to ensure the build is clean.”
+            echo "Error: There are uncommitted changes in the working directory. These may have been modified by the build process. Go back and run a full build before committing changes, or add these files to .gitignore if not required to be stored in the source to ensure the build is clean."
             git status --porcelain
             exit 1
           else
