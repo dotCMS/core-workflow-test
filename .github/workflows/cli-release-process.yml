@@ -105,6 +105,10 @@ jobs:
     with:
       core-build: true
       ref: ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
+      validate: false
+      version: ${{ needs.precheck.outputs.RELEASE_VERSION }}
+      generate-docker: false
+
     permissions:
       contents: read
       packages: write
