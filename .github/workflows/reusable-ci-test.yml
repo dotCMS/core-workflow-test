@@ -53,6 +53,7 @@ jobs:
         with:
           stage-name: "JVM Tests"
           maven-args: "-Pcoverage -Dprod test -pl :dotcms-core"
+          cleanup-runner: true
           generates-test-results: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
@@ -73,6 +74,7 @@ jobs:
           stage-name: "CLI Tests"
           maven-args: "-pl :dotcms-api-data-model,:dotcms-cli verify"
           generates-test-results: true
+          cleanup-runner: true
           dotcms-license: true
           needs-docker-image: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -98,6 +100,7 @@ jobs:
           stage-name: "Frontend Tests"
           maven-args: "-pl :dotcms-core-web test"
           generates-test-results: true
+          cleanup-runner: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
 
@@ -130,6 +133,7 @@ jobs:
           stage-name: "IT Tests ${{ matrix.suites.name }}"
           maven-args: "-Dit.test.forkcount=1 -Pcoverage verify -pl :dotcms-integration -Dcoreit.test.skip=false ${{ matrix.suites.maven_args}}"
           generates-test-results: true
+          cleanup-runner: true
           dotcms-license: ${{ secrets.DOTCMS_LICENSE }}
           requires-node: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
