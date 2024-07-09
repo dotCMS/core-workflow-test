@@ -141,7 +141,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ${{ github.workspace }}/artifacts
-          pattern: artifacts-*
+          pattern: cli-artifacts-*
       - uses: ./.github/actions/maven-job
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -180,7 +180,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ${{ github.workspace }}/artifacts
-          pattern: artifacts-*
+          pattern: cli-artifacts-*
           merge-multiple: true
 
       # Determines the NPM package version and tag
