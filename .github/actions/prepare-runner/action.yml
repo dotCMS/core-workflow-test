@@ -43,3 +43,9 @@ runs:
       if: ${{ inputs.no-java == 'false' }}
       id: sdkman-java
       uses: sdkman/sdkman-action@b1f9b696c79148b66d3d3a06f7ea801820318d0f
+    - name: Set JAVA_HOME and update PATH
+      shell: bash
+      if: ${{ inputs.no-java == 'false' }}
+      run: |
+        echo "JAVA_HOME=$HOME/.sdkman/candidates/java/current" >> $GITHUB_ENV
+        echo "$HOME/.sdkman/candidates/java/current/bin" >> $GITHUB_PATH
