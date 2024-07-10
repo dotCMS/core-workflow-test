@@ -125,7 +125,7 @@ jobs:
       branch: ${{ needs.precheck.outputs.AUXILIARY_BRANCH }}
 
   release:
-    needs: [ precheck, build ]
+    needs: [ precheck, build-cli ]
     runs-on: ubuntu-latest
     steps:
       - name: 'Check out repository'
