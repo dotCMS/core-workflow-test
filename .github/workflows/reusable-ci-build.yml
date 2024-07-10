@@ -12,7 +12,7 @@ on:
         default: false
       ref:
         description: "Branch or tag ref"
-        required: true
+        required: false
         default: ''
         type: string
       validate:
@@ -21,12 +21,12 @@ on:
         default: false
       version:
         description: 'The version of the build'
-        required: true
+        required: false
         type: string
         default: '1.0.0-SNAPSHOT'
       generate-docker:
         description: 'Generate docker artifact'
-        required: true
+        required: false
         type: boolean
         default: true
 jobs:
