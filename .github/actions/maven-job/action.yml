@@ -68,7 +68,7 @@ inputs:
     default: 'false'
   version:
     description: 'The version of the build'
-    required: true
+    required: false
     default: '1.0.0-SNAPSHOT'
 runs:
   using: 'composite'
