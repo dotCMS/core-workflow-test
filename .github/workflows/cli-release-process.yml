@@ -23,7 +23,7 @@ defaults:
     shell: bash
 
 env:
-  ARTIFACT_RUN_ID: github.run_id
+  ARTIFACT_RUN_ID: ${{ github.run_id }}
   MVN_PACKAGE_TYPE: 'uber-jar'
   NPM_PACKAGE_SCOPE: '@dotcms'
   NPM_PACKAGE_NAME: 'dotcli'
