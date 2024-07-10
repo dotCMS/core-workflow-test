@@ -114,7 +114,7 @@ jobs:
       packages: write
 
   build-cli:
-    name: Nightly CLI Build
+    name: Release CLI Build
     needs: [ initialize, precheck, build ]
     if: always() && !failure() && !cancelled()
     uses: ./.github/workflows/cli-build-artifacts.yml
@@ -259,7 +259,7 @@ jobs:
           echo "::group::NPM Package setup"
           echo "Adding bin folder with all the binaries"
           mkdir -p bin
-          find ${{ github.workspace }}/artifacts/distributions/ -name "*.zip" -exec unzip -d bin {} \;
+          find ${{ github.workspace }}/artifacts/ -name "*.zip" -exec unzip -d bin {} \;
 
           echo "Adding wrapper script"
           mv src/postinstall.js.seed src/postinstall.js
