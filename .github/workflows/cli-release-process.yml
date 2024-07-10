@@ -151,7 +151,7 @@ jobs:
           JRELEASER_DRY_RUN: ${{ github.event.inputs.dry-run || 'false' }}
         with:
           stage-name: "JReleaser"
-          maven-args: "-Prelease validate -DartifactsDir=artifacts -Dm2Dir=$HOME/.m2/repository -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE"
+          maven-args: "-Prelease -Pdist validate -DartifactsDir=artifacts -Dm2Dir=$HOME/.m2/repository -Djreleaser.git.root.search=true -pl :dotcms-cli-parent -Dmaven.plugin.validation=VERBOSE"
           artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
           version: ${{ needs.precheck.outputs.RELEASE_VERSION }}
 
