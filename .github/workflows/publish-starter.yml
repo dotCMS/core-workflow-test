@@ -7,15 +7,39 @@ on:
         required: true
         type: choice
         options:
-          - Full
-          - Empty
+          - 'Full Starter'
+          - 'Empty Starter'
+      date:
+        description: 'Starter date'
+        required: false
+        type: string
+        default: now
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  full:
+  full-starter:
     runs-on: ubuntu-20.04
+    if: github.event.inputs.type == 'Full Stater'
+    environment: trunk
     steps:
       - name: Context
         run: |
+          echo "Generationg a Full Starter..."
           echo "${{ toJSON(github.event.inputs) }}"
-  
+
+      - name: 'Get zip file'
+        id: get-zip-file
+        run: |
+          curl -s https://www.google.com/
+          
+  empty-starter:
+    runs-on: ubuntu-20.04
+    environment: trunk
+    steps:
+      - name: Context
+        run: |
+          echo 'Generating an Empty Starter...'
           
