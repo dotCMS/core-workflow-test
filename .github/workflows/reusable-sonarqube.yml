@@ -36,6 +36,7 @@ jobs:
           restore-classes: true
           require-master: true
           cache-sonar: true
+          java-version: 21.0.3-ms # does not work with java 11, remove once we are on java 21
           maven-args: -Dsonar.ws.timeout=180 -Dsonar.log.level=DEBUG org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=dotCMS_core_AYSbIemxK43eThAXTlt- -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.token=${{ secrets.SONAR_TOKEN }}
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
