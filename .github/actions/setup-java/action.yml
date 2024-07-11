@@ -25,12 +25,12 @@ runs:
           curl -s "https://get.sdkman.io" | bash
         fi
         
-        #Note sdkman-init.sh adds sdk as a function to the current shell
-        #sdk command is therefore not directly available on subsequent actions
-        #to use sdkman in a subsequent action you will need to call the following command
-        #with each script that uses sdk command directly.
-        #This script otherwise sets the PATH and JAVA_HOME to the selected java so futher tasks do not 
-        #need to be aware of sdkman directly
+        # Note sdkman-init.sh adds sdk as a function to the current shell
+        # sdk command is therefore not directly available on subsequent actions
+        # to use sdkman in a subsequent action you will need to call the following command
+        # with each script that uses sdk command directly.
+        # This script otherwise sets the PATH and JAVA_HOME to the selected java so further tasks do not 
+        # need to be aware of sdkman directly
 
         source "$HOME/.sdkman/bin/sdkman-init.sh"
 
@@ -61,7 +61,7 @@ runs:
         TEST_HOME=$(sdk home java "$REQUESTED_VERSION" 2>/dev/null) || true
         if [ -z "$TEST_HOME" ]; then
           echo "Java version $REQUESTED_VERSION is not installed. Installing now..."
-          sdk install java "$REQUESTED_VERSION"
+          echo "y" | sdk install java "$REQUESTED_VERSION"
           sdk use java "$REQUESTED_VERSION"
           TEST_HOME=$(sdk home java "$REQUESTED_VERSION")
         else
@@ -90,14 +90,16 @@ runs:
         fi
 
         # Install and set GRAALVM_HOME if required and not already set
-        if [[ "$REQUIRE_GRAALVM" == "true" && -z "$GRAALVM_HOME" && "$REQUESTED_VERSION" != "$GRAALVM_VERSION" ]]; then
-          echo "Requested version does not match required GraalVM version and GRAALVM_HOME is not set. Installing GraalVM version $GRAALVM_VERSION..."
-          sdk install java "$GRAALVM_VERSION"
-          GRAALVM_HOME=$(sdk home java "$GRAALVM_VERSION")
-          echo "GRAALVM_HOME=$GRAALVM_HOME" >> $GITHUB_ENV
-          echo "GRAALVM_HOME installed and set to $GRAALVM_HOME"
-        else
-          echo "GRAALVM_HOME is already set to $GRAALVM_HOME, skipping installation of GraalVM."
+        if [[ "$REQUIRE_GRAALVM" == "true" ]]; then
+          if [ -z "$GRAALVM_HOME" ] && [ "$REQUESTED_VERSION" != "$GRAALVM_VERSION" ]; then
+            echo "Requested version does not match required GraalVM version and GRAALVM_HOME is not set. Installing GraalVM version $GRAALVM_VERSION..."
+            echo "n" | sdk install java "$GRAALVM_VERSION"
+            GRAALVM_HOME=$(sdk home java "$GRAALVM_VERSION")
+            echo "GRAALVM_HOME=$GRAALVM_HOME" >> $GITHUB_ENV
+            echo "GRAALVM_HOME installed and set to $GRAALVM_HOME"
+          elif [ -n "$GRAALVM_HOME" ]; then
+            echo "GRAALVM_HOME is already set to $GRAALVM_HOME, skipping installation of GraalVM."
+          fi
         fi
 
         # Echo JAVA_HOME, Java version, and path to Java command
