@@ -1,0 +1,21 @@
+name: Publish Starter
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Select a Starter type'
+        required: true
+        type: choice
+        options:
+          - Full
+          - Empty
+
+jobs:
+  full:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Context
+        run: |
+          echo "${{ toJSON(github.event.inputs) }}"
+  
+          
