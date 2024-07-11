@@ -1,4 +1,4 @@
-name: dotCLI Release
+name: dotCLI Release ${{ inputs.version }} - dry-run=${{ inputs.dry-run }}
 on:
   release:
     types: [created]
