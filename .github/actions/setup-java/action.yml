@@ -18,24 +18,30 @@ runs:
       id: sdkman-java
       shell: bash
       run: |
-        DEFAULT_GRAALVM=21.0.2-graalce
+        DEFAULT_GRAALVM="21.0.2-graalce"
         
-        if command -v sdk &> /dev/null; then
-          echo "SDKMAN is installed and initialized"
-        else
+        if [ ! -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
           echo "Using sdkman to install SDKMAN"
           curl -s "https://get.sdkman.io" | bash
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
         fi
+        
+        #Note sdkman-init.sh adds sdk as a function to the current shell
+        #sdk command is therefore not directly available on subsequent actions
+        #to use sdkman in a subsequent action you will need to call the following command
+        #with each script that uses sdk command directly.
+        #This script otherwise sets the PATH and JAVA_HOME to the selected java so futher tasks do not 
+        #need to be aware of sdkman directly
 
-        REQUESTED_VERSION=${{ inputs.java-version }}
-        REQUIRE_GRAALVM=${{ inputs.require-graalvm }}
-        GRAALVM_VERSION=${{ inputs.graalvm-version }}
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+        REQUESTED_VERSION="${{ inputs.java-version }}"
+        REQUIRE_GRAALVM="${{ inputs.require-graalvm }}"
+        GRAALVM_VERSION="${{ inputs.graalvm-version }}"
 
         # Handle default values for REQUESTED_VERSION and GRAALVM_VERSION
         if [ -z "$REQUESTED_VERSION" ]; then
           if [ -f .sdkmanrc ]; then
-            REQUESTED_VERSION=$(grep -oP '(?<=^java=).+' .sdkmanrc)
+            REQUESTED_VERSION=$(awk -F "=" '/^java=/ {print $2}' .sdkmanrc)
             echo "Extracted Java version from .sdkmanrc: $REQUESTED_VERSION"
           else
             echo "No Java version provided and .sdkmanrc file not found."
