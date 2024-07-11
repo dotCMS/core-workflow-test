@@ -25,10 +25,6 @@ inputs:
     description: 'The job requires Node.js'
     required: true
     default: 'true'
-  no-java:
-    description: 'Java will be installed separately, do not install it here'
-    required: true
-    default: 'false'
   cache-sonar:
     description: 'Cache the SonarQube files'
     required: false
@@ -76,6 +72,10 @@ inputs:
   graalvm-version:
     description: 'Override the sdkman version of GraalVM to install'
     required: false
+  require-graalvm:
+    description: 'Require GraalVM to be installed'
+    required: true
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -83,10 +83,9 @@ runs:
       uses: ./.github/actions/prepare-runner
       with:
         cleanup-runner: ${{ inputs.cleanup-runner }}
-        no-java: ${{ inputs.no-java }}
         require-master: ${{ inputs.require-master }}
-        graalvm: ${{ inputs.native }}
         java-version: ${{ inputs.java-version }}
+        require-graalvm: ${{ inputs.native || inputs.require-graalvm }}
         graalvm-version: ${{ inputs.graalvm-version }}
     - id: setup-license
       if: ${{ inputs.dotcms-license != '' }}

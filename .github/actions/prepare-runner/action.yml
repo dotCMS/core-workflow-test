@@ -6,14 +6,13 @@ inputs:
     description: 'The runner requires extra disk space'
     required: true
     default: 'false'
-  no-java:
-    description: 'Do not install Java'
+  require-graalvm:
+    description: 'Require GraalVM to be installed'
     required: true
     default: 'false'
-  graalvm:
-    description: 'Install GraalVM'
-    required: true
-    default: 'false'
+  require-java:
+    description: 'Require java to be installed'
+    default: 'true'
   require-master:
     description: 'require the master tag to run this action'
     required: true
@@ -35,10 +34,10 @@ runs:
       if: ${{ inputs.cleanup-runner == 'true' }}
       uses: ./.github/actions/cleanup-runner
     - name: Setup Java
-      if: ${{ inputs.graalvm == 'true' }}
+      if: ${{ inputs.require-java == 'true' }}
       id: setup-java
       uses: ./.github/actions/setup-java
       with:
-        require-graalvm: ${{ inputs.graalvm }}
         java-version: ${{ inputs.java-version }}
         graalvm-version: ${{ inputs.graalvm-version }}
+        require-graalvm: ${{ inputs.require-graalvm }}
