@@ -17,6 +17,10 @@ on:
         description: 'Run all tests'
         type: boolean
         default: false
+      publish-npm-sdks:
+        description: 'Publish NPM SDKs'
+        type: boolean
+        default: false
 jobs:
   initialize:
     name: Initialize
@@ -74,6 +78,7 @@ jobs:
     uses: ./.github/workflows/reusable-deployment.yml
     with:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
+      publish-npm-sdks: ${{ inputs.publish-npm-sdks || false }}
       environment: trunk
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}

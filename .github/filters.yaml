@@ -22,6 +22,9 @@ frontend: &frontend
 cli: &cli
   - 'tools/dotcms-cli/**'
 
+sdk:
+  - 'core-web/libs/sdk/**'
+
 jvm_unit_test:
   - *backend
   - *cli
