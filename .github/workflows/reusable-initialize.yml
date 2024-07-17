@@ -137,7 +137,13 @@ jobs:
           echo "cli=${cli}"
           echo "backend=${backend}"
           echo "jvm_unit_test=${jvm_unit_test}"
-          echo "sdk=${sdk}"
+
+          cd core-web
+          SDK=$(npx nx show projects --projects "sdk-*" --affected)
+          if [[ -n $SDK ]]; then
+            SDK='true'
+          fi
+          echo "sdk=${SDK}"
 
           # Export the outcomes as GitHub Actions outputs
           echo "frontend=${frontend}" >> $GITHUB_OUTPUT
@@ -145,4 +151,4 @@ jobs:
           echo "backend=${backend}" >> $GITHUB_OUTPUT
           echo "build=${build}" >> $GITHUB_OUTPUT
           echo "jvm_unit_test=${jvm_unit_test}" >> $GITHUB_OUTPUT
-          echo "sdk=${sdk}" >> $GITHUB_OUTPUT
+          echo "sdk=${SDK}" >> $GITHUB_OUTPUT
