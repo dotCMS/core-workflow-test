@@ -129,7 +129,6 @@ type NavApiOptions = {
 
 function getHostURL(url: string): URL | undefined {
     try {
-        console.log(url);
         return new URL(url);
     } catch (error) {
         return undefined;
