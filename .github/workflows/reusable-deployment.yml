@@ -18,7 +18,10 @@ on:
       reuse-previous-build:
         default: false
         type: boolean
-      publish-npm-package:
+      publish-npm-cli:
+        default: false
+        type: boolean
+      publish-npm-sdks:
         default: false
         type: boolean
     secrets:
@@ -104,13 +107,21 @@ jobs:
 
       - name: CLI Publish
         id: cli_publish
-        if: inputs.publish-npm-package
+        if: inputs.publish-npm-cli
         uses: ./.github/actions/publish-npm-cli
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.NPM_ORG_TOKEN }}
           cli-artifact-run-id: ${{ github.run_id }} # currently cli artifacts are never from build queue
 
+      - name: SDKs Publish
+        id: sdks_publish
+        if: inputs.publish-npm-sdks
+        uses: ./.github/actions/publish-npm-sdks
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          npm-token: ${{ secrets.NPM_ORG_TOKEN }}
+          sdk-artifact-run-id: ${{ github.run_id }} # currently sdk artifacts are never from build queue
 
       # A Slack notification is sent using the 'slackapi/slack-github-action' action if the repository is 'dotcms/core'.
       - name: Slack Notification (Docker image announcement)
@@ -134,7 +145,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
       - name: Slack Notification (dotCLI announcement)
-        if: inputs.publish-npm-package
+        if: inputs.publish-npm-cli
         uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: "log-dotcli"

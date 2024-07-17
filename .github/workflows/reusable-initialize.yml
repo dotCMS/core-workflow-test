@@ -29,6 +29,8 @@ on:
         value: ${{ jobs.changes.outputs.jvm_unit_test }}
       cli:
         value: ${{ jobs.changes.outputs.cli }}
+      sdk:
+        value: ${{ jobs.changes.outputs.sdk }}
 jobs:
   initialize: # This is used as a required check to indicate that the workflow has started and is running
     name: Initialize
@@ -95,6 +97,7 @@ jobs:
       frontend: ${{ steps.filter-rewrite.outputs.frontend }}
       jvm_unit_test: ${{ steps.filter-rewrite.outputs.jvm_unit_test }}
       cli: ${{ steps.filter-rewrite.outputs.cli }}
+      sdk: ${{ steps.filter-rewrite.outputs.sdk }}
     steps:
       - uses: actions/checkout@v4
         if: ${{ inputs.incremental }}
@@ -115,6 +118,7 @@ jobs:
           backend=${{ steps.filter.outputs.backend || 'true' }}
           build=${{ steps.filter.outputs.build || 'true' }}
           jvm_unit_test=${{ steps.filter.outputs.jvm_unit_test || 'true' }}
+          sdk=${{ steps.filter.outputs.sdk || 'false' }}
 
           # Check if the commit is to the master branch
           skip_tests=${CICD_SKIP_TESTS:-false}  # Use environment variable, default to 'false'
@@ -133,6 +137,7 @@ jobs:
           echo "cli=${cli}"
           echo "backend=${backend}"
           echo "jvm_unit_test=${jvm_unit_test}"
+          echo "sdk=${sdk}"
 
           # Export the outcomes as GitHub Actions outputs
           echo "frontend=${frontend}" >> $GITHUB_OUTPUT
@@ -140,3 +145,4 @@ jobs:
           echo "backend=${backend}" >> $GITHUB_OUTPUT
           echo "build=${build}" >> $GITHUB_OUTPUT
           echo "jvm_unit_test=${jvm_unit_test}" >> $GITHUB_OUTPUT
+          echo "sdk=${sdk}" >> $GITHUB_OUTPUT
