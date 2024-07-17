@@ -139,6 +139,7 @@ jobs:
           echo "jvm_unit_test=${jvm_unit_test}"
 
           pwd
+          ls -la
           cd ${{ github.workspace }}/core-web
           SDK=$(npx nx show projects --projects "sdk-*" --affected)
           if [ -n $SDK ]; then
