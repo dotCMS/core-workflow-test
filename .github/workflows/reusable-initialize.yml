@@ -138,9 +138,11 @@ jobs:
           echo "backend=${backend}"
           echo "jvm_unit_test=${jvm_unit_test}"
 
-          cd core-web
+          pwd
+          cd ${{ github.workspace }}/core-web
           SDK=$(npx nx show projects --projects "sdk-*" --affected)
-          if [[ -n $SDK ]]; then
+          if [ -n $SDK ]; then
+            echo "SDK=$SDK"
             SDK='true'
           fi
           echo "sdk=${SDK}"
