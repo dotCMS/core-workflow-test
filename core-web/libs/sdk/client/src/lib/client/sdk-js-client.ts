@@ -12,6 +12,7 @@ export interface ClientConfig {
      *
      * @description This is the URL of the dotCMS instance you want to interact with. Ensure to include the protocol (http or https).
      * @example `https://demo.dotcms.com`
+     *
      * @type {string}
      * @required
      */
