@@ -67,7 +67,7 @@ runs:
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
       run: |
         echo "Updating version to $NEXT_VERSION"
-        sdks=$(ls -ls | awk '{ print$10 }')
+        sdks=$(ls -ls | awk '{ print$10 }' | grep -v '^$')
         
         for pkg in $sdks; do   
           if [ -d "$pkg" ]; then
