@@ -68,8 +68,9 @@ runs:
 
     - name: Update versions and dependencies
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
+      env:
+        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
       run: |
-        NEXT_VERSION=${{ steps.next_version.outputs.next_version }}
         echo "Updating version to $NEXT_VERSION"
         sdks=$(ls -ls | awk '{ print$10 }' | tr "," "\n")
         
@@ -80,9 +81,10 @@ runs:
 
             for dep in $(grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | sed 's/://g' | grep 'package.json'); do
               echo "Updating dependencies on $dep ..."
-              jq --arg new_version "$NEXT_VERSION" --arg dep "$dep" '.peerDependencies[$dep] = $new_version' $pkg/package.json > tmp.$$.json && mv tmp.$$.json $pkg/package.json
+              cat ${dep} | jq --arg new_version "$NEXT_VERSION" '.peerDependencies["@dotcms/client"] = $new_version' > tmp.$$.json && mv tmp.$$.json $pkg/package.json
             done
-            npm view ./${pkg} 
+            # npm view ./${pkg} 
+            cat ./${pkg}/package.json
           fi
         done
       shell: bash
