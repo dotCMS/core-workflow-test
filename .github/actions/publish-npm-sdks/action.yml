@@ -72,13 +72,7 @@ runs:
         for pkg in $sdks; do   
           if [ -d "$pkg" ]; then
             echo "sdk-$pkg"
-            cat ${pkg}/package.json | jq --arg new_version "$NEXT_VERSION" '.version = $new_version' > tmp.$$.json && mv tmp.$$.json $pkg/package.json
-
-            # Updating peerDependencies in other packages
-            grep -ri "\"@dotcms/${pkg}\":" . | awk '{ print $1 }' | sed 's/://g' | grep 'package.json' | while read -r dep_pkg_json; do
-              echo "Updating peerDependencies in $dep_pkg_json for @dotcms/$pkg";
-              # jq --arg pkg "@dotcms/$pkg" --arg new_version "$NEXT_VERSION" '.peerDependencies[$pkg] = $new_version' "$dep_pkg_json" > "${dep_pkg_json}.tmp" && mv "${dep_pkg_json}.tmp" "$dep_pkg_json"
-            done            
+            cat ${pkg}/package.json | jq --arg new_version "$NEXT_VERSION" '.version = $new_version' > tmp.$$.json && mv tmp.$$.json $pkg/package.json          
           fi
         done
       shell: bash
