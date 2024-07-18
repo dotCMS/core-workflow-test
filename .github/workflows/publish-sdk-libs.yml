@@ -1,0 +1,23 @@
+name: 'Publish SDK libs'
+on:
+  push:
+    branches: [ master ]
+
+env:
+  BRANCH: ${{ inputs.branch || github.ref_name }}    
+  
+jobs:
+  publish-sdk-on-npm:
+    runs-on: ubuntu-20.04
+    environment: trunk
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}
+      - uses: ./.github/actions/publish-npm-sdks
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          npm-token: ${{ secrets.NPM_ORG_TOKEN }}          
+      
+    
