@@ -22,10 +22,10 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
-    - name: 'Install dependencies'
-      working-directory: ${{ github.workspace }}/core-web
-      run: npm install
-      shell: bash
+    # - name: 'Install dependencies'
+    #   working-directory: ${{ github.workspace }}/core-web
+    #   run: npm install
+    #   shell: bash
 
     - name: 'Get current version from NPM'
       id: current_version
