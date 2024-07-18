@@ -67,6 +67,7 @@ runs:
       shell: bash
 
     - name: Update versions and dependencies
+      working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       run: |
         NEXT_VERSION=${{ steps.next_version.outputs.next_version }}
         echo "Updating version to $NEXT_VERSION"
@@ -84,7 +85,7 @@ runs:
             # for dep in $(jq -r '(.peerDependencies // {} | keys[]) as $k | if $k | test("^@dotcms/") then $k else empty end' $pkg/package.json); do
             #   jq --arg new_version "$NEXT_VERSION" --arg dep "$dep" '.peerDependencies[$dep] = $new_version' $pkg/package.json > tmp.$$.json && mv tmp.$$.json $pkg/package.json
             # done
-            npm view $pkg 
+            npm view ./${pkg} 
           fi
         done
       shell: bash
