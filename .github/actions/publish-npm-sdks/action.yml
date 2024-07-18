@@ -73,11 +73,11 @@ runs:
       run: |
         echo "Updating version to $NEXT_VERSION"
         # npm version $NEXT_VERSION --no-git-tag-version
-        SDKS=$(ls -ls core-web/libs/sdk | awk '{ print$10 }' | tr "," "\n")
+        SDKS=$(ls -ls | awk '{ print$10 }' | tr "," "\n")
         for dir in $(echo $SDKS);
         do
           echo "Updating $dir"
-          (cd $dir && npm version $NEXT_VERSION --no-git-tag-version)
+          # (cd $dir && npm version $NEXT_VERSION --no-git-tag-version)
         done
-        npm install
+        # npm install
       shell: bash
