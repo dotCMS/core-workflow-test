@@ -71,18 +71,16 @@ runs:
         
         for pkg in $sdks; do   
           if [ -d "$pkg" ]; then
-            echo "SDK - $pkg ..."
-
-            cat ${pkg}/package.json | jq '.version'
+            echo "sdk-$pkg"
             
-            # cat ${pkg}/package.json | jq --arg new_version "$NEXT_VERSION" '.version = $new_version' > tmp.$$.json && mv tmp.$$.json $pkg/package.json && cat $pkg/package.json
+            cat ${pkg}/package.json | jq --arg new_version "$NEXT_VERSION" '.version = $new_version' > tmp.$$.json && mv tmp.$$.json $pkg/package.json && cat $pkg/package.json
 
-            # grep -ri '"@dotcms/${pkg}":' .
-            # grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }'
-            # grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | grep 'package.json'
-            # grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | grep 'package.json' | sed 's/://g'            
+            grep -ri '"@dotcms/${pkg}":' .
+            grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }'
+            grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | grep 'package.json'
+            grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | grep 'package.json' | sed 's/://g'            
 
-            # dependencies=$(grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | sed 's/://g' | grep 'package.json')
+            dependencies=$(grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | sed 's/://g' | grep 'package.json')
 
             # if [[ -z "$dependencies" ]]; then
             #   echo "No dependencies to update."
@@ -102,5 +100,5 @@ runs:
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       run: |
         echo "Printing SDK packages"
-        ls -ls | awk '{ print$10 }' | tr "," "\n" | while read a; do echo -e "sdk-${a}:\n" && cat ./${a}/package.json && echo -e "\n"; done        
+        ls -ls | awk '{ print$10 }' | grep -v '^$' | while read a; do echo -e "sdk-${a}:\n" && cat ./${a}/package.json && echo -e "\n"; done        
       shell: bash
