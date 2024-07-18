@@ -22,11 +22,6 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
-    # - name: 'Install dependencies'
-    #   working-directory: ${{ github.workspace }}/core-web
-    #   run: npm install
-    #   shell: bash
-
     - name: 'Get current version from NPM'
       id: current_version
       run: |
@@ -79,12 +74,18 @@ runs:
             echo "Updating version of $pkg ..."
             cat ${pkg}/package.json | jq --arg new_version "$NEXT_VERSION" '.version = $new_version' > tmp.$$.json && mv tmp.$$.json $pkg/package.json
 
-            for dep in $(grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | sed 's/://g' | grep 'package.json'); do
+            dependencies=$(grep -ri '"@dotcms/${pkg}":' . | awk '{ print $1 }' | sed 's/://g' | grep 'package.json')
+
+            if [[ -z "$dependencies" ]]; then
+              echo "No dependencies to update."
+            else
+              echo "The following dependencies will be updated: ${dependencies}"
+            fi
+            
+            for dep in $dependencies; do
               echo "Updating dependencies on $dep ..."
               cat ${dep} | jq --arg new_version "$NEXT_VERSION" '.peerDependencies["@dotcms/${pkg}"] = $new_version' > tmp.$$.json && mv tmp.$$.json $dep
             done
-            # npm view ./${pkg} 
-            # cat ./${pkg}/package.json
           fi
         done
       shell: bash
@@ -93,33 +94,5 @@ runs:
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       run: |
         echo "Printing SDK packages"
-        ls -ls | awk '{ print$10 }' | tr "," "\n" | while read a; do echo "sdk-${a}:\n" && cat ./${a}/package.json && echo "\n"; done        
+        ls -ls | awk '{ print$10 }' | tr "," "\n" | while read a; do echo -e "sdk-${a}:\n" && cat ./${a}/package.json && echo -e "\n"; done        
       shell: bash
-
-
-    # - name: 'Update versions and dependencies'
-    #   working-directory: ${{ github.workspace }}/core-web/libs/sdk/
-    #   env:
-    #    NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
-    #   run: |
-    #     echo "Updating version to $NEXT_VERSION"
-    #     # npm version $NEXT_VERSION --no-git-tag-version
-    #     SDKS=$(ls -ls | awk '{ print$10 }' | tr "," "\n")
-    #     for dir in $(echo $SDKS);
-    #     do
-    #       echo "Updating $dir"
-    #       # $(cd $dir && npm version $NEXT_VERSION --no-git-tag-version)
-    #     done
-    #     # npm install
-    #   shell: bash
-
-    # - name: 'Show packages'
-    #   working-directory: ${{ github.workspace }}/core-web/libs/sdk/
-    #   run: |
-    #     SDKS=$(ls -ls | awk '{ print$10 }' | tr "," "\n")
-    #     for dir in $(echo $SDKS);
-    #     do
-    #       echo "Showing $dir"
-    #       npm view ./${dir} versions --json
-    #     done
-    #   shell: bash
