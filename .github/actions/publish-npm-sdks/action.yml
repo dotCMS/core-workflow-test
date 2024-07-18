@@ -50,7 +50,7 @@ runs:
        NEW_ALPHA_NUMBER=$((ALPHA_NUMBER + 1))
        NEXT_VERSION="${BASE_VERSION}-alpha.${NEW_ALPHA_NUMBER}"
        echo "Next version: $NEXT_VERSION"
-       echo "next_version::$NEXT_VERSION" >> $GITHUB_OUTPUT
+       echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
        echo "::endgroup::"
       shell: bash
 
