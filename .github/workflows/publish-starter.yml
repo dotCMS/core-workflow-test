@@ -32,11 +32,23 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.DOT_STARTER_ACCESS_TOKEN }}
         run: |
           echo "::group::Getting zip file"
+          mkdir -p starter && cd starter
           curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
             -H "Authorization: Bearer $ACCESS_TOKEN"
+          ls -ltrh  
           echo "::endgroup::"
+
+      - name: 'Upload artifacts'
+        id: upload-artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: starter
+          path: |
+            ${{ github.workspace }}/starter/*.zip
+          retention-days: 2
+          if-no-files-found: ignore          
           
   empty-starter:
     runs-on: ubuntu-20.04
@@ -46,3 +58,37 @@ jobs:
       - name: Context
         run: |
           echo 'Generating an Empty Starter...'
+          
+  deploy-artifact:
+    needs: [ full-starter ]
+    runs-on: ubuntu-20.04
+    environment: trunk
+    steps:
+      - uses: jfrog/setup-jfrog-cli@v4
+      # - name: 'JFrog CLI context'
+      #   env:
+      #     ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL }}
+      #     ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+      #   run: |
+      #     echo "::group::JFrog CLI context"
+      #     jf rt ping --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN
+      #     echo "::endgroup::"
+          
+      - name: 'Download artifacts'
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          name: starter
+          path: ${{ github.workspace }}/starter
+
+      - name: 'Listing artifacts'
+        run: ls -R
+  
+      # - name: 'Deploy artifacts'
+      #   env:
+      #     ARTIFACTORY_ACCESS_TOKEN: ${{ inputs.artifactory-access-token }}
+      #     ARTIFACTORY_URL: ${{ inputs.artifactory-url || steps.maven-artifact-repository.outputs.url }}
+      #     ARTIFACTORY_USERNAME: ${{ inputs.artifactory-username }}
+      #     ARTIFACTORY_PASSWORD: ${{ inputs.artifactory-password }}
+      #     ARTIFACTORY_REPO: ${{ inputs.artifactory-repository || steps.maven-artifact-repository.outputs.repo }}
+      #     DRY_RUN_MODE: ${{ inputs.dry-run }}      
