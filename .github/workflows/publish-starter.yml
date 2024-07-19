@@ -1,0 +1,48 @@
+name: Publish Starter
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Select a Starter type'
+        required: true
+        type: choice
+        options:
+          - 'Full Starter'
+          - 'Empty Starter'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  full-starter:
+    runs-on: macos-13
+    if: github.event.inputs.type == 'Full Starter' && github.repository == 'dotcms/core-workflow-test'
+    environment: trunk
+    steps:
+      - name: Context
+        run: |
+          echo "Generationg a Full Starter..."
+          echo "${{ toJSON(github.event.inputs) }}"
+
+      - name: 'Get zip file'
+        id: get-zip-file
+        env:
+          URL: ${{ secrets.DOT_STARTER_URL }}
+          ACCESS_TOKEN: ${{ secrets.DOT_STARTER_ACCESS_TOKEN }}
+        run: |
+          echo "::group::Getting zip file"
+          curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/octet-stream" \
+            -H "Authorization: Bearer $ACCESS_TOKEN"
+          echo "::endgroup::"
+          
+  empty-starter:
+    runs-on: ubuntu-20.04
+    if: github.event.inputs.type != 'Full Starter' && github.repository == 'dotcms/core-workflow-test'
+    environment: trunk
+    steps:
+      - name: Context
+        run: |
+          echo 'Generating an Empty Starter...'
