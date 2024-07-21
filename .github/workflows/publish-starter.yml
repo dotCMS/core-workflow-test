@@ -65,14 +65,14 @@ jobs:
     environment: trunk
     steps:
       - uses: jfrog/setup-jfrog-cli@v4
-      # - name: 'JFrog CLI context'
-      #   env:
-      #     ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL }}
-      #     ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-      #   run: |
-      #     echo "::group::JFrog CLI context"
-      #     jf rt ping --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN
-      #     echo "::endgroup::"
+      - name: 'JFrog CLI context'
+        env:
+          ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL }}
+          ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          echo "::group::JFrog CLI context"
+          jf rt ping --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN
+          echo "::endgroup::"
           
       - name: 'Download artifacts'
         uses: actions/download-artifact@v4
@@ -84,11 +84,27 @@ jobs:
       - name: 'Listing artifacts'
         run: ls -R
   
-      # - name: 'Deploy artifacts'
-      #   env:
-      #     ARTIFACTORY_ACCESS_TOKEN: ${{ inputs.artifactory-access-token }}
-      #     ARTIFACTORY_URL: ${{ inputs.artifactory-url || steps.maven-artifact-repository.outputs.url }}
-      #     ARTIFACTORY_USERNAME: ${{ inputs.artifactory-username }}
-      #     ARTIFACTORY_PASSWORD: ${{ inputs.artifactory-password }}
-      #     ARTIFACTORY_REPO: ${{ inputs.artifactory-repository || steps.maven-artifact-repository.outputs.repo }}
-      #     DRY_RUN_MODE: ${{ inputs.dry-run }}      
+      - name: 'Deploy artifacts'
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL }}
+          ARTIFACTORY_REPO: dotcms-libs-snapshot-local
+          GROUP_ID: com.dotcms
+          ARTIFACT_ID: starter
+          PACKAGING: zip
+          FILE_PATH: ${{ github.workspace }}/starter
+          DRY_RUN_MODE: true
+        run: |
+          if [[ $DRY_RUN_MODE == true ]]; then
+            DRY_RUN='--dry-run'
+          fi
+          VERSION=$(date +'%Y%m%d')              
+          jfrog rt u \
+            --url=$ARTIFACTORY_URL \
+            --access-token=$ARTIFACTORY_ACCESS_TOKEN \
+            --flat=false \
+            --target-props="groupId=${GROUP_ID};artifactId=${ARTIFACT_ID};version=${VERSION};packaging=${PACKAGING}" \
+            $[FILE_PATH}/${VERSION}.${PACKAGING} \
+            ${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${PACKAGING} \
+            $DRY_RUN_MODE
+            
