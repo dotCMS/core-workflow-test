@@ -131,7 +131,7 @@ jobs:
           echo "::endgroup::"
 
   send-notification:
-    if: ${{ !github.event.inputs.dry-run }}
+    if: ${{ github.event.inputs.dry-run == 'false' }}
     needs: [ deploy-artifacts ]
     runs-on: ubuntu-20.04
     environment: trunk
