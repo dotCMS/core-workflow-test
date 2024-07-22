@@ -114,7 +114,7 @@ jobs:
           SOURCE="./${FILENAME}"
           TARGET="${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${FILENAME}"
           PROPS="groupId=${GROUP_ID};artifactId=${ARTIFACT_ID};version=${VERSION};packaging=${PACKAGING}"
-          URL="${ARTIFACTORY_URL}/${TARGET}"
+          URL="${ARTIFACTORY_URL}/artifactory/${TARGET}"
           
           echo "FILENAME=${FILENAME}"
           echo "VERSION=${VERSION}"
@@ -146,7 +146,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ github.event.inputs.type }}_* :package: has been generated [ `${{ needs.deploy-artifacts.outputs.filename }}` ] is now available on `ARTIFACTORY` :frog:!\n \n>```${{ needs.deploy-artifacts.outputs.url }}```"
+                    "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ github.event.inputs.type }}_* :package: has been generated `[ ${{ needs.deploy-artifacts.outputs.filename }} ]` is now available on `ARTIFACTORY` :frog:!\n \n>```${{ needs.deploy-artifacts.outputs.url }}```"
                   }
                 }
               ]
