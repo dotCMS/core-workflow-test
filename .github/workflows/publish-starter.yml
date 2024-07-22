@@ -85,6 +85,7 @@ jobs:
         run: ls -R
   
       - name: 'Deploy artifacts'
+        working-directory: ${{ github.workspace }}/starter
         env:
           ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL }}
@@ -92,7 +93,6 @@ jobs:
           GROUP_ID: com.dotcms
           ARTIFACT_ID: starter
           PACKAGING: zip
-          FILE_PATH: ${{ github.workspace }}/starter
           DRY_RUN_MODE: true
         run: |
           echo "::group::Deploy Artifacts"
@@ -101,11 +101,12 @@ jobs:
           fi
           FILENAME=$(ls -ltr | awk 'END {print $NF}')
           VERSION="${FILENAME%.*}"
+          echo "FILENAME=${FILENAME}"
           echo "VERSION=${VERSION}"
 
           jfrog rt u \
-            ${FILE_PATH}/${VERSION}.${PACKAGING} \
-            ${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${PACKAGING} \
+            ${FILENAME} \
+            ${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${FILENAME} \
             --url=$ARTIFACTORY_URL \
             --access-token=$ARTIFACTORY_ACCESS_TOKEN \
             --flat=false \
