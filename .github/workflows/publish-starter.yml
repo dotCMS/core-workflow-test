@@ -71,35 +71,48 @@ jobs:
         run: |
           docker-compose up -d
 
-      - name: 'Set up ngrok'
+      - name: 'Set up node'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '19'      
+      
+      - name: 'Set up localtunnel'
         run: |
-          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt-get update && sudo apt-get install ngrok
+          npm install -g localtunnel
 
-      - name: 'Start ngrok'
-        id: start-ngrok
+      - name: 'Startup localtunnel'
         run: |
-          echo "::group::Start ngrok"
-          ngrok http 8081 &
-          sleep 5
-          curl --silent --show-error http://localhost:4040/api/tunnels > tunnels.json
-          cat tunnels.json
-          NGROK_URL=$(jq -r .tunnels[0].public_url < tunnels.json)
-          echo "ngrok URL: $NGROK_URL"
-          echo "ngrok_url=$NGROK_URL" >> $GITHUB_OUTPUT
-          echo "::endgroup::"
+          lt --port 8081
+
+      # - name: 'Set up ngrok'
+      #   run: |
+      #     curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+      #     echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+      #     sudo apt-get update && sudo apt-get install ngrok
+
+      # - name: 'Start ngrok'
+      #   id: start-ngrok
+      #   run: |
+      #     echo "::group::Start ngrok"
+      #     ngrok http 8081 &
+      #     sleep 5
+      #     curl --silent --show-error http://localhost:4040/api/tunnels > tunnels.json
+      #     cat tunnels.json
+      #     NGROK_URL=$(jq -r .tunnels[0].public_url < tunnels.json)
+      #     echo "ngrok URL: $NGROK_URL"
+      #     echo "ngrok_url=$NGROK_URL" >> $GITHUB_OUTPUT
+      #     echo "::endgroup::"
           
-      - name: 'Save ngrok URL'
-        id: save-ngrok-url
-        run: echo "ngrok_url=${{ steps.start-ngrok.outputs.ngrok_url }}" >> $GITHUB_ENV
+      # - name: 'Save ngrok URL'
+      #   id: save-ngrok-url
+      #   run: echo "ngrok_url=${{ steps.start-ngrok.outputs.ngrok_url }}" >> $GITHUB_ENV
         
-      - name: 'Print ngrok URL'
-        run: echo "Visit your application at ${{ env.ngrok_url }}"
+      # - name: 'Print ngrok URL'
+      #   run: echo "Visit your application at ${{ env.ngrok_url }}"
         
-      - name: 'Wait for manual approval'
-        run: |
-          echo "Manual approval needed. Visit your application at ${{ env.ngrok_url }}"       
+      # - name: 'Wait for manual approval'
+      #   run: |
+      #     echo "Manual approval needed. Visit your application at ${{ env.ngrok_url }}"       
 
   starter-approval-gate:
     needs: [ get-empty-starter ]
