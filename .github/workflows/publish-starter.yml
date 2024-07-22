@@ -69,9 +69,7 @@ jobs:
       - name: 'Starting dotCMS containers'
         working-directory: ${{ github.workspace }}/dotCMS/src/docker-compose/local-run
         run: |
-          pwd
-          ls -ltr
-          # docker-compose up -d
+          docker-compose up -d
 
       - name: 'Set up ngrok'
         run: |
@@ -96,10 +94,10 @@ jobs:
         id: save-ngrok-url
         run: echo "ngrok_url=${{ steps.start-ngrok.outputs.ngrok_url }}" >> $GITHUB_ENV
         
-      - name: Print ngrok URL
+      - name: 'Print ngrok URL'
         run: echo "Visit your application at ${{ env.ngrok_url }}"
         
-      - name: Wait for manual approval
+      - name: 'Wait for manual approval'
         run: |
           echo "Manual approval needed. Visit your application at ${{ env.ngrok_url }}"       
 
