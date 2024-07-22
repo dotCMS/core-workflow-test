@@ -95,16 +95,21 @@ jobs:
           FILE_PATH: ${{ github.workspace }}/starter
           DRY_RUN_MODE: true
         run: |
+          echo "::group::Deploy Artifacts"
           if [[ $DRY_RUN_MODE == true ]]; then
             DRY_RUN='--dry-run'
           fi
-          VERSION=$(date +'%Y%m%d')              
+          FILENAME=$(ls -ltr | awk 'END {print $NF}')
+          VERSION="${FILENAME%.*}"
+          echo "VERSION=${VERSION}"
+
           jfrog rt u \
+            ${FILE_PATH}/${VERSION}.${PACKAGING} \
+            ${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${PACKAGING} \
             --url=$ARTIFACTORY_URL \
             --access-token=$ARTIFACTORY_ACCESS_TOKEN \
             --flat=false \
             --target-props="groupId=${GROUP_ID};artifactId=${ARTIFACT_ID};version=${VERSION};packaging=${PACKAGING}" \
-            $[FILE_PATH}/${VERSION}.${PACKAGING} \
-            ${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${PACKAGING} \
             $DRY_RUN_MODE
             
+          echo "::endgroup::"
