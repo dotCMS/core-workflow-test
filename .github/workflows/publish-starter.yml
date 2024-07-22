@@ -9,13 +9,17 @@ on:
         options:
           - 'Full Starter'
           - 'Empty Starter'
+      dry-run:
+        description: 'Enable dry-run mode'
+        required: true
+        type: boolean
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  full-starter:
+  get-full-starter:
     runs-on: macos-13
     if: github.event.inputs.type == 'Full Starter' && github.repository == 'dotcms/core-workflow-test'
     environment: trunk
@@ -50,7 +54,7 @@ jobs:
           retention-days: 2
           if-no-files-found: ignore          
           
-  empty-starter:
+  get-empty-starter:
     runs-on: ubuntu-20.04
     if: github.event.inputs.type != 'Full Starter' && github.repository == 'dotcms/core-workflow-test'
     environment: trunk
@@ -59,19 +63,22 @@ jobs:
         run: |
           echo 'Generating an Empty Starter...'
           
-  deploy-artifact:
-    needs: [ full-starter ]
+  deploy-artifacts:
+    needs: [ get-full-starter ]
     runs-on: ubuntu-20.04
     environment: trunk
+    outputs:
+      filename: ${{ steps.deploy-artifacts.outputs.filename }}
+      url: ${{ steps.deploy-artifacts.outputs.url }}
     steps:
       - uses: jfrog/setup-jfrog-cli@v4
       - name: 'JFrog CLI context'
         env:
-          ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL }}
-          ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
         run: |
           echo "::group::JFrog CLI context"
-          jf rt ping --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN
+          jf rt ping
           echo "::endgroup::"
           
       - name: 'Download artifacts'
@@ -85,29 +92,62 @@ jobs:
         run: ls -R
   
       - name: 'Deploy artifacts'
+        id: deploy-artifacts
         working-directory: ${{ github.workspace }}/starter
         env:
-          ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          ARTIFACTORY_URL: ${{ secrets.ARTIFACTORY_URL }}
+          ARTIFACTORY_URL: ${{ vars.ARTIFACTORY_URL }}
           ARTIFACTORY_REPO: dotcms-libs-snapshot-local
           GROUP_ID: com.dotcms
           ARTIFACT_ID: starter
           PACKAGING: zip
-          DRY_RUN_MODE: true
+          DRY_RUN_MODE: ${{ github.event.inputs.dry-run }}
         run: |
           echo "::group::Deploy Artifacts"
+          
           if [[ $DRY_RUN_MODE == true ]]; then
             DRY_RUN='--dry-run'
           fi
+          
           FILENAME=$(ls -ltr | awk 'END {print $NF}')
           VERSION="${FILENAME%.*}"
           SOURCE="./${FILENAME}"
           TARGET="${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${FILENAME}"
           PROPS="groupId=${GROUP_ID};artifactId=${ARTIFACT_ID};version=${VERSION};packaging=${PACKAGING}"
+          
           echo "FILENAME=${FILENAME}"
           echo "VERSION=${VERSION}"
           echo "::notice::Uploading ${SOURCE} to ${TARGET} with props ${PROPS}"
 
-          jfrog rt u "${SOURCE}" ${TARGET} --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN --flat=false --target-props="${PROPS}" $DRY_RUN
-            
+          jfrog rt u "${SOURCE}" ${TARGET} \
+            --target-props="${PROPS}" \
+            --flat=false \
+            $DRY_RUN
+
+          echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
+          echo "url=${ARTIFACTORY_URL}/${TARGET}" >> $GITHUB_OUTPUT  
+          echo "::notice::Artifact URL ${url}"
           echo "::endgroup::"
+
+  send-notification:
+    needs: [ deploy-artifacts ]
+    runs-on: ubuntu-20.04
+    environment: trunk
+    steps:
+      - name: Slack Notification
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: "log-starter"
+          payload: |
+            {
+              "blocks": [              
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "> :large_purple_circle: *Attention dotters:* a new published!\n \n>This automated script is happy to announce that a new *Starter* has been generated [ `${{ needs.deploy-artifacts.outputs.filename }}` ] is now available on the `ARTIFACTORY` repo :package:!\n \n>`${{ needs.deploy-artifacts.outputs.url }}`"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}    
