@@ -97,7 +97,7 @@ jobs:
         working-directory: ${{ github.workspace }}/starter
         env:
           ARTIFACTORY_URL: ${{ vars.ARTIFACTORY_URL }}
-          ARTIFACTORY_REPO: dotcms-libs-snapshot-local
+          ARTIFACTORY_REPO: ${{ vars.ARTIFACTORY_REPO }}
           GROUP_ID: com.dotcms
           ARTIFACT_ID: starter
           PACKAGING: zip
@@ -114,6 +114,7 @@ jobs:
           SOURCE="./${FILENAME}"
           TARGET="${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${FILENAME}"
           PROPS="groupId=${GROUP_ID};artifactId=${ARTIFACT_ID};version=${VERSION};packaging=${PACKAGING}"
+          URL="${ARTIFACTORY_URL}/${TARGET}"
           
           echo "FILENAME=${FILENAME}"
           echo "VERSION=${VERSION}"
@@ -125,8 +126,8 @@ jobs:
             $DRY_RUN
 
           echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
-          echo "url=${ARTIFACTORY_URL}/${TARGET}" >> $GITHUB_OUTPUT  
-          echo "::notice::Artifact URL ${url}"
+          echo "url=${URL}" >> $GITHUB_OUTPUT  
+          echo "::notice::Artifact URL ${URL}"
           echo "::endgroup::"
 
   send-notification:
@@ -145,7 +146,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "> :large_purple_circle: *Attention dotters:* a new published!\n \n>This automated script is happy to announce that a new *Starter* has been generated [ `${{ needs.deploy-artifacts.outputs.filename }}` ] is now available on the `ARTIFACTORY` repo :package:!\n \n>`${{ needs.deploy-artifacts.outputs.url }}`"
+                    "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_Starter_* :package: has been generated [ `${{ needs.deploy-artifacts.outputs.filename }}` ] is now available on the `ARTIFACTORY` repo :frog:!\n \n>```${{ needs.deploy-artifacts.outputs.url }}```"
                   }
                 }
               ]
