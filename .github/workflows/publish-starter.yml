@@ -101,7 +101,7 @@ jobs:
           fi
           FILENAME=$(ls -ltr | awk 'END {print $NF}')
           VERSION="${FILENAME%.*}"
-          SOURCE="./{FILENAME}"
+          SOURCE="./${FILENAME}"
           TARGET="${ARTIFACTORY_REPO}/com/dotcms/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${FILENAME}"
           PROPS="groupId=${GROUP_ID};artifactId=${ARTIFACT_ID};version=${VERSION};packaging=${PACKAGING}"
           echo "FILENAME=${FILENAME}"
@@ -110,6 +110,6 @@ jobs:
           echo "::notice::Target ${TARGET}"
           echo "::notice::Props ${PROPS}"
 
-          jfrog rt u ${SOURCE} ${TARGET} --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN --flat=false --target-props="${PROPS}" $DRY_RUN_MODE
+          jfrog rt u --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN --flat=false --target-props="${PROPS}" $DRY_RUN_MODE ${SOURCE} ${TARGET}
             
           echo "::endgroup::"
