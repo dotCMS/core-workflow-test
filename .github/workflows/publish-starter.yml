@@ -66,7 +66,7 @@ jobs:
           
       - uses: actions/checkout@v4
 
-  staging-approval-gate:
+  starter-approval-gate:
     needs: [ get-empty-starter ]
     environment: starter
     runs-on: ubuntu-20.04
@@ -74,7 +74,7 @@ jobs:
       - name: approved
         env: 
           ENV_NAME: starter
-        run: echo "Approve for $($env.ENV_NAME)"     
+        run: echo "Approve for $ENV_NAME"     
 
       # - name: 'Starting dotCMS containers'
       #   working-directory: ${{ github.workspace }}/dotCMS/src/docker-compose/local-run
