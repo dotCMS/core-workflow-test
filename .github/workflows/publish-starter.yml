@@ -110,6 +110,6 @@ jobs:
           echo "::notice::Target ${TARGET}"
           echo "::notice::Props ${PROPS}"
 
-          jfrog rt u --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN --flat=false --target-props="${PROPS}" $DRY_RUN_MODE ${SOURCE} ${TARGET}
+          jfrog rt u "${SOURCE}" "${TARGET}" --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN --flat=false $DRY_RUN_MODE
             
           echo "::endgroup::"
