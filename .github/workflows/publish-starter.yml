@@ -106,10 +106,8 @@ jobs:
           PROPS="groupId=${GROUP_ID};artifactId=${ARTIFACT_ID};version=${VERSION};packaging=${PACKAGING}"
           echo "FILENAME=${FILENAME}"
           echo "VERSION=${VERSION}"
-          echo "::notice::Source ${SOURCE}"
-          echo "::notice::Target ${TARGET}"
-          echo "::notice::Props ${PROPS}"
+          echo "::notice::Uploading ${SOURCE} to ${TARGET} with props ${PROPS}"
 
-          jfrog rt u "${SOURCE}" "${TARGET}" --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN --flat=false $DRY_RUN_MODE
+          jfrog rt u "${SOURCE}" ${TARGET} --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN --flat=false --target-props="${PROPS}" $DRY_RUN
             
           echo "::endgroup::"
