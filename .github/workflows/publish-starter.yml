@@ -82,7 +82,7 @@ jobs:
       - name: 'Start localtunnel'
         run: |
           echo "::group::Start localtunnel"
-          nohup lt --port 8081 --subdomain dotcms-starter > localtunnel.log 2>&1 &
+          nohup lt --port 8081 > localtunnel.log 2>&1 &
           sleep 5
           cat localtunnel.log
           TUNNEL_URL=$(grep -o 'https://[^ ]*' localtunnel.log)
