@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: 'Starting dotCMS containers'
-        working-directory: ${{ github.workspace }}/dotCMS/src/docker-compose/local-run
+        working-directory: ${{ github.workspace }}/docker/docker-compose-examples/single-node/
         run: |
           docker-compose up -d
 
@@ -81,9 +81,9 @@ jobs:
 
       - name: 'Start localtunnel'
         run: |
-          sleep 60
+          sleep 90
           echo "::group::Start localtunnel"
-          nohup lt --port 8080 > localtunnel.log 2>&1 &
+          nohup lt --port 8082 > localtunnel.log 2>&1 &
           sleep 5
           TUNNEL_URL=$(grep -o 'https://[^ ]*' localtunnel.log)
           PASSWD=$(curl https://loca.lt/mytunnelpassword)
