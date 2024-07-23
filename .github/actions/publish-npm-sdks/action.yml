@@ -5,6 +5,13 @@ inputs:
     description: 'Branch to build from'
     required: false
     default: 'master'
+  npm-token:
+    description: 'NPM token'
+    required: true
+  npm-package-tag:
+    description: 'Package tag'
+    required: false
+    default: 'alpha'
   node-version:
     description: 'Node.js version'
     required: false
@@ -100,6 +107,23 @@ runs:
     - name: Printing SDK packages
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       run: |
-        echo "Printing SDK packages"
-        ls -ls | awk '{ print$10 }' | grep -v '^$' | while read a; do echo -e "sdk-${a}:\n" && cat ./${a}/package.json && echo -e "\n"; done        
+        echo "::group::Printing SDK packages"
+        ls -ls | awk '{ print$10 }' | grep -v '^$' | while read a; do echo -e "sdk-${a}:\n" && cat ./${a}/package.json && echo -e "\n"; done
+        echo "::endgroup::"
       shell: bash
+
+    - name: 'Publishing sdk into NPM registry'
+      working-directory: ${{ github.workspace }}/core-web/libs/sdk/
+      env:
+        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+        NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
+        NPM_TAG: ${{ inputs.npm-package-tag }}
+      run: |
+        sdks=$(ls)
+        for sdk in $sdks; do 
+          echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+          npm publish --access public --tag $NPM_TAG
+          npm dist-tag $NEXT_VERSION latest
+        done
+      shell: bash      
+        
