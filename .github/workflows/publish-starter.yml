@@ -79,10 +79,20 @@ jobs:
         run: |
           npm install -g localtunnel
 
-      - name: 'Startup localtunnel'
+      - name: 'Start localtunnel'
         run: |
-          lt --port 8081
+          echo "::group::Start localtunnel"
+          nohup lt --port 8081 --subdomain dotcms-starter > localtunnel.log 2>&1 &
+          sleep 5
+          cat localtunnel.log
+          TUNNEL_URL=$(grep -o 'https://[^ ]*' localtunnel.log)
 
+          curl https://loca.lt/mytunnelpassword
+
+          echo "tunnel_url=$TUNNEL_URL" >> $GITHUB_OUTPUT
+          echo "::notice::LocalTunnel URL: $TUNNEL_URL"
+          echo "::endgroup::"
+  
       # - name: 'Set up ngrok'
       #   run: |
       #     curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
