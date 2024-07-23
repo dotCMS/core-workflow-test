@@ -81,16 +81,16 @@ jobs:
 
       - name: 'Start localtunnel'
         run: |
+          sleep 60
           echo "::group::Start localtunnel"
           nohup lt --port 8081 > localtunnel.log 2>&1 &
           sleep 5
-          cat localtunnel.log
           TUNNEL_URL=$(grep -o 'https://[^ ]*' localtunnel.log)
 
           curl https://loca.lt/mytunnelpassword
 
           echo "tunnel_url=$TUNNEL_URL" >> $GITHUB_OUTPUT
-          echo "::notice::LocalTunnel URL: $TUNNEL_URL"
+          echo "::notice::URL: $TUNNEL_URL"
           echo "::endgroup::"
   
       # - name: 'Set up ngrok'
