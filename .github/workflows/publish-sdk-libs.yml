@@ -42,6 +42,8 @@ jobs:
       - uses: ./.github/actions/publish-npm-sdks
         if: ${{ steps.checking-affected.outputs.publish == 'true' }}
         with:
+          ref: ${{ env.BRANCH }}
+          node-version: ${{ env.NODE_VERSION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.NPM_ORG_TOKEN }}          
       
