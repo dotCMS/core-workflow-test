@@ -27,6 +27,7 @@ jobs:
         working-directory: ${{ github.workspace }}/core-web/
         run: |
           echo "::group::Checking affected files"
+          pwd
           npm install
           AFFECTED=$(nx show projects --projects "sdk-*" --affected)
 
