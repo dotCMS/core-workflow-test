@@ -44,7 +44,5 @@ jobs:
         with:
           ref: ${{ env.BRANCH }}
           node-version: ${{ env.NODE_VERSION }}
+          npm-token: ${{ secrets.NPM_ORG_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          npm-token: ${{ secrets.NPM_ORG_TOKEN }}          
-      
-    
