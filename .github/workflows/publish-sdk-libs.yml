@@ -4,7 +4,8 @@ on:
     branches: [ master ]
 
 env:
-  BRANCH: ${{ inputs.branch || github.ref_name }}    
+  BRANCH: ${{ inputs.branch || github.ref_name }}
+  NODE_VERSION: '19'
   
 jobs:
   publish-sdk-on-npm:
@@ -16,13 +17,17 @@ jobs:
         with:
           ref: ${{ env.BRANCH }}
           
-      - uses: actions/setup-node@v4
+      - name: 'Set up Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       
       - name: 'Checking affected files'
         id: checking-affected
         working-directory: ${{ github.workspace }}/core-web/
         run: |
           echo "::group::Checking affected files"
+          npm install
           AFFECTED=$(nx show projects --projects "sdk-*" --affected)
 
           if [[ -n "$AFFECTED" ]]; then
