@@ -8,6 +8,10 @@ on:
         type: choice
         options:
           - 'Full Starter'
+      changelog:
+        description: 'Changes description'
+        required: true
+        type: string
       dry-run:
         description: 'Enable dry-run mode'
         required: true
@@ -129,7 +133,6 @@ jobs:
           echo "::endgroup::"
 
   send-notification:
-    if: ${{ github.event.inputs.dry-run == 'false' }}
     needs: [ deploy-artifacts ]
     runs-on: ubuntu-20.04
     environment: trunk
@@ -145,7 +148,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }}_* :package: `${{ needs.deploy-artifacts.outputs.filename }}` is now available on `ARTIFACTORY` :frog:!\n \n>```${{ needs.deploy-artifacts.outputs.url }}```"
+                    "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }}_* :package: `${{ needs.deploy-artifacts.outputs.filename }}` is now available on `ARTIFACTORY` :frog:!\n \n>```*Changelog:* \n${{ github.event.inputs.changelog }}```\n \n>```${{ needs.deploy-artifacts.outputs.url }}```"
                   }
                 }
               ]
