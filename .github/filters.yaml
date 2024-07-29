@@ -22,14 +22,23 @@ frontend: &frontend
 cli: &cli
   - 'tools/dotcms-cli/**'
 
+sdkman: &sdkman
+  -  '.sdkmanrc'
+
+nvm: &nvm
+  - '.nvmrc'
+
 sdk:
   - 'core-web/libs/sdk/**'
 
 jvm_unit_test:
   - *backend
   - *cli
+  - *sdkman
 
 build:
   - *backend
   - *cli
   - *frontend
+  - *sdkman
+  - *nvm
