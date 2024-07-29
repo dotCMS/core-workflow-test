@@ -62,7 +62,6 @@ jobs:
           if-no-files-found: ignore          
           
   deploy-artifacts:
-    if: success()
     needs: [ get-full-starter ]
     runs-on: ubuntu-20.04
     environment: trunk
@@ -130,7 +129,7 @@ jobs:
           echo "::endgroup::"
 
   send-notification:
-    if: success() && ${{ github.event.inputs.dry-run == 'false' }}
+    if: ${{ github.event.inputs.dry-run == 'false' }}
     needs: [ deploy-artifacts ]
     runs-on: ubuntu-20.04
     environment: trunk
