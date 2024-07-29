@@ -130,6 +130,7 @@ jobs:
           echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
           echo "url=${URL}" >> $GITHUB_OUTPUT  
           echo "::notice::Artifact URL ${URL}"
+          echo "::notice::Changelog: ${{ github.event.inputs.changelog }}"
           echo "::endgroup::"
 
   send-notification:
@@ -148,7 +149,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }}_* :package: `${{ needs.deploy-artifacts.outputs.filename }}` is now available on `ARTIFACTORY` :frog:!\n \n>```*Changelog:* \n${{ github.event.inputs.changelog }}```\n \n>```${{ needs.deploy-artifacts.outputs.url }}```"
+                    "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }}_* :package: `${{ needs.deploy-artifacts.outputs.filename }}` is now available on `ARTIFACTORY` :frog:!\n \n>```${{ needs.deploy-artifacts.outputs.url }}```\n*Changelog:* \n>```${{ github.event.inputs.changelog }}```"
                   }
                 }
               ]
