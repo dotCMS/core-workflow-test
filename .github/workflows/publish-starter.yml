@@ -44,21 +44,14 @@ jobs:
             -H "Accept: application/octet-stream" \
             -H "Authorization: Bearer $ACCESS_TOKEN")
 
-          if [[ "$RESP" == "OK" ]]; then
-            RESULT='true'
-          else
-            RESULT='false'
+          if [[ "$RESP" != "200" ]]; then
+            echo "RESP: $RESP"
+            exit 1
           fi
-          
-          echo "RESP: $RESP"
-          echo "RESULT: $RESULT"
-          echo "result=$RESULT" >> $GITHUB_OUTPUT
-
           ls -ltrh
           echo "::endgroup::"
 
       - name: 'Upload artifacts'
-        if: steps.get-zip-file.outputs.result == 'true'
         id: upload-artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -69,6 +62,7 @@ jobs:
           if-no-files-found: ignore          
           
   deploy-artifacts:
+    if: success()
     needs: [ get-full-starter ]
     runs-on: ubuntu-20.04
     environment: trunk
