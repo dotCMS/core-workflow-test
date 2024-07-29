@@ -43,13 +43,18 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
             -H "Authorization: Bearer $ACCESS_TOKEN")
-          ls -ltrh
+
           if [[ "$RESP" == "OK" ]]; then
             RESULT='true'
           else
             RESULT='false'
           fi
+          
+          echo "RESP: $RESP"
+          echo "RESULT: $RESULT"
           echo "result=$RESULT" >> $GITHUB_OUTPUT
+
+          ls -ltrh
           echo "::endgroup::"
 
       - name: 'Upload artifacts'
