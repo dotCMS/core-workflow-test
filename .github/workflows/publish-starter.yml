@@ -39,14 +39,21 @@ jobs:
         run: |
           echo "::group::Getting zip file"
           mkdir -p starter && cd starter
-          curl -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
+          RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $ACCESS_TOKEN"
-          ls -ltrh  
+            -H "Authorization: Bearer $ACCESS_TOKEN")
+          ls -ltrh
+          if [[ "$RESP" == "OK" ]]; then
+            RESULT='true'
+          else
+            RESULT='false'
+          fi
+          echo "result=$RESULT" >> $GITHUB_OUTPUT
           echo "::endgroup::"
 
       - name: 'Upload artifacts'
+        if: steps.get-zip-file.outputs.result == 'true'
         id: upload-artifacts
         uses: actions/upload-artifact@v4
         with:
