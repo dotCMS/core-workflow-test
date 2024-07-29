@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "::group::Getting zip file"
           mkdir -p starter && cd starter
-          curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
+          curl -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
             -H "Authorization: Bearer $ACCESS_TOKEN"
