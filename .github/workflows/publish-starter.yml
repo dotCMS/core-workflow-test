@@ -23,7 +23,7 @@ env:
 jobs:
   get-full-starter:
     runs-on: macos-13
-    if: ${{ env.STARTER_TYPE == 'Full Starter' && github.repository == 'dotcms/core-workflow-test' }}
+    if: github.repository == 'dotcms/core-workflow-test'
     environment: trunk
     steps:
       - name: Context
