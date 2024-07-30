@@ -21,27 +21,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
-      - name: 'Checking affected files'
-        id: checking-affected
-        working-directory: ${{ github.workspace }}/core-web/
-        run: |
-          echo "::group::Checking affected files"
-          pwd
-          ng build
-          AFFECTED=$(nx show projects --projects "sdk-*" --affected)
-
-          if [[ -n "$AFFECTED" ]]; then
-            PUBLISH='true'
-          else
-            PUBLISH='false'
-          fi
-          
-          echo "publish=$PUBLISH" >> $GITHUB_OUTPUT
-          echo "::endgroup::"
           
       - uses: ./.github/actions/publish-npm-sdks
-        if: ${{ steps.checking-affected.outputs.publish == 'true' }}
         with:
           ref: ${{ env.BRANCH }}
           node-version: ${{ env.NODE_VERSION }}
