@@ -129,5 +129,6 @@ runs:
           npm dist-tag $NEXT_VERSION latest
           cd ..
         done
+        echo "::endgroup::"
       shell: bash      
         
