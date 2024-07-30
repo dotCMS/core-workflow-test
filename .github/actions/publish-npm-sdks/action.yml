@@ -16,6 +16,9 @@ inputs:
     description: 'Node.js version'
     required: false
     default: '19'
+  github-token:
+    description: 'GitHub Token'
+    required: true
 runs:
   using: "composite"
   steps:
@@ -120,11 +123,12 @@ runs:
         NPM_TAG: ${{ inputs.npm-package-tag }}
       run: |
         echo "::group::Publishing SDK packages"
-        echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+        
         sdks=$(ls)
         for sdk in $sdks; do
           echo "Publishing SDK lib [${sdk}]"
-          cd $sdk && pwd
+          cd $sdk && echo "$(pwd)"
+          echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
           npm publish --access public --tag $NPM_TAG
           npm dist-tag $NEXT_VERSION latest
           cd ..
