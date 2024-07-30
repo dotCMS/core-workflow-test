@@ -6,7 +6,7 @@ on:
         default: 'none'
         type: string
         description: 'Levels of validation: none, full, or custom'
-      custom_modules:
+      custom-modules:
         default: ''
         type: string
         description: 'Comma-separated list of custom modules to validate'    
@@ -144,7 +144,7 @@ jobs:
             build=false
             jvm_unit_test=false
             sdk=false
-            IFS=',' read -r -a custom_modules_list <<< "${{ inputs.custom_modules }}"
+            IFS=',' read -r -a custom_modules_list <<< "${{ inputs.custom-modules }}"
             for module in "${custom_modules_list[@]}"; do
               if [ "${module}" == "frontend" ]; then
                 frontend=${{ steps.filter.outputs.frontend }}
