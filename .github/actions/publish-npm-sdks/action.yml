@@ -119,11 +119,15 @@ runs:
         NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
         NPM_TAG: ${{ inputs.npm-package-tag }}
       run: |
+        echo "::group::Publishing SDK packages"
+        echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
         sdks=$(ls)
-        for sdk in $sdks; do 
-          echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+        for sdk in $sdks; do
+          echo "Publishing SDK lib [${sdk}]"
+          cd $sdk && pwd
           npm publish --access public --tag $NPM_TAG
           npm dist-tag $NEXT_VERSION latest
+          cd ..
         done
       shell: bash      
         
