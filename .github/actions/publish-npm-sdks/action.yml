@@ -19,6 +19,10 @@ inputs:
   github-token:
     description: 'GitHub Token'
     required: true
+outputs:
+  npm-package-version:
+    description: 'SDK libs - NPM package version'
+    value: ${{ steps.next_version.outputs.next_version }}
 runs:
   using: "composite"
   steps:
