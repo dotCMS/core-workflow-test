@@ -121,7 +121,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.NPM_ORG_TOKEN }}
-          sdk-artifact-run-id: ${{ github.run_id }} # currently sdk artifacts are never from build queue
+          # sdk-artifact-run-id: ${{ github.run_id }} # currently sdk artifacts are never from build queue
 
       # A Slack notification is sent using the 'slackapi/slack-github-action' action if the repository is 'dotcms/core'.
       - name: Slack Notification (Docker image announcement)
@@ -136,7 +136,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "> :large_purple_circle: *Attention dotters:* Docker image built!\n \n>This automated script is happy to announce that a new *docker* image has been built for *${{ inputs.environment }}* with *tags:* [`${{ steps.docker_build.outputs.tags }}`] :docker:"
+                    "text": "> :large_blue_circle: *Attention dotters:* Docker image built!\n \n>This automated script is happy to announce that a new *docker* image has been built for *${{ inputs.environment }}* with *tags:* [`${{ steps.docker_build.outputs.tags }}`] :docker:"
                   }
                 }
               ]
@@ -163,3 +163,23 @@ jobs:
             }
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Slack Notification (SDK libs)
+        if: inputs.publish-npm-sdks
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: "log-sdk-libs"
+          payload: |
+            {
+              "blocks": [              
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "> :red_circle: *Attention dotters:* SDK libs published!\n \n>This automated script is happy to announce that a new *_SDK libs (client, angular, experiments and react)_* version *tagged as:* [`${{ steps.sdks_publish.outputs.version }}`] is now available on the `NPM` registry :package:!"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}              
