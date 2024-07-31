@@ -54,7 +54,9 @@ jobs:
       - name: Github Context
         run: |
           echo "Github Context"
-          echo ${{ toJSON(github) }}
+          echo "${{ toJSON(github) }}"
+          echo "Github Event Inputs"
+          echo "${{ toJSON(github.event.inputs) }}"
           
       # The repository is checked out using the 'actions/checkout' action.
       - uses: actions/checkout@v4
