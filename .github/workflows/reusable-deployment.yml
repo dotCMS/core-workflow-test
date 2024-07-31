@@ -51,6 +51,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
+      - name: Github Context
+        run: |
+          echo "Github Context"
+          echo ${{ toJSON(github) }}
+          
       # The repository is checked out using the 'actions/checkout' action.
       - uses: actions/checkout@v4
         with:
