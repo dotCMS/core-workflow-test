@@ -23,7 +23,6 @@ dotCMS is available as a docker image or as a cloud based product.
 -  [Docker Images](https://www.dotcms.com/download)
 -  [dotCMS Cloud](https://www.dotcms.com/product/dotcms-cloud)
 
-
 ---
 
 ## Licensing
@@ -49,3 +48,4 @@ For a complete list of requirements, see [this page](http://www.dotcms.com/docs/
 | Forums/Listserv | [via Google Groups](https://groups.google.com/forum/#!forum/dotCMS) |
 | Twitter         | @dotCMS                                                             |
 | Main Site       | [dotCMS.com](https://www.dotcms.com/)                                   |
+
