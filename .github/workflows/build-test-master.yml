@@ -80,8 +80,7 @@ jobs:
     uses: ./.github/workflows/reusable-deployment.yml
     with:
       artifact-run-id: ${{ needs.initialize.outputs.artifact-run-id }}
-      publish-npm-sdks: ${{ needs.initialize.outputs.sdk }}
-      #publish-npm-sdks: ${{ (needs.initialize.outputs.sdk && github.event_name != 'workflow_dispatch') || (inputs.publish-npm-sdks && github.event_name == 'workflow_dispatch') }}
+      publish-npm-sdks: ${{ (needs.initialize.outputs.sdk == 'true' && github.event_name != 'workflow_dispatch') || (inputs.publish-npm-sdks && github.event_name == 'workflow_dispatch') }}
       environment: trunk
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
