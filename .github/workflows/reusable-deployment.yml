@@ -53,10 +53,13 @@ jobs:
     steps:
       - name: Github Context
         run: |
-          echo "Github Context"
-          echo "${{ toJSON(github) }}"
-          echo "Github Event Inputs"
-          echo "${{ toJSON(inputs) }}"
+          echo "publish-npm-sdks: ${{ inputs.publish-npm-sdks }}"
+          echo "All inputs:"
+          for var in $(compgen -e); do
+            if [[ $var == INPUT_* ]]; then
+              echo "$var=${!var}"
+            fi
+          done          
           
       # The repository is checked out using the 'actions/checkout' action.
       - uses: actions/checkout@v4
