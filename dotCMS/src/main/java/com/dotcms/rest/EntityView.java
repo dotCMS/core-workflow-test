@@ -13,7 +13,7 @@ public interface EntityView <T> {
 
     T getEntity();
 
-    List<MessageEntity> getMessages() ;
+    List<MessageEntity> getMessages();
 
     Map<String, String> getI18nMessagesMap();
 
@@ -23,6 +23,7 @@ public interface EntityView <T> {
      * Returns the pagination parameters associated to the current data request.
      *
      * @return The {@link Pagination} instance.
+     *
      */
     Pagination getPagination();
 
