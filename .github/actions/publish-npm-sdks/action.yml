@@ -30,6 +30,7 @@ runs:
       uses: actions/checkout@v4
       with:
         ref: ${{ inputs.ref }}
+        github-token: ${{ inputs.github-token }}
 
     - name: 'Set up Node.js'
       uses: actions/setup-node@v4
@@ -80,6 +81,12 @@ runs:
       env:
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
       run: |
+        echo "::group::Update versions and dependencies"
+
+        # Create an auxiliary branch for versioning updates
+        AUXILIARY_BRANCH=sdk-libs-version-update-${NEXT_VERSION}-${{ github.run_id }}
+        git checkout -b $AUXILIARY_BRANCH        
+
         echo "Updating version to $NEXT_VERSION"
         sdks=$(ls -ls | awk '{ print$10 }' | grep -v '^$')
         
@@ -109,6 +116,14 @@ runs:
                 echo "The file $package_json does not exist"
             fi
         done
+
+        git add .
+        git status
+        git commit --allow-empty -a -m "📦 Publishing SDK libs version [${NEXT_VERSION}]"
+        git push origin $AUXILIARY_BRANCH
+        echo "auxiliary-branch=$AUXILIARY_BRANCH" >> "$GITHUB_OUTPUT"
+
+        echo "::endgroup::"
       shell: bash
 
     - name: Printing SDK packages
@@ -118,6 +133,26 @@ runs:
         ls -ls | awk '{ print$10 }' | grep -v '^$' | while read a; do echo -e "sdk-${a}:\n" && cat ./${a}/package.json && echo -e "\n"; done
         echo "::endgroup::"
       shell: bash
+
+    - name: 'Create Pull Request'
+      uses: peter-evans/create-pull-request@v5
+      env:
+        AUXILIARY_BRANCH: ${{ steps.update-versions.outputs.auxiliary-branch }}
+      with:
+        token: ${{ inputs.github-token }}
+        branch: $AUXILIARY_BRANCH
+        base: master
+        title: 'Auto-generated PR: Update configuration files'
+        body: 'This PR was created automatically to update the configuration files.'
+        draft: false 
+
+    - name: 'Wait for PR to be merged'
+      uses: jcansdale/poll-pull-request@v1
+      with:
+        token: ${{ inputs.github-token }}
+        pr: ${{ steps.create-pull-request.outputs.pull-request-number }}
+        interval: 60  # Interval of 60 seconds between checks
+        timeout: 7200  # Timeout of 2 hour (7200 seconds)                 
 
     - name: 'Publishing sdk into NPM registry'
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
@@ -139,4 +174,4 @@ runs:
         done
         echo "::endgroup::"
       shell: bash      
-        
+      
