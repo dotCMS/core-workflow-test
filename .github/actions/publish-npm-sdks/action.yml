@@ -146,24 +146,24 @@ runs:
         body: 'This PR was created automatically to update the configuration files.'
         draft: false           
 
-    - name: 'Publishing sdk into NPM registry'
-      working-directory: ${{ github.workspace }}/core-web/libs/sdk/
-      env:
-        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
-        NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
-        NPM_TAG: ${{ inputs.npm-package-tag }}
-      run: |
-        echo "::group::Publishing SDK packages"
+    # - name: 'Publishing sdk into NPM registry'
+    #   working-directory: ${{ github.workspace }}/core-web/libs/sdk/
+    #   env:
+    #     NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+    #     NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
+    #     NPM_TAG: ${{ inputs.npm-package-tag }}
+    #   run: |
+    #     echo "::group::Publishing SDK packages"
         
-        sdks=$(ls)
-        for sdk in $sdks; do
-          echo "Publishing SDK lib [${sdk}]"
-          cd $sdk && echo "$(pwd)"
-          echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
-          npm publish --access public --tag $NPM_TAG
-          npm dist-tag $NEXT_VERSION latest
-          cd ..
-        done
-        echo "::endgroup::"
-      shell: bash      
+    #     sdks=$(ls)
+    #     for sdk in $sdks; do
+    #       echo "Publishing SDK lib [${sdk}]"
+    #       cd $sdk && echo "$(pwd)"
+    #       echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+    #       npm publish --access public --tag $NPM_TAG
+    #       npm dist-tag $NEXT_VERSION latest
+    #       cd ..
+    #     done
+    #     echo "::endgroup::"
+    #   shell: bash      
       
