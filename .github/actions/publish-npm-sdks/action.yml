@@ -91,7 +91,7 @@ runs:
 
         # Create an auxiliary branch for versioning updates
         AUXILIARY_BRANCH=sdk-libs-version-update-${NEXT_VERSION}-${{ github.run_id }}
-        git checkout -b $AUXILIARY_BRANCH        
+        # git checkout -b $AUXILIARY_BRANCH        
 
         echo "Updating version to $NEXT_VERSION"
         sdks=$(ls -ls | awk '{ print$10 }' | grep -v '^$')
@@ -126,7 +126,7 @@ runs:
         git add .
         git status
         git commit --allow-empty -a -m "📦 Publishing SDK libs version [${NEXT_VERSION}]"
-        git push origin $AUXILIARY_BRANCH
+        # git push origin $AUXILIARY_BRANCH
         echo "auxiliary-branch=$AUXILIARY_BRANCH" >> "$GITHUB_OUTPUT"
 
         echo "::endgroup::"
@@ -141,32 +141,14 @@ runs:
       shell: bash
 
     - name: 'Create Pull Request'
-      id: create_pr
-      uses: actions/github-script@v7
+      uses: peter-evans/create-pull-request@v6
       with:
-        script: |
-          const { data: pullRequest } = await github.pulls.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: 'Auto-generated PR: Update configuration files',
-            head: '${AUXILIARY_BRANCH}',
-            base: 'master',
-            body: 'This PR was created automatically to update the configuration files.'
-          });
-          core.setOutput('pr_url', pullRequest.html_url);
-          core.setOutput('pr_number', pullRequest.number);      
-
-    # - name: 'Create Pull Request'
-    #   uses: peter-evans/create-pull-request@v6
-    #   env:
-    #     AUXILIARY_BRANCH: ${{ steps.update-versions.outputs.auxiliary-branch }}
-    #   with:
-    #     token: ${{ inputs.github-token }}
-    #     branch: $AUXILIARY_BRANCH
-    #     base: master
-    #     title: 'Auto-generated PR: Update configuration files'
-    #     body: 'This PR was created automatically to update the configuration files.'
-    #     draft: false           
+        token: ${{ inputs.github-token }}
+        branch: ${{ steps.update-versions.outputs.auxiliary-branch }}
+        base: ${{ inputs.ref }}
+        title: 'Auto-generated PR: Update configuration files'
+        body: 'This PR was created automatically to update the configuration files.'
+        draft: false           
 
     # - name: 'Publishing sdk into NPM registry'
     #   working-directory: ${{ github.workspace }}/core-web/libs/sdk/
