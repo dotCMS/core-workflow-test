@@ -30,7 +30,7 @@ runs:
       uses: actions/checkout@v4
       with:
         ref: ${{ inputs.ref }}
-        github-token: ${{ inputs.github-token }}
+        token: ${{ inputs.github-token }}
 
     - name: 'Set up Node.js'
       uses: actions/setup-node@v4
