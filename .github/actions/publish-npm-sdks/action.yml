@@ -140,16 +140,17 @@ runs:
         echo "::endgroup::"
       shell: bash
 
-    - name: 'Create Pull Request'
-      uses: peter-evans/create-pull-request@v6
-      env:
-        AUXILIARY_BRANCH: ${{ steps.update-versions.outputs.auxiliary-branch }}
-      with:
-        branch: $AUXILIARY_BRANCH
-        base: master
-        title: 'Auto-generated PR: Update configuration files'
-        body: 'This PR was created automatically to update the configuration files.'
-        draft: false           
+    # - name: 'Create Pull Request'
+    #   uses: peter-evans/create-pull-request@v6
+    #   env:
+    #     AUXILIARY_BRANCH: ${{ steps.update-versions.outputs.auxiliary-branch }}
+    #   with:
+    #     token: ${{ inputs.github-token }}
+    #     branch: $AUXILIARY_BRANCH
+    #     base: master
+    #     title: 'Auto-generated PR: Update configuration files'
+    #     body: 'This PR was created automatically to update the configuration files.'
+    #     draft: false           
 
     # - name: 'Publishing sdk into NPM registry'
     #   working-directory: ${{ github.workspace }}/core-web/libs/sdk/
