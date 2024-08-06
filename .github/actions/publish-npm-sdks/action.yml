@@ -76,6 +76,11 @@ runs:
         echo "::endgroup::"
       shell: bash
 
+    - name: 'Setup git config'
+      run: |
+        git config user.name "dotCMS-Machine-User"
+        git config user.email "dotCMS-Machine-User@dotcms.com"  
+
     - name: Update versions and dependencies
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       env:
