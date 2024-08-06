@@ -139,7 +139,6 @@ runs:
       env:
         AUXILIARY_BRANCH: ${{ steps.update-versions.outputs.auxiliary-branch }}
       with:
-        token: ${{ inputs.github-token }}
         branch: $AUXILIARY_BRANCH
         base: master
         title: 'Auto-generated PR: Update configuration files'
