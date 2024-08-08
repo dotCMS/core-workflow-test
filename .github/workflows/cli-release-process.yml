@@ -143,6 +143,11 @@ jobs:
         with:
           path: ${{ github.workspace }}/artifacts
           pattern: cli-artifacts-*
+
+      - name: 'List artifacts'
+        run: |
+          ls -R ${{ github.workspace }}/artifacts/
+          
       - uses: ./.github/actions/maven-job
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
