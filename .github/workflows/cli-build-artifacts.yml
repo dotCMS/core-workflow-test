@@ -80,7 +80,7 @@ jobs:
         id: upload-artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cli-artifacts-${{ matrix.os }}
+          name: cli-artifacts-${{ matrix.platform }}
           path: |
             ${{ github.workspace }}/tools/dotcms-cli/cli/target/distributions/*.zip
           retention-days: 2
