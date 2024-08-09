@@ -36,33 +36,24 @@ jobs:
           echo "::group::Github context"
           echo "${{ toJSON(github.event.inputs) }}"
           echo "::endgroup::"
-
-      - name: 'Get starter server credentials'
-        id: get-starter-type
-        env:
-          INPUT_TYPE: ${{ github.event.inputs.type }}
-        run: |
-          echo "::group::Get starter server credentials"
-          if [[ "$INPUT_TYPE" == "Empty" ]]; then
-            echo "Empty Starter"
-            URL="${{ vars.DOT_EMPTY_STARTER_URL }}"
-            ACCESS_TOKEN="${{ secrets.DOT_EMPTY_STARTER_ACCESS_TOKEN }}"
-          else
-            echo "Full Starter"
-            URL="${{ vars.DOT_STARTER_URL }}"
-            ACCESS_TOKEN="${{ secrets.DOT_STARTER_ACCESS_TOKEN }}"
-          fi
-          echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "access-token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
-          echo "::endgroup::"          
-
+       
       - name: 'Get zip file'
         id: get-zip-file
         env:
-          URL: ${{ steps.get-starter-type.outputs.url }}
-          ACCESS_TOKEN: ${{ steps.get-starter.type.outputs.access-token }}
+          INPUT_TYPE: ${{ github.event.inputs.type }}
         run: |
           echo "::group::Getting zip file"
+
+          if [[ "$INPUT_TYPE" == "Empty" ]]; then
+            echo "Getting Empty Starter"
+            URL="${{ vars.DOT_EMPTY_STARTER_URL }}"
+            ACCESS_TOKEN="${{ secrets.DOT_EMPTY_STARTER_ACCESS_TOKEN }}"
+          else
+            echo "Getting Full Starter"
+            URL="${{ vars.DOT_STARTER_URL }}"
+            ACCESS_TOKEN="${{ secrets.DOT_STARTER_ACCESS_TOKEN }}"
+          fi          
+          
           mkdir -p starter && cd starter
           RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
             -H "Content-Type: application/json" \
