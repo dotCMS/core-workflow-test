@@ -39,20 +39,21 @@ jobs:
        
       - name: 'Get zip file'
         id: get-zip-file
-        env:
-          INPUT_TYPE: ${{ github.event.inputs.type }}
         run: |
           echo "::group::Getting zip file"
 
-          if [[ "$INPUT_TYPE" == "Empty" ]]; then
+          if [[ "$STARTER_TYPE" == "Empty" ]]; then
             echo "Getting Empty Starter"
-            URL="${{ vars.DOT_EMPTY_STARTER_URL }}"
-            ACCESS_TOKEN="${{ secrets.DOT_EMPTY_STARTER_ACCESS_TOKEN }}"
+            echo "URL=${{ vars.DOT_EMPTY_STARTER_URL }}" >> $GITHUB_ENV
+            echo "ACCESS_TOKEN=${{ secrets.DOT_EMPTY_STARTER_ACCESS_TOKEN }}" >> $GITHUB_ENV
           else
             echo "Getting Full Starter"
-            URL="${{ vars.DOT_STARTER_URL }}"
-            ACCESS_TOKEN="${{ secrets.DOT_STARTER_ACCESS_TOKEN }}"
-          fi          
+            echo "URL=${{ vars.DOT_STARTER_URL }}" >> $GITHUB_ENV
+            echo "ACCESS_TOKEN=${{ secrets.DOT_STARTER_ACCESS_TOKEN }}" >> $GITHUB_ENV
+          fi
+
+          echo "URL: $URL"
+          echo "ACCESS_TOKEN: $ACCESS_TOKEN"
           
           mkdir -p starter && cd starter
           RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
