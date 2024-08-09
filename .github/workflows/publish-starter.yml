@@ -7,7 +7,8 @@ on:
         required: true
         type: choice
         options:
-          - 'Full Starter'
+          - 'Full'
+          - 'Empty'
       changelog:
         description: 'Changes description'
         required: true
@@ -25,15 +26,35 @@ env:
   STARTER_TYPE: ${{ github.event.inputs.type }}
 
 jobs:
-  get-full-starter:
+  get-starter:
     runs-on: macos-13
     if: github.repository == 'dotcms/core-workflow-test'
     environment: trunk
     steps:
-      - name: Context
+      - name: 'Github context'
         run: |
-          echo "Generating a Full Starter..."
+          echo "::group::Github context"
           echo "${{ toJSON(github.event.inputs) }}"
+          echo "::endgroup::"
+
+      - name: 'Get starter server credentials'
+        id: get-starter-type
+        env:
+          INPUT_TYPE: ${{ github.event.inputs.type }}
+        run: |
+          echo "::group::Get starter server credentials"
+          if [[ "$INPUT_TYPE" == "Empty" ]]; then
+            echo "Empty Starter"
+            URL="${{ vars.DOT_EMPTY_STARTER_URL }}"
+            ACCESS_TOKEN="${{ secrets.DOT_EMPTY_STARTER_ACCESS_TOKEN }}"
+          else
+            echo "Full Starter"
+            URL="${{ vars.DOT_STARTER_URL }}"
+            ACCESS_TOKEN="${{ secrets.DOT_STARTER_ACCESS_TOKEN }}"
+          fi
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "access_token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
+          echo "::endgroup::"          
 
       - name: 'Get zip file'
         id: get-zip-file
@@ -66,7 +87,7 @@ jobs:
           if-no-files-found: ignore          
           
   deploy-artifacts:
-    needs: [ get-full-starter ]
+    needs: [ get-starter ]
     runs-on: ubuntu-20.04
     environment: trunk
     outputs:
