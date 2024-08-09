@@ -53,14 +53,14 @@ jobs:
             ACCESS_TOKEN="${{ secrets.DOT_STARTER_ACCESS_TOKEN }}"
           fi
           echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "access_token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
+          echo "access-token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
           echo "::endgroup::"          
 
       - name: 'Get zip file'
         id: get-zip-file
         env:
-          URL: ${{ secrets.DOT_STARTER_URL }}
-          ACCESS_TOKEN: ${{ secrets.DOT_STARTER_ACCESS_TOKEN }}
+          URL: ${{ steps.get-starter-type.outputs.url }}
+          ACCESS_TOKEN: ${{ steps.get-starter.type.outputs.access-token }}
         run: |
           echo "::group::Getting zip file"
           mkdir -p starter && cd starter
