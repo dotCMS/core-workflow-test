@@ -57,25 +57,26 @@ jobs:
             URL=$FULL_STARTER_URL
             ACCESS_TOKEN=$FULL_STARTER_TOKEN            
           fi
+          
+          echo "EMPTY STARTER URL: ${EMPTY_STARTER_URL}${ENDPOINT}"
+          echo "FULL STARTER URL: ${FULL_STARTER_URL}${ENDPOINT}"
 
-          echo "URL: ${URL}${ENDPOINT}"
-
-          RESP_EMPTY=$(curl -s -w "%{http_code}" --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
+          curl --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $EMPTY_STARTER_TOKEN")
+            -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
 
-          RESP_FULL=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
+          curl --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $FULL_STARTER_TOKEN")              
+            -H "Authorization: Bearer $FULL_STARTER_TOKEN"              
 
           # if [[ "$RESP" != "200" ]]; then
           #   echo "RESP: $RESP"
           #   exit 1
           # fi
-          echo "RESP EMPTY: $RESP_EMPTY"
-          echo "RESP FULL: $RESP_FULL"
+          # echo "RESP EMPTY: $RESP_EMPTY"
+          # echo "RESP FULL: $RESP_FULL"
           ls -ltrh
           echo "::endgroup::"
 
