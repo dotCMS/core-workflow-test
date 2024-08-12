@@ -46,20 +46,39 @@ jobs:
         id: get-zip-file
         run: |
           echo "::group::Getting zip file"
+
+          function download_starter {
+            URL=$1/${{ env.DOWNLOAD_ENDPOINT }}
+            ACCESS_TOKEN=$2
+
+            curl -v --output empty_$(date +'%Y%m%d').zip $URL \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/octet-stream" \
+              -H "Authorization: Bearer $ACCESS_TOKEN"
+          }
+
+
+          
           mkdir -p starter && cd starter
 
           if [[ "$STARTER_TYPE" == "Empty" ]]; then
             echo "Empty Starter: downloading from [${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
-            curl -v --output empty_$(date +'%Y%m%d').zip ${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }} \
-              -H "Content-Type: application/json" \
-              -H "Accept: application/octet-stream" \
-              -H "Authorization: Bearer ${{ env.EMPTY_STARTER_TOKEN }}"
+
+            download_starter ${{ env.EMPTY_STARTER_URL }} ${{ env.EMPTY_STARTER_TOKEN }}
+            
+            # curl -v --output empty_$(date +'%Y%m%d').zip ${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }} \
+            #   -H "Content-Type: application/json" \
+            #   -H "Accept: application/octet-stream" \
+            #   -H "Authorization: Bearer ${{ env.EMPTY_STARTER_TOKEN }}"
           else
             echo "Full Starter: downloading from [${{ env.FULL_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
-            curl -v --output $(date +'%Y%m%d').zip ${{ env.FULL_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }} \
-              -H "Content-Type: application/json" \
-              -H "Accept: application/octet-stream" \
-              -H "Authorization: Bearer ${{ env.FULL_STARTER_TOKEN }}"               
+
+            download_starter ${{ env.FULL_STARTER_URL }} ${{ env.FULL_STARTER_TOKEN }}
+            
+            # curl -v --output $(date +'%Y%m%d').zip ${{ env.FULL_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }} \
+            #   -H "Content-Type: application/json" \
+            #   -H "Accept: application/octet-stream" \
+            #   -H "Authorization: Bearer ${{ env.FULL_STARTER_TOKEN }}"               
           fi                    
 
           # if [[ "$RESP" != "200" ]]; then
