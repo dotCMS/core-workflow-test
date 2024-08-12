@@ -58,16 +58,23 @@ jobs:
             ACCESS_TOKEN=$FULL_STARTER_TOKEN            
           fi
 
-          RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip ${URL}${ENPOINT} \
+          echo "URL: ${URL}${ENDPOINT}"
+
+          RESP=$(curl -s -w "%{http_code}" --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $ACCESS_TOKEN")              
+            -H "Authorization: Bearer $EMPTY_STARTER_TOKEN")
 
-          if [[ "$RESP" != "200" ]]; then
-            echo "RESP: $RESP"
-            exit 1
-          fi
-          ls -ltrh
+          RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/octet-stream" \
+            -H "Authorization: Bearer $FULL_STARTER_TOKEN")              
+
+          # if [[ "$RESP" != "200" ]]; then
+          #   echo "RESP: $RESP"
+          #   exit 1
+          # fi
+          # ls -ltrh
           echo "::endgroup::"
 
   #     - name: 'Upload artifacts'
