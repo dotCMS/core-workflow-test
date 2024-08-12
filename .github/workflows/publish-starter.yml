@@ -47,38 +47,43 @@ jobs:
         run: |
           echo "::group::Getting zip file"
           mkdir -p starter && cd starter
-          
-          if [[ "$STARTER_TYPE" == "Empty" ]]; then
-            echo "Getting Empty Starter"
-            URL=$EMPTY_STARTER_URL
-            ACCESS_TOKEN=$EMPTY_STARTER_TOKEN            
-          else
-            echo "Getting Full Starter"
-            URL=$FULL_STARTER_URL
-            ACCESS_TOKEN=$FULL_STARTER_TOKEN            
-          fi
-          
-          echo "EMPTY STARTER URL: ${EMPTY_STARTER_URL}${ENDPOINT}"
-          echo "FULL STARTER URL: ${FULL_STARTER_URL}${ENDPOINT}"
 
-          curl -v --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
+          curl -v --output empty_$(date +'%Y%m%d').zip "https://corpsites-empty-starter.dotcms.cloud$/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true" \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
-
-          curl -v --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $FULL_STARTER_TOKEN"              
-
-          # if [[ "$RESP" != "200" ]]; then
-          #   echo "RESP: $RESP"
-          #   exit 1
+            -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"          
+          
+          # if [[ "$STARTER_TYPE" == "Empty" ]]; then
+          #   echo "Getting Empty Starter"
+          #   URL=$EMPTY_STARTER_URL
+          #   ACCESS_TOKEN=$EMPTY_STARTER_TOKEN            
+          # else
+          #   echo "Getting Full Starter"
+          #   URL=$FULL_STARTER_URL
+          #   ACCESS_TOKEN=$FULL_STARTER_TOKEN            
           # fi
-          # echo "RESP EMPTY: $RESP_EMPTY"
-          # echo "RESP FULL: $RESP_FULL"
-          ls -ltrh
-          echo "::endgroup::"
+          
+          # echo "EMPTY STARTER URL: ${EMPTY_STARTER_URL}${ENDPOINT}"
+          # echo "FULL STARTER URL: ${FULL_STARTER_URL}${ENDPOINT}"
+
+          # curl -v --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
+          #   -H "Content-Type: application/json" \
+          #   -H "Accept: application/octet-stream" \
+          #   -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
+
+          # curl -v --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
+          #   -H "Content-Type: application/json" \
+          #   -H "Accept: application/octet-stream" \
+          #   -H "Authorization: Bearer $FULL_STARTER_TOKEN"              
+
+          # # if [[ "$RESP" != "200" ]]; then
+          # #   echo "RESP: $RESP"
+          # #   exit 1
+          # # fi
+          # # echo "RESP EMPTY: $RESP_EMPTY"
+          # # echo "RESP FULL: $RESP_FULL"
+          # ls -ltrh
+          # echo "::endgroup::"
 
   #     - name: 'Upload artifacts'
   #       id: upload-artifacts
