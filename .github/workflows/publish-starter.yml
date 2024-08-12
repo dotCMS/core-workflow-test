@@ -61,12 +61,12 @@ jobs:
           echo "EMPTY STARTER URL: ${EMPTY_STARTER_URL}${ENDPOINT}"
           echo "FULL STARTER URL: ${FULL_STARTER_URL}${ENDPOINT}"
 
-          curl --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
+          curl -v --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
             -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
 
-          curl --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
+          curl -v --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
             -H "Authorization: Bearer $FULL_STARTER_TOKEN"              
