@@ -50,27 +50,17 @@ jobs:
 
           if [[ "$STARTER_TYPE" == "Empty" ]]; then
             echo "Empty Starter: downloading from [${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
-            curl -v --output empty_$(date +'%Y%m%d').zip https://corpsites-empty-starter.dotcms.cloud/${{ env.DOWNLOAD_ENDPOINT }} \
+            curl -v --output empty_$(date +'%Y%m%d').zip ${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }} \
               -H "Content-Type: application/json" \
               -H "Accept: application/octet-stream" \
-              -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
+              -H "Authorization: Bearer ${{ env.EMPTY_STARTER_TOKEN }}"
           else
-            echo "Full Starter: downloading from [${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
-            curl -v --output $(date +'%Y%m%d').zip https://starter.dotcms.com/${{ env.DOWNLOAD_ENDPOINT }} \
+            echo "Full Starter: downloading from [${{ env.FULL_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
+            curl -v --output $(date +'%Y%m%d').zip ${{ env.FULL_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }} \
               -H "Content-Type: application/json" \
               -H "Accept: application/octet-stream" \
-              -H "Authorization: Bearer $FULL_STARTER_TOKEN"               
-          fi            
-          
-          # curl -v --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
-          #   -H "Content-Type: application/json" \
-          #   -H "Accept: application/octet-stream" \
-          #   -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
-
-          # curl -v --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
-          #   -H "Content-Type: application/json" \
-          #   -H "Accept: application/octet-stream" \
-          #   -H "Authorization: Bearer $FULL_STARTER_TOKEN"              
+              -H "Authorization: Bearer ${{ env.FULL_STARTER_TOKEN }}"               
+          fi                    
 
           # if [[ "$RESP" != "200" ]]; then
           #   echo "RESP: $RESP"
