@@ -50,21 +50,20 @@ jobs:
           function download_starter {
             URL=$1/${{ env.DOWNLOAD_ENDPOINT }}
             ACCESS_TOKEN=$2
+            OUTPUT_FILENAME=$3
 
-            curl -v --output empty_$(date +'%Y%m%d').zip $URL \
+            curl -s -w "%{http_code}" --output ${OUTPUT_FILENAME} $URL \
               -H "Content-Type: application/json" \
               -H "Accept: application/octet-stream" \
               -H "Authorization: Bearer $ACCESS_TOKEN"
           }
 
-
-          
           mkdir -p starter && cd starter
 
           if [[ "$STARTER_TYPE" == "Empty" ]]; then
             echo "Empty Starter: downloading from [${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
 
-            download_starter ${{ env.EMPTY_STARTER_URL }} ${{ env.EMPTY_STARTER_TOKEN }}
+            RESPONSE=$(download_starter ${{ env.EMPTY_STARTER_URL }} ${{ env.EMPTY_STARTER_TOKEN }} empty_$(date +'%Y%m%d').zip)
             
             # curl -v --output empty_$(date +'%Y%m%d').zip ${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }} \
             #   -H "Content-Type: application/json" \
@@ -73,7 +72,7 @@ jobs:
           else
             echo "Full Starter: downloading from [${{ env.FULL_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
 
-            download_starter ${{ env.FULL_STARTER_URL }} ${{ env.FULL_STARTER_TOKEN }}
+            RESPONSE=$(download_starter ${{ env.FULL_STARTER_URL }} ${{ env.FULL_STARTER_TOKEN }} $(date +'%Y%m%d').zip)
             
             # curl -v --output $(date +'%Y%m%d').zip ${{ env.FULL_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }} \
             #   -H "Content-Type: application/json" \
@@ -81,12 +80,11 @@ jobs:
             #   -H "Authorization: Bearer ${{ env.FULL_STARTER_TOKEN }}"               
           fi                    
 
-          # if [[ "$RESP" != "200" ]]; then
-          #   echo "RESP: $RESP"
-          #   exit 1
-          # fi
-          # echo "RESP EMPTY: $RESP_EMPTY"
-          # echo "RESP FULL: $RESP_FULL"
+          if [[ "$RESPONSE" != "200" ]]; then
+            echo "RESPONSE: $RESPONSE"
+            exit 1
+          fi
+
           ls -ltrh
           # echo "::endgroup::"
 
