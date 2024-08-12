@@ -28,7 +28,7 @@ env:
   EMPTY_STARTER_TOKEN: ${{ secrets.DOT_EMPTY_STARTER_ACCESS_TOKEN }}
   FULL_STARTER_URL: ${{ vars.DOT_STARTER_URL }}
   FULL_STARTER_TOKEN: ${{ secrets.DOT_STARTER_ACCESS_TOKEN }}
-  ENDPOINT: /api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true
+  DOWNLOAD_ENDPOINT: api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true
 
 jobs:
   get-starter:
@@ -49,14 +49,14 @@ jobs:
           mkdir -p starter && cd starter
 
           if [[ "$STARTER_TYPE" == "Empty" ]]; then
-            echo "Getting Empty Starter"
-            curl -v --output empty_$(date +'%Y%m%d').zip https://corpsites-empty-starter.dotcms.cloud/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true \
+            echo "Empty Starter: downloading from [${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
+            curl -v --output empty_$(date +'%Y%m%d').zip https://corpsites-empty-starter.dotcms.cloud/${{ env.DOWNLOAD_ENDPOINT }} \
               -H "Content-Type: application/json" \
               -H "Accept: application/octet-stream" \
               -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
           else
-            echo "Getting Full Starter"
-            curl -v --output $(date +'%Y%m%d').zip https://starter.dotcms.com/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true \
+            echo "Full Starter: downloading from [${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
+            curl -v --output $(date +'%Y%m%d').zip https://starter.dotcms.com/${{ env.DOWNLOAD_ENDPOINT }} \
               -H "Content-Type: application/json" \
               -H "Accept: application/octet-stream" \
               -H "Authorization: Bearer $FULL_STARTER_TOKEN"               
