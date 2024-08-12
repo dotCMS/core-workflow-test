@@ -7,8 +7,8 @@ on:
         required: true
         type: choice
         options:
-          - 'Full'
-          - 'Empty'
+          - 'full'
+          - 'empty'
       changelog:
         description: 'Changes description'
         required: true
@@ -61,7 +61,7 @@ jobs:
 
           mkdir -p starter && cd starter
 
-          if [[ "$STARTER_TYPE" == "Empty" ]]; then
+          if [[ "$STARTER_TYPE" == "empty" ]]; then
             echo "::debug::Empty Starter: downloading from [${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
             RESPONSE=$(download_starter ${{ env.EMPTY_STARTER_URL }} ${{ env.EMPTY_STARTER_TOKEN }} empty_$(date +'%Y%m%d').zip)            
           else
@@ -83,7 +83,7 @@ jobs:
         id: upload-artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ toLower(env.STARTER_TYPE) }}-starter
+          name: ${{ env.STARTER_TYPE }}-starter
           path: |
             ${{ github.workspace }}/starter/*.zip
           retention-days: 2
@@ -112,7 +112,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           github-token: ${{ github.token }}
-          name: ${{ toLower(env.STARTER_TYPE) }}-starter
+          name: ${{ env.STARTER_TYPE }}-starter
           path: ${{ github.workspace }}/starter
 
       - name: 'Listing artifacts'
