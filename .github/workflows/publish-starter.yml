@@ -60,12 +60,12 @@ jobs:
 
           echo "URL: ${URL}${ENDPOINT}"
 
-          RESP=$(curl -s -w "%{http_code}" --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
+          RESP_EMPTY=$(curl -s -w "%{http_code}" --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
             -H "Authorization: Bearer $EMPTY_STARTER_TOKEN")
 
-          RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
+          RESP_FULL=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip ${FULL_STARTER_URL}${ENPOINT} \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
             -H "Authorization: Bearer $FULL_STARTER_TOKEN")              
@@ -74,7 +74,9 @@ jobs:
           #   echo "RESP: $RESP"
           #   exit 1
           # fi
-          # ls -ltrh
+          echo "RESP EMPTY: $RESP_EMPTY"
+          echo "RESP FULL: $RESP_FULL"
+          ls -ltrh
           echo "::endgroup::"
 
   #     - name: 'Upload artifacts'
