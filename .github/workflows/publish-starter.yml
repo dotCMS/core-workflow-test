@@ -48,10 +48,15 @@ jobs:
           echo "::group::Getting zip file"
           mkdir -p starter && cd starter
 
-          curl -v --output empty_$(date +'%Y%m%d').zip "https://corpsites-empty-starter.dotcms.cloud$/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true" \
+          curl -v --output empty_$(date +'%Y%m%d').zip https://corpsites-empty-starter.dotcms.cloud/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true \
             -H "Content-Type: application/json" \
             -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"          
+            -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
+
+          curl -v --output $(date +'%Y%m%d').zip https://starter.dotcms.com/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/octet-stream" \
+            -H "Authorization: Bearer $FULL_STARTER_TOKEN"               
           
           # if [[ "$STARTER_TYPE" == "Empty" ]]; then
           #   echo "Getting Empty Starter"
@@ -76,13 +81,13 @@ jobs:
           #   -H "Accept: application/octet-stream" \
           #   -H "Authorization: Bearer $FULL_STARTER_TOKEN"              
 
-          # # if [[ "$RESP" != "200" ]]; then
-          # #   echo "RESP: $RESP"
-          # #   exit 1
-          # # fi
-          # # echo "RESP EMPTY: $RESP_EMPTY"
-          # # echo "RESP FULL: $RESP_FULL"
-          # ls -ltrh
+          # if [[ "$RESP" != "200" ]]; then
+          #   echo "RESP: $RESP"
+          #   exit 1
+          # fi
+          # echo "RESP EMPTY: $RESP_EMPTY"
+          # echo "RESP FULL: $RESP_FULL"
+          ls -ltrh
           # echo "::endgroup::"
 
   #     - name: 'Upload artifacts'
