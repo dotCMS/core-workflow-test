@@ -48,29 +48,20 @@ jobs:
           echo "::group::Getting zip file"
           mkdir -p starter && cd starter
 
-          curl -v --output empty_$(date +'%Y%m%d').zip https://corpsites-empty-starter.dotcms.cloud/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
-
-          curl -v --output $(date +'%Y%m%d').zip https://starter.dotcms.com/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer $FULL_STARTER_TOKEN"               
+          if [[ "$STARTER_TYPE" == "Empty" ]]; then
+            echo "Getting Empty Starter"
+            curl -v --output empty_$(date +'%Y%m%d').zip https://corpsites-empty-starter.dotcms.cloud/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/octet-stream" \
+              -H "Authorization: Bearer $EMPTY_STARTER_TOKEN"
+          else
+            echo "Getting Full Starter"
+            curl -v --output $(date +'%Y%m%d').zip https://starter.dotcms.com/api/v1/maintenance/_downloadStarterWithAssets?oldAssets=true \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/octet-stream" \
+              -H "Authorization: Bearer $FULL_STARTER_TOKEN"               
+          fi            
           
-          # if [[ "$STARTER_TYPE" == "Empty" ]]; then
-          #   echo "Getting Empty Starter"
-          #   URL=$EMPTY_STARTER_URL
-          #   ACCESS_TOKEN=$EMPTY_STARTER_TOKEN            
-          # else
-          #   echo "Getting Full Starter"
-          #   URL=$FULL_STARTER_URL
-          #   ACCESS_TOKEN=$FULL_STARTER_TOKEN            
-          # fi
-          
-          # echo "EMPTY STARTER URL: ${EMPTY_STARTER_URL}${ENDPOINT}"
-          # echo "FULL STARTER URL: ${FULL_STARTER_URL}${ENDPOINT}"
-
           # curl -v --output empty_$(date +'%Y%m%d').zip ${EMPTY_STARTER_URL}${ENPOINT} \
           #   -H "Content-Type: application/json" \
           #   -H "Accept: application/octet-stream" \
