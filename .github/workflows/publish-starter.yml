@@ -80,8 +80,10 @@ jobs:
             #   -H "Authorization: Bearer ${{ env.FULL_STARTER_TOKEN }}"               
           fi                    
 
+          echo "::notice::Status Code: $RESPONSE" 
+
           if [[ "$RESPONSE" != "200" ]]; then
-            echo "RESPONSE: $RESPONSE"
+            echo "::error::Failed with status code: $RESPONSE"
             exit 1
           fi
 
