@@ -46,32 +46,29 @@ jobs:
         id: get-zip-file
         run: |
           echo "::group::Getting zip file"
-
+          mkdir -p starter && cd starter
+          
           if [[ "$STARTER_TYPE" == "Empty" ]]; then
             echo "Getting Empty Starter"
-            echo "URL=$EMPTY_STARTER_URL" >> $GITHUB_ENV
-            echo "ACCESS_TOKEN=$EMPTY_STARTER_TOKEN" >> $GITHUB_ENV
+            RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $EMPTY_STARTER_URL \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/octet-stream" \
+              -H "Authorization: Bearer $EMPTY_STARTER_TOKEN")            
+            
           else
             echo "Getting Full Starter"
-            echo "URL=$FULL_STARTER_URL" >> $GITHUB_ENV
-            echo "ACCESS_TOKEN=$FULL_STARTER_TOKEN" >> $GITHUB_ENV
+            RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $FULL_STARTER_URL \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/octet-stream" \
+              -H "Authorization: Bearer $FULL_STARTER_TOKEN")            
           fi
 
-          echo "URL: $URL"
-          echo "ACCESS_TOKEN: $ACCESS_TOKEN"
-          
-  #         mkdir -p starter && cd starter
-  #         RESP=$(curl -s -w "%{http_code}" --output $(date +'%Y%m%d').zip $URL \
-  #           -H "Content-Type: application/json" \
-  #           -H "Accept: application/octet-stream" \
-  #           -H "Authorization: Bearer $ACCESS_TOKEN")
-
-  #         if [[ "$RESP" != "200" ]]; then
-  #           echo "RESP: $RESP"
-  #           exit 1
-  #         fi
-  #         ls -ltrh
-  #         echo "::endgroup::"
+          if [[ "$RESP" != "200" ]]; then
+            echo "RESP: $RESP"
+            exit 1
+          fi
+          ls -ltrh
+          echo "::endgroup::"
 
   #     - name: 'Upload artifacts'
   #       id: upload-artifacts
