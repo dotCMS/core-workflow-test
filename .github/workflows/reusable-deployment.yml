@@ -175,7 +175,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
       - name: Slack Notification (SDK announcement)
-        if: ${{ inputs.publish-npm-sdks && steps.sdks_publish.outputs.publish == 'true' }} 
+        if: success() && steps.sdks_publish.outputs.published == 'true'
         uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: "log-sdk-libs"
