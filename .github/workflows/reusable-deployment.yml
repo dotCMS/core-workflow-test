@@ -178,7 +178,7 @@ jobs:
         if: inputs.publish-npm-sdks
         uses: slackapi/slack-github-action@v1.26.0
         with:
-          channel-id: "log-dotcli"
+          channel-id: "log-sdk-libs"
           payload: |
             {
               "blocks": [              
