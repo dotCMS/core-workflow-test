@@ -52,7 +52,7 @@ runs:
         echo "::group::Validating version"
         publish=false
         
-        CURRENT_VERSION=$(npm view '@dotcms/client' version)
+        PREVIOUS_VERSIONS=$(npm view '@dotcms/client' versions -json)
         NEXT_VERSION=${{ steps.next_version.outputs.next_version }}
 
         base_number=$(echo "$CURRENT_VERSION" | grep -oE '[0-9]+$')
@@ -61,7 +61,9 @@ runs:
 
         EXPECTED_VERSION="$prefix.$next_number"
 
-        if [ "$CURRENT_VERSION" == "$NEXT_VERSION" ]; then
+        VERSION_PRESENT=$(echo "$PREVIOUS_VERSIONS" | jq -e --arg item "$NEXT_VERSION" '.[] | select(. == $item)')
+
+        if [ -n "$VERSION_PRESENT" ]; then
           echo "Version $NEXT_VERSION already exists in NPM registry"
         elif [[ "$CURRENT_VERSION" != "$EXPECTED_VERSION" ]]; then
           echo "Version $NEXT_VERSION is not the expected version."
