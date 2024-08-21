@@ -66,9 +66,12 @@ runs:
 
         NEXT_VERSION_EXISTS=$(echo "$VERSIONS" | jq -e --arg item "$NEXT_VERSION" '.[] | select(. == $item)')
 
+        echo "::notice::EXPECTED VERSION: $EXPECTED_VERSION"
+        echo "::notice::NEXT VERSION: $NEXT_VERSION"
+
         if [ -n "$NEXT_VERSION_EXISTS" ]; then
           echo "Version $NEXT_VERSION already exists in NPM registry"
-        elif [[ "$CURRENT_VERSION" != "$EXPECTED_VERSION" ]]; then
+        elif [[ "$NEXT_VERSION" != "$EXPECTED_VERSION" ]]; then
           echo "Version $NEXT_VERSION is not the expected version."
         else
           publish=true
