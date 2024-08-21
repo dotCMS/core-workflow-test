@@ -64,7 +64,7 @@ runs:
 
         EXPECTED_VERSION="$prefix$next_number"
 
-        NEXT_VERSION_EXISTS=$(echo "$VERSIONS" | jq -e --arg item "$NEXT_VERSION" '.[] | select(. == $item)')
+        NEXT_VERSION_EXISTS=$(echo "$VERSIONS" | jq --arg item "$NEXT_VERSION" -r '.[] | select(. == $item)')
 
         echo "::notice::EXPECTED VERSION: $EXPECTED_VERSION"
         echo "::notice::NEXT VERSION: $NEXT_VERSION"
