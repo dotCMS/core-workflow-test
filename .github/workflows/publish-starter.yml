@@ -156,7 +156,7 @@ jobs:
           echo "::endgroup::"
 
   update-pom:
-    if: ${{ github.event.inputs.dry-run == 'false' && github.event.inputs.type == 'empty' }}
+    if: ${{ github.event.inputs.type == 'empty' }}
     needs: [ deploy-artifacts ]
     runs-on: ubuntu-20.04
     environment: trunk
@@ -198,26 +198,26 @@ jobs:
             empty-starter
             automated pr          
 
-  send-notification:
-    needs: [ deploy-artifacts ]
-    runs-on: ubuntu-20.04
-    environment: trunk
-    steps:
-      - name: Slack Notification
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          channel-id: "log-starter"
-          payload: |
-            {
-              "blocks": [              
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }}_* :package: `${{ needs.deploy-artifacts.outputs.filename }}` is now available on `ARTIFACTORY` :frog:!\n \n>:link: ${{ needs.deploy-artifacts.outputs.url }}\n>*Changelog* \n>```${{ github.event.inputs.changelog }}```"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}    
+  # send-notification:
+  #   needs: [ deploy-artifacts ]
+  #   runs-on: ubuntu-20.04
+  #   environment: trunk
+  #   steps:
+  #     - name: Slack Notification
+  #       uses: slackapi/slack-github-action@v1.26.0
+  #       with:
+  #         channel-id: "log-starter"
+  #         payload: |
+  #           {
+  #             "blocks": [              
+  #               {
+  #                 "type": "section",
+  #                 "text": {
+  #                   "type": "mrkdwn",
+  #                   "text": "> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }}_* :package: `${{ needs.deploy-artifacts.outputs.filename }}` is now available on `ARTIFACTORY` :frog:!\n \n>:link: ${{ needs.deploy-artifacts.outputs.url }}\n>*Changelog* \n>```${{ github.event.inputs.changelog }}```"
+  #                 }
+  #               }
+  #             ]
+  #           }
+  #       env:
+  #         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}    
