@@ -163,10 +163,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Configure Git
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "Github Actions"
+      # - name: Configure Git
+      #   run: |
+      #     git config --global user.email "action@github.com"
+      #     git config --global user.name "Github Actions"
           
       - name: 'Update pom.xml'
         id: update-pom
@@ -181,17 +181,17 @@ jobs:
           
           # Create an auxiliary branch for versioning updates
           AUXILIARY_BRANCH=empty-starter-version-update-${VERSION}-${{ github.run_id }}
-          git checkout -b ${AUXILIARY_BRANCH}
+          # git checkout -b ${AUXILIARY_BRANCH}
 
           sed -i "s/<starter.deploy.version>.*<\/starter.deploy.version>/<starter.deploy.version>${VERSION}<\/starter.deploy.version>/" pom.xml
 
           POM=$(cat pom.xml)
           echo "POM file: ${POM}"
 
-          git add .
-          git status
-          git commit --allow-empty -a -m "📦 Publishing an Empty Starter version [${VERSION}]"
-          git push --set-upstream origin ${AUXILIARY_BRANCH}
+          # git add .
+          # git status
+          # git commit --allow-empty -a -m "📦 Publishing an Empty Starter version [${VERSION}]"
+          # git push --set-upstream origin ${AUXILIARY_BRANCH}
 
           echo auxiliary-branch=${AUXILIARY_BRANCH} >> $GITHUB_OUTPUT
           echo starter-version=${VERSION} >> $GITHUB_OUTPUT
@@ -205,6 +205,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ steps.update-pom.outputs.auxiliary-branch || 'default-branch-empty-starter' }}
           base: ${{ github.ref }}
+          commit-message: '📦 Publishing an Empty Starter version [${{ steps.update-pom.outputs.starter-version }}]'
           title: 'Auto-generated PR: incremental version update for Empty Stater [${{ steps.update-pom.outputs.starter-version }}]'
           body: 'This PR was created automatically to update the parent POM file with the latest Empty Stater version to [${{ steps.update-pom.outputs.starter-version }}].'
           labels: |
