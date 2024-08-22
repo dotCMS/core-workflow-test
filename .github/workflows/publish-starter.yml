@@ -206,6 +206,7 @@ jobs:
     needs: [ deploy-artifacts, update-pom ]
     runs-on: ubuntu-20.04
     environment: trunk
+    if: always()
     steps:
       - name: Compose Message
         id: compose-message
