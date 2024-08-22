@@ -191,7 +191,7 @@ jobs:
           git add .
           git status
           git commit --allow-empty -a -m "📦 Publishing an Empty Starter version [${VERSION}]"
-          git push 
+          git push --set-upstream origin ${AUXILIARY_BRANCH}
 
           echo auxiliary-branch=${AUXILIARY_BRANCH} >> $GITHUB_OUTPUT
           echo starter-version=${VERSION} >> $GITHUB_OUTPUT
