@@ -162,6 +162,10 @@ jobs:
     environment: trunk
     steps:
       - uses: actions/checkout@v4
+      - name: Configure Git
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "Github Actions"
       - name: 'Update pom.xml'
         id: update-pom
         working-directory: ${{ github.workspace }}/parent
