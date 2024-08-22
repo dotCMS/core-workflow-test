@@ -201,7 +201,7 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.update-pom.outputs.auxiliary-branch || 'default-branch-empty-starter-'github.run_id }}
+          branch: ${{ steps.update-pom.outputs.auxiliary-branch || 'default-branch-empty-starter' }}
           base: ${{ github.ref }}
           title: 'Auto-generated PR: incremental version update for Empty Stater [${{ steps.update-pom.outputs.starter-version }}]'
           body: 'This PR was created automatically to update the parent POM file with the latest Empty Stater version to [${{ steps.update-pom.outputs.starter-version }}].'
