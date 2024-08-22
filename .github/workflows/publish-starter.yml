@@ -162,10 +162,12 @@ jobs:
     environment: trunk
     steps:
       - uses: actions/checkout@v4
+      
       - name: Configure Git
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "Github Actions"
+          
       - name: 'Update pom.xml'
         id: update-pom
         working-directory: ${{ github.workspace }}/parent
@@ -181,12 +183,17 @@ jobs:
 
           sed -i 's/<starter.deploy.version>.*<\/starter.deploy.version>/<starter.deploy.version>${VERSION}<\/starter.deploy.version>/' pom.xml
 
+          POM=$(cat pom.xml)
+
+          echo "POM file: ${POM}"
+
           git add .
           git status
           git commit --allow-empty -a -m "📦 Publishing an Empty Starter version [${VERSION}]"
 
-          echo auxilary-branch=${AUXILIARY_BRANCH} >> $GITHUB_OUTPUT
+          echo auxiliary-branch=${AUXILIARY_BRANCH} >> $GITHUB_OUTPUT
           echo starter-version=${VERSION} >> $GITHUB_OUTPUT
+          echo "::notice::Auxiliary Branch: ${AUXILIARY_BRANCH}"
           echo "::endgroup::"
 
       - name: 'Create Pull Request'
@@ -194,7 +201,7 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.update-pom.outputs.auxiliary-branch }}
+          branch: ${{ steps.update-pom.outputs.auxiliary-branch || 'default-branch-empty-starter-'github.run_id }}
           base: ${{ github.ref }}
           title: 'Auto-generated PR: incremental version update for Empty Stater [${{ steps.update-pom.outputs.starter-version }}]'
           body: 'This PR was created automatically to update the parent POM file with the latest Empty Stater version to [${{ steps.update-pom.outputs.starter-version }}].'
