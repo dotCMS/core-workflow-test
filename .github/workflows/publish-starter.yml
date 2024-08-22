@@ -212,7 +212,7 @@ jobs:
         id: compose-message
         run: |
           echo "::group::Compose Message"
-          BASE_MESSAGE="> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }}_* :package: \`${{ needs.deploy-artifacts.outputs.filename }}\` is now available on \`ARTIFACTORY\` :frog:!\n \n> \n>:link: ${{ needs.deploy-artifacts.outputs.url }}\n>*Changelog* \n>\`\`\`${{ github.event.inputs.changelog }}\`\`\`"
+          BASE_MESSAGE="> :large_green_circle: *Attention dotters:* a new Starter published!\n \n>This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }} starter_* :package: \`${{ needs.deploy-artifacts.outputs.filename }}\` is now available on \`ARTIFACTORY\` :frog:!\n \n> \n>:link: ${{ needs.deploy-artifacts.outputs.url }}\n>*Changelog* \n>\`\`\`${{ github.event.inputs.changelog }}\`\`\`"
           if [ "$STARTER_TYPE" == "empty" ]; then
             PR_ALERT="\n \n> \n> :bangbang: Approvals required to apply the latest version of *_Empty Starter_* to the project. \n \n> :globe_with_meridians: ${{ needs.update-pom.outputs.pull-request-url }}"  
           fi  
