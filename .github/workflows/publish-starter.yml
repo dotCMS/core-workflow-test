@@ -178,18 +178,20 @@ jobs:
           echo "Updating pom.xml"
        
           VERSION="${FILENAME%.*}"
+          
           # Create an auxiliary branch for versioning updates
-          AUXILIARY_BRANCH=empty-starter-version-update-${VERSION}-${{ github.run_id }}   
+          AUXILIARY_BRANCH=empty-starter-version-update-${VERSION}-${{ github.run_id }}
+          git checkout -b ${AUXILIARY_BRANCH}
 
-          sed -i 's/<starter.deploy.version>.*<\/starter.deploy.version>/<starter.deploy.version>${VERSION}<\/starter.deploy.version>/' pom.xml
+          sed -i "s/<starter.deploy.version>.*<\/starter.deploy.version>/<starter.deploy.version>${VERSION}<\/starter.deploy.version>/" pom.xml
 
           POM=$(cat pom.xml)
-
           echo "POM file: ${POM}"
 
           git add .
           git status
           git commit --allow-empty -a -m "📦 Publishing an Empty Starter version [${VERSION}]"
+          git push 
 
           echo auxiliary-branch=${AUXILIARY_BRANCH} >> $GITHUB_OUTPUT
           echo starter-version=${VERSION} >> $GITHUB_OUTPUT
