@@ -58,26 +58,24 @@ jobs:
               -H "Accept: application/octet-stream" \
               -H "Authorization: Bearer $ACCESS_TOKEN"
           }
-
           mkdir -p starter && cd starter
-
+          DATE=$(date +'%Y%m%d')
           if [[ "$STARTER_TYPE" == "empty" ]]; then
             echo "::debug::Empty Starter: downloading from [${{ env.EMPTY_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
-            RESPONSE=$(download_starter ${{ env.EMPTY_STARTER_URL }} ${{ env.EMPTY_STARTER_TOKEN }} empty_$(date +'%Y%m%d').zip)            
+            FILENAME="empty_${DATE}.zip"
+            RESPONSE=$(download_starter ${{ env.EMPTY_STARTER_URL }} ${{ env.EMPTY_STARTER_TOKEN }} $FILENAME)            
           else
             echo "::debut::Full Starter: downloading from [${{ env.FULL_STARTER_URL }}/${{ env.DOWNLOAD_ENDPOINT }}]"
-            RESPONSE=$(download_starter ${{ env.FULL_STARTER_URL }} ${{ env.FULL_STARTER_TOKEN }} $(date +'%Y%m%d').zip)             
+            FILENAME="${DATE}.zip"
+            RESPONSE=$(download_starter ${{ env.FULL_STARTER_URL }} ${{ env.FULL_STARTER_TOKEN }} $FILENAME)             
           fi                    
-
           echo "::notice::Status Code: $RESPONSE" 
-
           if [[ "$RESPONSE" != "200" ]]; then
             echo "::error::Failed with status code: $RESPONSE"
             exit 1
           fi
-
           ls -ltrh
-          # echo "::endgroup::"
+          echo "::endgroup::"
 
       - name: 'Upload artifacts'
         id: upload-artifacts
@@ -156,6 +154,49 @@ jobs:
           echo "::notice::Artifact URL ${URL}"
           echo "::notice::Changelog: ${{ github.event.inputs.changelog }}"
           echo "::endgroup::"
+
+  update-pom:
+    if: ${{ github.event.inputs.dry-run == 'false' && github.event.inputs.type == 'empty' }}
+    needs: [ deploy-artifacts ]
+    runs-on: ubuntu-20.04
+    environment: trunk
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Update pom.xml'
+        id: update-pom
+        working-directory: ${{ github.workspace }}/parent
+        env:
+          FILENAME: ${{ needs.deploy-artifacts.outputs.filename }}
+        run: |
+          echo "::group::Update pom.xml"
+          echo "Updating pom.xml"
+       
+          VERSION="${FILENAME%.*}"
+          # Create an auxiliary branch for versioning updates
+          AUXILIARY_BRANCH=empty-starter-version-update-${VERSION}-${{ github.run_id }}   
+
+          sed -i 's/<starter.deploy.version>.*<\/starter.deploy.version>/<starter.deploy.version>${VERSION}<\/starter.deploy.version>/' pom.xml
+
+          git add .
+          git status
+          git commit --allow-empty -a -m "📦 Publishing an Empty Starter version [${VERSION}]"
+
+          echo auxilary-branch=${AUXILIARY_BRANCH} >> $GITHUB_OUTPUT
+          echo starter-version=${VERSION} >> $GITHUB_OUTPUT
+          echo "::endgroup::"
+
+      - name: 'Create Pull Request'
+        id: create-pull-request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.update-pom.outputs.auxiliary-branch }}
+          base: ${{ github.ref }}
+          title: 'Auto-generated PR: incremental version update for Empty Stater [${{ steps.update-pom.outputs.starter-version }}]'
+          body: 'This PR was created automatically to update the parent POM file with the latest Empty Stater version to [${{ steps.update-pom.outputs.starter-version }}].'
+          labels: |
+            empty-starter
+            automated pr          
 
   send-notification:
     needs: [ deploy-artifacts ]
