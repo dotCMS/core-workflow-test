@@ -22,6 +22,10 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: write
+  pull-requests: write    
+
 env:
   STARTER_TYPE: ${{ github.event.inputs.type }}
   EMPTY_STARTER_URL: ${{ vars.DOT_EMPTY_STARTER_URL }}
@@ -160,6 +164,9 @@ jobs:
     needs: [ deploy-artifacts ]
     runs-on: ubuntu-20.04
     environment: trunk
+    permissions:
+      contents: write  
+      pull-requests: write      
     outputs:
       pull-request-url: ${{ steps.create-pull-request.outputs.pull-request-url }}
     steps:
