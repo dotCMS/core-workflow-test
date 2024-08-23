@@ -22,6 +22,10 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: write
+  pull-requests: write    
+
 env:
   STARTER_TYPE: ${{ github.event.inputs.type }}
   EMPTY_STARTER_URL: ${{ vars.DOT_EMPTY_STARTER_URL }}
