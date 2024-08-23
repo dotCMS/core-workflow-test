@@ -164,6 +164,9 @@ jobs:
     needs: [ deploy-artifacts ]
     runs-on: ubuntu-20.04
     environment: trunk
+    permissions:
+      contents: write  
+      pull-requests: write      
     outputs:
       pull-request-url: ${{ steps.create-pull-request.outputs.pull-request-url }}
     steps:
