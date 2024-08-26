@@ -22,9 +22,9 @@ defaults:
   run:
     shell: bash
 
-permissions:
-  contents: write
-  pull-requests: write    
+# permissions:
+#   contents: write
+#   pull-requests: write    
 
 env:
   STARTER_TYPE: ${{ github.event.inputs.type }}
@@ -211,20 +211,21 @@ jobs:
             automated pr
 
       - name: 'Check outputs'
+        id: check-pr
         if: ${{ steps.create-pull-request.outputs.pull-request-number }}
         run: |
           echo "Pull Request Number - ${{ steps.create-pull-request.outputs.pull-request-number }}"
-          echo "Pull Request URL - ${{ steps.create-pull-request.outputs.pull-request-url }}"            
+          echo "Pull Request URL - ${{ steps.create-pull-request.outputs.pull-request-url }}" 
+          echo "pr=${{ steps.create-pull-request.outputs.pull-request-number }}" >> $GITHUB_OUTPUT
 
       - name: 'Update comment'
-        if: ${{ steps.create-pull-requests.outputs.pull-request-number }}
+        if: ${{ steps.check-pr.outputs.pr }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          comment-id: ${{ steps.create-pull-requests.outputs.pull-request-number }}
+          comment-id: ${{ steps.check-pr.outputs.pr }}
           body: |
-            **Changelog:**
-            ${{ github.event.inputs.changelog }}
+            **Changelog:** ${{ github.event.inputs.changelog }}
           reactions: rocket            
 
   send-notification:
