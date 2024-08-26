@@ -210,6 +210,12 @@ jobs:
             empty-starter
             automated pr
 
+      - name: 'Check outputs'
+        if: ${{ steps.create-pull-request.outputs.pull-request-number }}
+        run: |
+          echo "Pull Request Number - ${{ steps.create-pull-request.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.create-pull-request.outputs.pull-request-url }}"            
+
       - name: 'Update comment'
         if: ${{ steps.create-pull-requests.outputs.pull-request-number }}
         uses: peter-evans/create-or-update-comment@v4
