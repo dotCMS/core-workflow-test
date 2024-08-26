@@ -20,11 +20,7 @@ on:
 
 defaults:
   run:
-    shell: bash
-
-# permissions:
-#   contents: write
-#   pull-requests: write    
+    shell: bash 
 
 env:
   STARTER_TYPE: ${{ github.event.inputs.type }}
@@ -215,7 +211,8 @@ jobs:
         if: ${{ steps.create-pull-request.outputs.pull-request-number }}
         run: |
           echo "Pull Request Number - ${{ steps.create-pull-request.outputs.pull-request-number }}"
-          echo "Pull Request URL - ${{ steps.create-pull-request.outputs.pull-request-url }}" 
+          echo "Pull Request URL - ${{ steps.create-pull-request.outputs.pull-request-url }}"
+          echo "Pull Request Branch - ${{ steps.create-pull-request.outputs.pull-request-branch }}"
           echo "pr=${{ steps.create-pull-request.outputs.pull-request-number }}" >> $GITHUB_OUTPUT
 
       - name: Comment on PR
@@ -227,18 +224,8 @@ jobs:
               issue_number: ${{ steps.check-pr.outputs.pr }},
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: ':rocket: - **Changelog:** ${{ github.event.inputs.changelog }}'
-            })          
-
-      # - name: 'Update comment'
-      #   if: ${{ steps.check-pr.outputs.pr }}
-      #   uses: peter-evans/create-or-update-comment@v4
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     comment-id: ${{ steps.check-pr.outputs.pr }}
-      #     body: |
-      #       **Changelog:** ${{ github.event.inputs.changelog }}
-      #     reactions: rocket            
+              body: ':rocket: **Changelog:** ${{ github.event.inputs.changelog }}'
+            })                
 
   send-notification:
     needs: [ deploy-artifacts, update-pom ]
