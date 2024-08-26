@@ -211,6 +211,7 @@ jobs:
             automated pr
 
       - name: 'Update comment'
+        if: ${{ steps.create-pull-requests.outputs.pull-request-number }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
