@@ -208,7 +208,17 @@ jobs:
             This PR was created automatically to update the **starter.deploy.version** in pom.xml to [**${{ steps.update-pom.outputs.starter-version }}**].
           labels: |
             empty-starter
-            automated pr          
+            automated pr
+
+      - name: 'Update comment'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment-id: ${{ steps.create-pull-requests.outputs.pull-request-number }}
+          body: |
+            **Changelog:**
+            ${{ github.event.inputs.changelog }}
+          reactions: rocket            
 
   send-notification:
     needs: [ deploy-artifacts, update-pom ]
