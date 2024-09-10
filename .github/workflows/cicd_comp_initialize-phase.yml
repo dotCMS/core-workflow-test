@@ -123,16 +123,62 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: ${{ inputs.validation-level != 'none' }}
+      
+      # 1. Attempt to download the existing artifact from any previous run
+      - name: Download Existing SDK Status Artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v3.1.4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow_search: true
+          commit: ${{ github.sha }}
+          name: sdk-status-${{ github.sha }}  # Name of the artifact
+          path: .
+          if_no_artifact_found: warn
+        continue-on-error: true  # Do not fail if the artifact does not exist
+
+      # 2. Check if the artifact was downloaded
+      - name: Check if SDK Status Exists
+        id: check-artifact
+        run: |
+          if [ -f sdk_status_${{ github.sha }}.txt ]; then
+            echo "Artifact found. Using existing sdk_status."
+            sdk_libs=$(cat sdk_status_${{ github.sha }}.txt | grep 'sdk_libs' | cut -d'=' -f2)
+            echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
+          else
+            echo "Artifact not found. Calculating sdk_status..."
+            echo "sdk_status_not_found=true" >> $GITHUB_ENV
+
+      # 3. Calculate sdk_status if it does not exist
+      - name: Calculate SDK Status
+        if: env.sdk_status_not_found == 'true'
+        run: |
+          echo "Calculating sdk_status..."
+          # Logic to determine sdk_status
+          echo "sdk_libs=${{ steps.filter.outputs.sdk_libs }}" > sdk_status_${{ github.sha }}.txt
+          echo "sdk_libs=${{ steps.filter.outputs.sdk_libs }}" >> $GITHUB_ENV
+
+      # 4. Upload the sdk_status as an artifact if it was calculated
+      - name: Upload SDK Status Artifact
+        if: env.sdk_status_not_found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-status-${{ github.sha }}  # Name of the artifact based on the commit hash
+          path: sdk_status_${{ github.sha }}.txt
+          retention-days: 30  # Configure retention period as needed
+
       - uses: dorny/paths-filter@v3.0.1
         if: ${{ inputs.validation-level != 'none' }}
         id: filter
         with:
           filters: .github/filters.yaml
           list-files: 'escape'
+          
       - name: Rewrite Filter
         id: filter-rewrite
         env:
           CICD_SKIP_TESTS: ${{ vars.CICD_SKIP_TESTS }}
+          SDK_LIBS: ${{ env.sdk_libs }}  # Use the sdk_libs value from the environment
         run: |
           # Default action outcomes based on paths-filter action outputs
           frontend=${{ steps.filter.outputs.frontend || 'true'}}
@@ -140,12 +186,12 @@ jobs:
           backend=${{ steps.filter.outputs.backend || 'true' }}
           build=${{ steps.filter.outputs.build || 'true' }}
           jvm_unit_test=${{ steps.filter.outputs.jvm_unit_test || 'true' }}
-          sdk_libs=${{ steps.filter.outputs.sdk_libs || 'false' }}
+          sdk_libs=${{ env.SDK_LIBS || steps.filter.outputs.sdk_libs }}  # Use the recovered or calculated value
 
           # Check if the commit is to the master branch
           skip_tests=${CICD_SKIP_TESTS:-false}  # Use environment variable, default to 'false'
 
-          # The below line ensures that if skip_tests is true, all tests are set to false.
+          # If skip_tests is true, set all tests to false
           if [ "$skip_tests" == "true" ]; then
             echo "Skipping tests as per CICD_SKIP_TESTS flag."
             frontend=false
@@ -175,7 +221,7 @@ jobs:
               elif [ "${module}" == "jvm_unit_test" ]; then
                 jvm_unit_test=${{ steps.filter.outputs.jvm_unit_test }}
               elif [ "${module}" == "sdk_libs" ]; then
-                sdk=${{ steps.filter.outputs.sdk_libs }}
+                sdk_libs=${{ env.SDK_LIBS }}  # Use the recovered or calculated value
               fi
             done
           fi          
