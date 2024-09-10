@@ -51,6 +51,7 @@ const DOTCMS_CLIENT_CONFIG: ClientConfig = {
     siteId: environment.siteId
 };
 ```
+
 And add this config in the Angular app ApplicationConfig.
 
 `src/app/app.config.ts`
