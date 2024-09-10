@@ -93,6 +93,7 @@ this.client.page
       // Use the error response
     })
 ```
+
 For more information to how to use DotCms Client, you can visit the [documentation](https://github.com/dotCMS/core/blob/master/core-web/libs/sdk/client/README.md)
 
 ## DotCMS Page API
