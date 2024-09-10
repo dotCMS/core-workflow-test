@@ -124,15 +124,14 @@ jobs:
       - uses: actions/checkout@v4
         if: ${{ inputs.validation-level != 'none' }}
       
-      # 1. Attempt to download the existing artifact from any previous run
+      # 1. Attempt to download the existing artifact using the PR number
       - name: Download Existing SDK Status Artifact
         id: download-artifact
         uses: dawidd6/action-download-artifact@v3.1.4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow_search: true
-          commit: ${{ github.sha }}
-          name: sdk-status-${{ github.sha }}  # Name of the artifact
+          name: sdk-status-pr-${{ github.event.pull_request.number }}  # Name of the artifact using PR number
           path: .
           if_no_artifact_found: warn
         continue-on-error: true  # Do not fail if the artifact does not exist
@@ -141,14 +140,14 @@ jobs:
       - name: Check if SDK Status Exists
         id: check-artifact
         run: |
-          if [ -f sdk_status_${{ github.sha }}.txt ]; then
+          if [ -f sdk_status_pr_${{ github.event.pull_request.number }}.txt ]; then
             echo "Artifact found. Using existing sdk_status."
-            sdk_libs=$(cat sdk_status_${{ github.sha }}.txt | grep 'sdk_libs' | cut -d'=' -f2)
+            sdk_libs=$(cat sdk_status_pr_${{ github.event.pull_request.number }}.txt | grep 'sdk_libs' | cut -d'=' -f2)
             echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
           else
             echo "Artifact not found. Calculating sdk_status..."
             echo "sdk_status_not_found=true" >> $GITHUB_ENV
-          fi
+          fi  # Correctly closing the if statement
 
       # Execute the paths-filter step to determine changes
       - uses: dorny/paths-filter@v3.0.1
@@ -165,7 +164,7 @@ jobs:
           echo "Calculating sdk_status..."
           # Logic to determine sdk_status
           sdk_libs=${{ steps.filter.outputs.sdk_libs || 'false' }}  # Default value in case of failure
-          echo "sdk_libs=$sdk_libs" > sdk_status_${{ github.sha }}.txt
+          echo "sdk_libs=$sdk_libs" > sdk_status_pr_${{ github.event.pull_request.number }}.txt
           echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
 
       # 4. Upload the sdk_status as an artifact if it was calculated
@@ -173,8 +172,8 @@ jobs:
         if: env.sdk_status_not_found == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: sdk-status-${{ github.sha }}  # Name of the artifact based on the commit hash
-          path: sdk_status_${{ github.sha }}.txt
+          name: sdk-status-pr-${{ github.event.pull_request.number }}  # Name of the artifact using PR number
+          path: sdk_status_pr_${{ github.event.pull_request.number }}.txt
           retention-days: 30  # Configure retention period as needed
           
       - name: Rewrite Filter
