@@ -148,6 +148,7 @@ jobs:
           else
             echo "Artifact not found. Calculating sdk_status..."
             echo "sdk_status_not_found=true" >> $GITHUB_ENV
+          fi
 
       # 3. Calculate sdk_status if it does not exist
       - name: Calculate SDK Status
