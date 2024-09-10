@@ -71,6 +71,7 @@ export const appConfig: ApplicationConfig = {
     ],
 };
 ```
+
 This way, we will have access to `DOTCMS_CLIENT_TOKEN` from anywhere in our application.
 
 ### Client Usage
