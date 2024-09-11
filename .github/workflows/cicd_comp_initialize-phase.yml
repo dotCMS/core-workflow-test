@@ -141,6 +141,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow_search: true
+          search_artifacts: true
           name: sdk-status-sha-${{ env.BASE_SHA }}  # Name of the artifact using BASE_SHA
           path: .
           if_no_artifact_found: warn
@@ -175,13 +176,14 @@ jobs:
       - name: Calculate SDK Status
         if: env.sdk_status_not_found == 'true'
         run: |
-          echo "Calculating sdk_status..."
+          echo "::group::Calculating sdk_status"
           # Logic to determine sdk_status
           sdk_libs=${{ steps.filter.outputs.sdk_libs || 'false' }}  # Default value in case of failure
           echo "sdk_libs=$sdk_libs" > sdk_status_sha_${{ env.BASE_SHA }}.txt
           echo "sdk_libs=$sdk_libs
-          echo "$(cat sdk_status_sha_${{ env.BASE_SHA }})"
-          echo "SDK_LIBS=$sdk_libs" >> $GITHUB_ENV
+          echo "$(cat sdk_status_sha_${{ env.BASE_SHA }}.txt)"
+          echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
+          echo "::endgroup::"
 
       # 4. Upload the sdk_status as an artifact if it was calculated
       - name: Upload SDK Status Artifact
@@ -196,7 +198,9 @@ jobs:
         id: filter-rewrite
         env:
           CICD_SKIP_TESTS: ${{ vars.CICD_SKIP_TESTS }}
+          SDK_LIBS: ${{ env.sdk_libs }}
         run: |
+          echo "::group::Rewrite Fiter"
           # Default action outcomes based on paths-filter action outputs
           frontend=${{ steps.filter.outputs.frontend || 'true'}}
           cli=${{ steps.filter.outputs.cli || 'true' }}
@@ -257,3 +261,4 @@ jobs:
           echo "build=${build}" >> $GITHUB_OUTPUT
           echo "jvm_unit_test=${jvm_unit_test}" >> $GITHUB_OUTPUT
           echo "sdk_libs=${sdk_libs}" >> $GITHUB_OUTPUT
+          echo "::endgroup::"
