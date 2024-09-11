@@ -51,6 +51,7 @@ const DOTCMS_CLIENT_CONFIG: ClientConfig = {
     siteId: environment.siteId
 };
 ```
+
 And add this config in the Angular app ApplicationConfig.
 
 `src/app/app.config.ts`
@@ -70,6 +71,7 @@ export const appConfig: ApplicationConfig = {
     ],
 };
 ```
+
 This way, we will have access to `DOTCMS_CLIENT_TOKEN` from anywhere in our application.
 
 ### Client Usage
@@ -91,6 +93,7 @@ this.client.page
       // Use the error response
     })
 ```
+
 For more information to how to use DotCms Client, you can visit the [documentation](https://github.com/dotCMS/core/blob/master/core-web/libs/sdk/client/README.md)
 
 ## DotCMS Page API
