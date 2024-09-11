@@ -152,7 +152,7 @@ jobs:
         run: |
           if [ -f sdk_status_sha_${{ env.BASE_SHA }}.txt ]; then
             echo "Artifact found. Using existing sdk_status."
-            sdk_libs=$(cat sdk_status_sha_${{ github.event.pull_request.number }}.txt | grep 'sdk_libs' | cut -d'=' -f2)
+            sdk_libs=$(cat sdk_status_sha_${{ env.BASE_SHA }}.txt | grep 'sdk_libs' | cut -d'=' -f2)
             echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
           else
             echo "Artifact not found. Calculating sdk_status..."
@@ -175,7 +175,7 @@ jobs:
           # Logic to determine sdk_status
           sdk_libs=${{ steps.filter.outputs.sdk_libs || 'false' }}  # Default value in case of failure
           echo "sdk_libs=$sdk_libs" > sdk_status_sha_${{ env.BASE_SHA }}.txt
-          echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
+          echo "SDK_LIBS=$sdk_libs" >> $GITHUB_ENV
 
       # 4. Upload the sdk_status as an artifact if it was calculated
       - name: Upload SDK Status Artifact
@@ -190,7 +190,6 @@ jobs:
         id: filter-rewrite
         env:
           CICD_SKIP_TESTS: ${{ vars.CICD_SKIP_TESTS }}
-          SDK_LIBS: ${{ env.sdk_libs }}  # Use the sdk_libs value from the environment
         run: |
           # Default action outcomes based on paths-filter action outputs
           frontend=${{ steps.filter.outputs.frontend || 'true'}}
