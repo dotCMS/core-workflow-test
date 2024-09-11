@@ -123,15 +123,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: ${{ inputs.validation-level != 'none' }}
+
+      - name: Determine BASE_SHA
+        id: determine-base-sha
+        run: |
+          echo "::group::Determine BASE_SHA"
+          # 1 - PULL REQUEST || 2 - MERGE GROUP || 3 - PUSH || 4 - DEFAULT
+          BASE_SHA=${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before || github.sha }}
+          echo "::notice::BASE SHA: ${BASE_SHA}"
+          echo "BASE_SHA=${BASE_SHA}" >> $GITHUB_ENV
+          echo "::endgroup::"
       
-      # 1. Attempt to download the existing artifact using the PR number
+      # 1. Attempt to download the existing artifact using the BASE_SHA
       - name: Download Existing SDK Status Artifact
         id: download-artifact
         uses: dawidd6/action-download-artifact@v3.1.4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow_search: true
-          name: sdk-status-pr-${{ github.event.pull_request.number }}  # Name of the artifact using PR number
+          name: sdk-status-sha-${{ env.BASE_SHA }}  # Name of the artifact using BASE_SHA
           path: .
           if_no_artifact_found: warn
         continue-on-error: true  # Do not fail if the artifact does not exist
@@ -140,9 +150,9 @@ jobs:
       - name: Check if SDK Status Exists
         id: check-artifact
         run: |
-          if [ -f sdk_status_pr_${{ github.event.pull_request.number }}.txt ]; then
+          if [ -f sdk_status_sha_${{ env.BASE_SHA }}.txt ]; then
             echo "Artifact found. Using existing sdk_status."
-            sdk_libs=$(cat sdk_status_pr_${{ github.event.pull_request.number }}.txt | grep 'sdk_libs' | cut -d'=' -f2)
+            sdk_libs=$(cat sdk_status_sha_${{ github.event.pull_request.number }}.txt | grep 'sdk_libs' | cut -d'=' -f2)
             echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
           else
             echo "Artifact not found. Calculating sdk_status..."
@@ -164,7 +174,7 @@ jobs:
           echo "Calculating sdk_status..."
           # Logic to determine sdk_status
           sdk_libs=${{ steps.filter.outputs.sdk_libs || 'false' }}  # Default value in case of failure
-          echo "sdk_libs=$sdk_libs" > sdk_status_pr_${{ github.event.pull_request.number }}.txt
+          echo "sdk_libs=$sdk_libs" > sdk_status_sha_${{ env.BASE_SHA }}.txt
           echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
 
       # 4. Upload the sdk_status as an artifact if it was calculated
