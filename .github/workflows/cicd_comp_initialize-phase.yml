@@ -182,8 +182,8 @@ jobs:
         if: env.sdk_status_not_found == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: sdk-status-pr-${{ github.event.pull_request.number }}  # Name of the artifact using PR number
-          path: sdk_status_pr_${{ github.event.pull_request.number }}.txt
+          name: sdk-status-sha-${{ env.BASE_SHA }}  # Name of the artifact using BASE_SHA
+          path: sdk_status_sha_${{ env.BASE_SHA }}.txt
           retention-days: 30  # Configure retention period as needed
           
       - name: Rewrite Filter
