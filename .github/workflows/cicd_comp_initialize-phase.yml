@@ -147,17 +147,21 @@ jobs:
         continue-on-error: true  # Do not fail if the artifact does not exist
 
       # 2. Check if the artifact was downloaded
-      - name: Check if SDK Status Exists
+      - name: Check if SDK Status exists
         id: check-artifact
         run: |
+          echo "::group::Check if SDK Status exists"
           if [ -f sdk_status_sha_${{ env.BASE_SHA }}.txt ]; then
             echo "Artifact found. Using existing sdk_status."
             sdk_libs=$(cat sdk_status_sha_${{ env.BASE_SHA }}.txt | grep 'sdk_libs' | cut -d'=' -f2)
+            echo "sdk_libs=$sdk_libs"
             echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
           else
             echo "Artifact not found. Calculating sdk_status..."
+            echo "sdk_status_not_found=true"
             echo "sdk_status_not_found=true" >> $GITHUB_ENV
           fi  # Correctly closing the if statement
+          echo "::endgroup::"
 
       # Execute the paths-filter step to determine changes
       - uses: dorny/paths-filter@v3.0.1
@@ -175,6 +179,8 @@ jobs:
           # Logic to determine sdk_status
           sdk_libs=${{ steps.filter.outputs.sdk_libs || 'false' }}  # Default value in case of failure
           echo "sdk_libs=$sdk_libs" > sdk_status_sha_${{ env.BASE_SHA }}.txt
+          echo "sdk_libs=$sdk_libs
+          echo "$(cat sdk_status_sha_${{ env.BASE_SHA }})"
           echo "SDK_LIBS=$sdk_libs" >> $GITHUB_ENV
 
       # 4. Upload the sdk_status as an artifact if it was calculated
