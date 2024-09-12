@@ -161,7 +161,8 @@ jobs:
             echo "Artifact not found. Calculating sdk_status..."
             echo "sdk_status_not_found=true"
             echo "sdk_status_not_found=true" >> $GITHUB_ENV
-          fi  # Correctly closing the if statement
+          fi  
+          # Correctly closing the if statement
           echo "::endgroup::"
 
       # Execute the paths-filter step to determine changes
@@ -180,7 +181,7 @@ jobs:
           # Logic to determine sdk_status
           sdk_libs=${{ steps.filter.outputs.sdk_libs || 'false' }}  # Default value in case of failure
           echo "sdk_libs=$sdk_libs" > sdk_status_sha_${{ env.BASE_SHA }}.txt
-          echo "sdk_libs=$sdk_libs
+          echo "sdk_libs=$sdk_libs"
           echo "$(cat sdk_status_sha_${{ env.BASE_SHA }}.txt)"
           echo "sdk_libs=$sdk_libs" >> $GITHUB_ENV
           echo "::endgroup::"
