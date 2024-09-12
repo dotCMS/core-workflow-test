@@ -120,5 +120,3 @@ Always refer to the official [DotCMS documentation](https://www.dotcms.com/docs/
 | Forums/Listserv | [via Google Groups](https://groups.google.com/forum/#!forum/dotCMS) |
 | Twitter         | @dotCMS                                                             |
 | Main Site       | [dotCMS.com](https://dotcms.com/)                                   |
-
-
