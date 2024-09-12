@@ -209,3 +209,4 @@ This prevents the need for a new build of artifacts on release.
 ## Conclusion
 
 Our CI/CD process is designed to be efficient, flexible, and easy to maintain. By leveraging GitHub Actions' features like reusable workflows, custom actions, caching, and artifacts, we've created a robust pipeline that can handle the complex needs of the dotCMS project while remaining adaptable to future requirements.
+
