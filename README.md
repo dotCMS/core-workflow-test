@@ -8,7 +8,6 @@
 [![Nightly](https://github.com/dotCMS/core/actions/workflows/cicd_4-nightly.yml/badge.svg)](https://github.com/dotCMS/core/actions/workflows/cicd_4-nightly.yml)
 
 
-
 dotCMS is an open source headless/hybrid content management system (CMS) that has been designed to manage and deliver personalized, permission-based content experiences across multiple channels. 
 - **Open Source** - available in both Community (GPL3) and Enterprise Editions
 - **REST & GraphQL APIs** - instant endpoints for your all your content
