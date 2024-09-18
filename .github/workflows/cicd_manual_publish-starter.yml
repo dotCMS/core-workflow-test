@@ -158,7 +158,7 @@ jobs:
           echo "::endgroup::"
 
   update-pom:
-    if: ${{ github.event.inputs.type == 'empty' && github.event.inputs.dry-run == false }}
+    if: ${{ github.event.inputs.type == 'empty' }}
     needs: [ deploy-artifacts ]
     runs-on: ubuntu-20.04
     environment: trunk
@@ -209,7 +209,7 @@ jobs:
     needs: [ deploy-artifacts, update-pom ]
     runs-on: ubuntu-20.04
     environment: trunk
-    if: always() && github.event.inputs.dry-run == false
+    if: always() 
     steps:
 
       - uses: actions/checkout@v4
