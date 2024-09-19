@@ -214,7 +214,7 @@ jobs:
           echo "::group::Compose Message"
           BASE_MESSAGE="""> :large_green_circle: *Attention dotters:* a new Starter published!
           >
-          > This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }} starter_* :package: `${{ needs.deploy-artifacts.outputs.filename }}` is now available on `ARTIFACTORY` :frog:!
+          > This automated script is happy to announce that a new *_${{ env.STARTER_TYPE }} starter_* :package: ``${{ needs.deploy-artifacts.outputs.filename }}`` is now available on ``ARTIFACTORY`` :frog:!
           > 
           > :link: ${{ needs.deploy-artifacts.outputs.url }}
           >
