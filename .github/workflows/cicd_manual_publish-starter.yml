@@ -219,7 +219,7 @@ jobs:
           > :link: ${{ needs.deploy-artifacts.outputs.url }}
           >
           > *Changelog*
-          > ```${{ github.event.inputs.changelog }}```"""
+          > ``${{ github.event.inputs.changelog }}``"""
           
           if [ "$STARTER_TYPE" == "empty" ]; then
             PR_ALERT=""">
