@@ -42,9 +42,7 @@ jobs:
     uses: ./.github/workflows/cicd_comp_initialize-phase.yml
     with:
       reuse-previous-build: ${{ inputs.reuse-previous-build || github.event_name != 'workflow_dispatch' }}
-      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts || github.event_name != 'workflow_dispatch' }}
-      validation-level: 'custom'
-      custom-modules: 'sdk_libs'      
+      build-on-missing-artifacts: ${{ inputs.build-on-missing-artifacts || github.event_name != 'workflow_dispatch' }}   
 
   # Build job - only runs if no artifacts were found during initialization
   build:
