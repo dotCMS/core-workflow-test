@@ -216,16 +216,6 @@ jobs:
           ARTIFACT_URL="${{ needs.deploy-artifacts.outputs.url }}"
           CHANGELOG="${{ github.event.inputs.changelog }}"
           PULL_REQUEST_URL="${{ needs.update-pom.outputs.pull-request-url }}"
-          
-          BASE_MESSAGE=$(cat <<-EOF
-          > :large_green_circle: *Attention dotters:* a new Starter published!
-          > This automated script is happy to announce that a new *_${STARTER_TYPE} starter_* :package: \`${ARTIFACT_FILENAME}\` is now available on \`ARTIFACTORY\` :frog:!
-          >
-          > :link: ${ARTIFACT_URL}
-          > *Changelog*
-          > \`\`\`${CHANGELOG}\`\`\`          
-          EOF
-          )
 
           if [ "$STARTER_TYPE" == "empty" ]; then
             PR_ALERT=$(cat <<-EOF
@@ -234,9 +224,20 @@ jobs:
             > :globe_with_meridians: ${PULL_REQUEST_URL}
             EOF
             )
-          fi
+          fi          
           
-          MESSAGE="${BASE_MESSAGE}${PR_ALERT}"
+          BASE_MESSAGE=$(cat <<-EOF
+          > :large_green_circle: *Attention dotters:* a new Starter published!
+          > This automated script is happy to announce that a new *_${STARTER_TYPE} starter_* :package: \`${ARTIFACT_FILENAME}\` is now available on \`ARTIFACTORY\` :frog:!
+          >
+          > :link: ${ARTIFACT_URL}
+          > *Changelog*
+          > \`\`\`${CHANGELOG}\`\`\`
+          ${PR_ALERT}
+          EOF
+          )
+          
+          MESSAGE="${BASE_MESSAGE}"
           
           echo "Message: ${MESSAGE}"
           echo "message<<EOF" >> $GITHUB_OUTPUT
