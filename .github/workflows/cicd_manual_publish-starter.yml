@@ -218,7 +218,7 @@ jobs:
           PULL_REQUEST_URL="${{ needs.update-pom.outputs.pull-request-url }}"
 
           if [ "$STARTER_TYPE" == "empty" ]; then
-            PR_ALERT="> :bangbang: *Approvals required*: ${PULL_REQUEST_URL}"
+            PR_ALERT="> :exclamation:*Approvals required*:exclamation: *PR* ${PULL_REQUEST_URL}"
           fi          
           
           BASE_MESSAGE=$(cat <<-EOF
