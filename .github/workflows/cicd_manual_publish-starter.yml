@@ -218,9 +218,9 @@ jobs:
           PULL_REQUEST_URL="${{ needs.update-pom.outputs.pull-request-url }}"
           
           BASE_MESSAGE=$(cat <<-EOF
-          \> :large_green_circle: *Attention dotters:* a new Starter published!
-          \>
-          \> This automated script is happy to announce that a new *_${STARTER_TYPE} starter_* :package: \`${ARTIFACT_FILENAME}\` is now available on \`ARTIFACTORY\` :frog:!
+          :large_green_circle: *Attention dotters:* a new Starter published!
+          
+          This automated script is happy to announce that a new *_${STARTER_TYPE} starter_* :package: \`${ARTIFACT_FILENAME}\` is now available on \`ARTIFACTORY\` :frog:!
           EOF
           )
           
