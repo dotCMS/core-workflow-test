@@ -225,9 +225,11 @@ jobs:
           > :link: ${ARTIFACT_URL}
           >
           > *Changelog*
-          > \`\`\`${CHANGELOG}\`\`\`
+          > ${CHANGELOG}
           EOF
           )
+
+          echo "$BASE_MESSAGE"
           
           if [ "$STARTER_TYPE" == "empty" ]; then
             PR_ALERT=$(cat <<EOF 
