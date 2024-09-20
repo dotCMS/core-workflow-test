@@ -218,7 +218,7 @@ jobs:
           PULL_REQUEST_URL="${{ needs.update-pom.outputs.pull-request-url }}"
 
           if [ "$STARTER_TYPE" == "empty" ]; then
-            PR_ALERT="> *Approvals required* to apply the latest version of *_Empty Starter_* to the project. :globe_with_meridians: ${PULL_REQUEST_URL}"
+            PR_ALERT="> :bangbang: *Approvals required* to apply the latest version of *_Empty Starter_* to the project.\n> :globe_with_meridians: ${PULL_REQUEST_URL}"
           fi          
           
           BASE_MESSAGE=$(cat <<-EOF
