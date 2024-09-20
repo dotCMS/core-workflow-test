@@ -214,7 +214,7 @@ jobs:
           echo "::group::Compose Message"
           ARTIFACT_FILENAME=${{ needs.deploy-artifacts.outputs.filename }}
           ARTIFACT_URL=${{ needs.deploy-artifacts.outputs.url }}
-          CHANGELOG=${{ github.event.inputs.changelog }}
+          # CHANGELOG=${{ github.event.inputs.changelog }}
           PULL_REQUEST_URL=${{ needs.update-pom.outputs.pull-request-url }}
 
           BASE_MESSAGE=$(cat <<EOF 
