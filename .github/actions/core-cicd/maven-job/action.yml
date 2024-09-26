@@ -179,6 +179,7 @@ runs:
       if: ${{ inputs.needs-docker-image == 'true' }}
       uses: actions/download-artifact@v4
       with:
+        run-id: ${{ inputs.artifacts-from }}
         name: docker-image
         path: /tmp/docker-image
 
