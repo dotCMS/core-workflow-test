@@ -209,7 +209,7 @@ runs:
           cd $sdk && echo "$(pwd)"
           echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
           npm publish --access public --tag $NPM_TAG
-          npm dist-tag $NEXT_VERSION latest
+          npm dist-tag add @dotcms/${sdk}@${NEXT_VERSION} latest
           cd ..
         done
         echo "::endgroup::"
