@@ -69,7 +69,7 @@ jobs:
       - name: Set Common Vars
         id: set-common-vars
         run: |
-          # git config user.name "${{ secrets.CI_MACHINE_USER }}"
+          git config user.name "${{ secrets.GITHUB_TOKEN }}"
           git config user.email "dotCMS-Machine-User@dotcms.com"
 
           release_version=${{ github.event.inputs.release_version }}
