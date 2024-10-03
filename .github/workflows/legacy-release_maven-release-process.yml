@@ -104,7 +104,7 @@ jobs:
           release_version=${{ steps.set-common-vars.outputs.release_version }}
           release_branch=${{ steps.set-common-vars.outputs.release_branch }}
           
-          remote=$(git ls-remote --heads https://github.com/dotCMS/core.git ${release_branch} | wc -l | tr -d '[:space:]')
+          remote=$(git ls-remote --heads https://github.com/dotCMS/core-workflow-test.git ${release_branch} | wc -l | tr -d '[:space:]')
           if [[ "${remote}" == '1' ]]; then
             echo "Release branch ${release_branch} already exists, removing it"
             git push origin :${release_branch}
