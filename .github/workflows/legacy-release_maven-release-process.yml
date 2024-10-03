@@ -126,7 +126,7 @@ jobs:
           echo "release_commit=${release_commit}" >> $GITHUB_OUTPUT
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRO }}
@@ -376,14 +376,14 @@ jobs:
           cleanup-runner: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           stage-name: "JReleaser"
-          maven-args: "-Pupload-sbom validate -DartifactsDir=artifacts -DskipTests=true -Ddocker.skip -pl :dotcms-parent"
+          maven-args: "-Pupload-sbom validate -DartifactsDir=./artifacts -DskipTests=true -Ddocker.skip -pl :dotcms-parent"
           version: ${{ needs.prepare-release.outputs.release_version }} 
           # artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
 
   finish-release:
     name: Finish Release
     runs-on: ubuntu-latest
-    needs: [prepare-release, release-process, build-push-image]
+    needs: [prepare-release, release-process, build-push-image, generate-sbom]
     if: success()
     env:
       NEXT_VERSION: '1.0.0-SNAPSHOT'
@@ -395,33 +395,6 @@ jobs:
           ref: main
 
       - uses: ./.github/actions/core-cicd/cleanup-runner
-
-      #      - name: Fetch `Next Release` issues
-      #        id: fetch-next-release-issues
-      #        uses: ./.github/actions/issues/issue-fetcher
-      #        with:
-      #          fetch_operation: 'WITH_LABELS'
-      #          fetch_value: ${{ env.FETCH_VALUE }}
-      #          github_token: ${{ secrets.GITHUB_TOKEN }}
-      #        if: github.event.inputs.update_github_labels == 'true'
-      #
-      #      - name: Clear next release issues
-      #        uses: ./.github/actions/issues/issue-labeler
-      #        with:
-      #          issues_json: ${{ steps.fetch-next-release-issues.outputs.issues }}
-      #          labels: ${{ env.FETCH_VALUE }}
-      #          operation: 'REMOVE'
-      #          github_token: ${{ secrets.GITHUB_TOKEN }}
-      #        if: github.event.inputs.update_github_labels == 'true'
-      #
-      #      - name: Label current release issues
-      #        uses: ./.github/actions/issues/issue-labeler
-      #        with:
-      #          issues_json: ${{ steps.fetch-next-release-issues.outputs.issues }}
-      #          labels: 'Release ${{ needs.prepare-release.outputs.release_version }}'
-      #          operation: 'ADD'
-      #          github_token: ${{ secrets.GITHUB_TOKEN }}
-      #        if: github.event.inputs.update_github_labels == 'true'
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
