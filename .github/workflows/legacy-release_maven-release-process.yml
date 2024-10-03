@@ -340,6 +340,46 @@ jobs:
       docker_io_username: ${{ secrets.DOCKER_USERNAME }}
       docker_io_token: ${{ secrets.DOCKER_TOKEN }}
 
+  generate-sbom:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    needs: [  prepare-release, build-push-image ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/legacy-release/sbom-generator
+        with:
+          dotcms_version: ${{ needs.prepare-release.outputs.release_version }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Download all build artifacts'
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ github.workspace }}/artifacts
+          pattern: sbom-${{ needs.prepare-release.outputs.release_version }}
+
+      - name: Restore Maven Repository
+        id: restore-maven
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-core-${{ needs.prepare-release.outputs.date }}-${{ github.run_id }}          
+
+      - uses: ./.github/actions/core-cicd/maven-job
+        env:
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JRELEASER_PROJECT_VERSION: ${{ needs.prepare-release.outputs.release_version }}
+          JRELEASER_ARTIFACTORY_USERNAME: ${{ secrets.EE_REPO_USERNAME }}
+          JRELEASER_ARTIFACTORY_PASSWORD: ${{ secrets.EE_REPO_PASSWORD }}
+          JRELEASER_DRY_RUN: 'true'
+        with:
+          cleanup-runner: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          stage-name: "JReleaser"
+          maven-args: "-Pupload-sbom validate -DartifactsDir=artifacts -DskipTests=true -Ddocker.skip -pl :dotcms-parent"
+          version: ${{ needs.prepare-release.outputs.release_version }} 
+          # artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
+
   finish-release:
     name: Finish Release
     runs-on: ubuntu-latest
