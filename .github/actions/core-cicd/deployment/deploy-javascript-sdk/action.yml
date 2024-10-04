@@ -37,7 +37,7 @@ outputs:
     value: ${{ steps.next_version.outputs.next_version }}
   published:
     description: 'SDK libs - Published'
-    value: ${{ steps.next_version.outputs.publish }}
+    value: ${{ steps.deployment_status.outputs.published }}
 runs:
   using: "composite"
   steps:
@@ -213,5 +213,12 @@ runs:
           cd ..
         done
         echo "::endgroup::"
-      shell: bash      
+      shell: bash
+
+    - name: 'Set output'
+      id: deployment_status
+      if: success()
+      run: |
+        echo "published=true" >> $GITHUB_OUTPUT
+      shell: bash
       
