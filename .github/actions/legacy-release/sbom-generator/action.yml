@@ -54,6 +54,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: sbom-${{ env.DOTCMS_VERSION }}
+        path: core-test-results/sbom/dotcms-${{ env.DOTCMS_VERSION }}.json
         
     # - name: Configure Git
     #   shell: bash
