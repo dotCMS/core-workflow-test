@@ -207,6 +207,7 @@ runs:
       working-directory: ${{ github.workspace }}/core-web/
       run: |
         npm install -g nx@latest
+        npm install --save-dev rollup-plugin-postcss
         yarn install
         npm --version
         node --version
