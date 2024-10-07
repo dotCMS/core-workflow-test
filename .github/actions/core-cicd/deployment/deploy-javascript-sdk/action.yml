@@ -27,7 +27,7 @@ inputs:
   node-version:
     description: 'Node.js version'
     required: false
-    default: '19'
+    default: '21'
   github-token:
     description: 'GitHub Token'
     required: true
