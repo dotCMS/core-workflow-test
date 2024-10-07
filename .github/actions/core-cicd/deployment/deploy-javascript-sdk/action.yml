@@ -206,9 +206,9 @@ runs:
     - name: 'Install project'
       working-directory: ${{ github.workspace }}/core-web/
       run: |
+        npm install -g nx@latest
         yarn install
-        # npx --version
-        # npm add --global nx@latest        
+        npx --version       
         # npx nx show projects
       shell: bash
 
