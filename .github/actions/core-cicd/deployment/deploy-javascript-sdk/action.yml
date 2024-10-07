@@ -206,6 +206,7 @@ runs:
     - name: 'Checking projects'
       working-directory: ${{ github.workspace }}/core-web/
       run: |
+        npm install -g @nx
         npx --version
         npx nx show projects
       shell: bash
