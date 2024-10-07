@@ -198,7 +198,7 @@ runs:
     - name: 'Build SDK packages'
       working-directory: ${{ github.workspace }}/core-web/
       run: |
-        SDK_PROJECTS=npx nx show projects | grep '^sdk' | tr '\n' ',' | sed 's/,$/\n/'
+        SDK_PROJECTS=$(npx nx show projects | grep '^sdk' | tr '\n' ',' | sed 's/,$/\n/')
         npx nx run-many --target=build --projects=${SDK_PROJECTS} --configuration=production --skip-nx-cache
       shell: bash
 
