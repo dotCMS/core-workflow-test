@@ -216,30 +216,31 @@ runs:
     - name: 'Build SDK packages'
       working-directory: ${{ github.workspace }}/core-web/
       run: |
-        SDK_PROJECTS=$(npx nx show projects | grep '^sdk' | tr '\n' ',' | sed 's/,$/\n/')
+        SDK_PROJECTS=sdk-experiments,sdk-angular,sdk-client
+        # SDK_PROJECTS=$(npx nx show projects | grep '^sdk' | tr '\n' ',' | sed 's/,$/\n/')
         echo "SDK_PROJECTS: ${SDK_PROJECTS}"
         npx nx run-many --target=build --projects=${SDK_PROJECTS} --configuration=production --skip-nx-cache
       shell: bash
 
-    - name: 'Publishing sdk into NPM registry'
-      working-directory: ${{ github.workspace }}/core-web/dist/libs/sdk/
-      env:
-        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
-        NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
-        NPM_TAG: ${{ inputs.npm-package-tag }}
-      run: |
-        echo "::group::Publishing SDK packages"        
-        sdks=$(ls)
-        for sdk in $sdks; do
-          echo "Publishing SDK lib [${sdk}]"
-          cd $sdk && echo "$(pwd)"
-          echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
-          npm publish --access public --tag $NPM_TAG
-          npm dist-tag add @dotcms/${sdk}@${NEXT_VERSION} latest
-          cd ..
-        done
-        echo "::endgroup::"
-      shell: bash
+    # - name: 'Publishing sdk into NPM registry'
+    #   working-directory: ${{ github.workspace }}/core-web/dist/libs/sdk/
+    #   env:
+    #     NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+    #     NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
+    #     NPM_TAG: ${{ inputs.npm-package-tag }}
+    #   run: |
+    #     echo "::group::Publishing SDK packages"        
+    #     sdks=$(ls)
+    #     for sdk in $sdks; do
+    #       echo "Publishing SDK lib [${sdk}]"
+    #       cd $sdk && echo "$(pwd)"
+    #       echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+    #       npm publish --access public --tag $NPM_TAG
+    #       npm dist-tag add @dotcms/${sdk}@${NEXT_VERSION} latest
+    #       cd ..
+    #     done
+    #     echo "::endgroup::"
+    #   shell: bash
 
     - name: 'Set output'
       id: deployment_status
