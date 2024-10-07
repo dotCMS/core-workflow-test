@@ -208,7 +208,6 @@ runs:
       run: |
         npm install -g nx@latest        
         yarn install
-        npm install --save-dev rollup-plugin-postcss
         npm --version
         node --version
         npx --version               
