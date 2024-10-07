@@ -177,7 +177,7 @@ runs:
         done
       shell: bash
 
-    - name: 'Printing SDK packages'
+    - name: 'Printing SDK packages configuration'
       env:
         SDK_LIBS_PATH: ${{ github.workspace }}/core-web/libs/sdk
         EXAMPLES_PATH: ${{ github.workspace }}/examples
@@ -193,10 +193,16 @@ runs:
         echo "Examples:"
         print_packages "$EXAMPLES_PATH"
         echo "::endgroup::"
-      shell: bash               
+      shell: bash
+
+    - name: 'Build SDK packages'
+      working-directory: ${{ github.workspace }}/core-web/
+      run: |
+        SDK_PROJECTS=npx nx show projects | grep '^sdk' | tr '\n' ',' | sed 's/,$/\n/'
+        npx nx run-many --target=build --projects=${SDK_PROJECTS} --configuration=production --skip-nx-cache
 
     - name: 'Publishing sdk into NPM registry'
-      working-directory: ${{ github.workspace }}/core-web/libs/sdk/
+      working-directory: ${{ github.workspace }}/core-web/dist/libs/sdk/
       env:
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
         NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
