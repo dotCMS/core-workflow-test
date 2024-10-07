@@ -203,9 +203,11 @@ runs:
     #     restore-keys: |
     #       ${{ runner.os }}-npm-cache
 
-    - name: 'Install dependencies'
+    - name: 'Checking projects'
       working-directory: ${{ github.workspace }}/core-web/
-      run: npm ci
+      run: |
+        npx --version
+        npx nx show projects
       shell: bash
 
     - name: 'Build SDK packages'
