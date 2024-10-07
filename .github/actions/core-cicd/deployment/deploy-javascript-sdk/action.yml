@@ -208,8 +208,9 @@ runs:
       run: |
         npm install -g nx@latest
         yarn install
-        npx --version       
-        # npx nx show projects
+        npm --version
+        node --version
+        npx --version               
       shell: bash
 
     - name: 'Build SDK packages'
