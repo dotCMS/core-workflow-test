@@ -4,10 +4,10 @@ name: Tester
 
 on:
   workflow_dispatch:
-    inputs:
-      release_version:
-        description: 'Release Version (yy.mm.dd[_lts_v##]])'
-        required: true      
+    # inputs:
+    #   release_version:
+    #     description: 'Release Version (yy.mm.dd[_lts_v##]])'
+    #     required: true      
 
 jobs:
   # generate-sbom:
