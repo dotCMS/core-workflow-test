@@ -27,7 +27,7 @@ inputs:
   node-version:
     description: 'Node.js version'
     required: false
-    default: '21'
+    default: '18.20.3'
   github-token:
     description: 'GitHub Token'
     required: true
@@ -203,12 +203,13 @@ runs:
     #     restore-keys: |
     #       ${{ runner.os }}-npm-cache
 
-    - name: 'Checking projects'
+    - name: 'Install project'
       working-directory: ${{ github.workspace }}/core-web/
       run: |
-        npx --version
-        npm add --global nx@latest        
-        npx nx show projects
+        yarn install
+        # npx --version
+        # npm add --global nx@latest        
+        # npx nx show projects
       shell: bash
 
     - name: 'Build SDK packages'
