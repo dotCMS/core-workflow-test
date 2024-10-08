@@ -47,22 +47,23 @@ runs:
         ref: ${{ inputs.ref }}
         token: ${{ inputs.github-token }}
 
-    # - name: 'Set up Node.js'
-    #   uses: actions/setup-node@v4
-    #   with:
-    #     node-version: ${{ inputs.node-version }}
-
-    - name: Run Maven Job
+    - name: 'Run Maven Job'
       uses: ./.github/actions/core-cicd/maven-job
       with:
         stage-name: 'Build'
-        maven-args: 'clean install -pl :dotcms-core-web -DskipTests -Ddocker.skip=true'
+        maven-args: 'process-resources -pl :dotcms-core-web -am'
         requires-node: true
         cleanup-runner: true
         generate-docker: false
         generate-artifacts: false
         version: '1.0.0-SNAPSHOT'
-        github-token: ${{ inputs.github-token }}       
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 'Set path to node and yarn'
+      run: |
+        ls -R ${{ github.workspace }}/installs
+        echo "PATH=$PATH:${{ github.workspace }}/installs/node/:${{ github.workspace }}/installs/node/yarn/dist/bin" >> $GITHUB_ENV
+      shell: bash       
 
     - name: 'Get current version from NPM'
       id: current_version
