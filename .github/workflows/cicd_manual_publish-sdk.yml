@@ -35,6 +35,7 @@ jobs:
         id: sdks_publish
         uses: ./.github/actions/core-cicd/deployment/deploy-javascript-sdk
         with:
+          ref: master
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.NPM_TEST_TOKEN }}
       # Send Slack notification for SDK publication          
