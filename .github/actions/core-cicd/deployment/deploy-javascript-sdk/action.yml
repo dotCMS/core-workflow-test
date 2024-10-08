@@ -195,18 +195,18 @@ runs:
         echo "::endgroup::"
       shell: bash
 
-    # - name: 'Restore npm cache'
-    #   uses: actions/cache@v4
-    #   with:
-    #     path: ~/.npm
-    #     key: ${{ runner.os }}-npm-cache
-    #     restore-keys: |
-    #       ${{ runner.os }}-npm-cache
+    - name: 'Cache NPM'
+      id: cache-npm
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+        key: npm-${{ hashFiles('core-web/package-lock.json') }}
+        restore-keys: npm-      
 
     - name: 'Install project'
       working-directory: ${{ github.workspace }}/core-web/
-      run: |
-        # npm install -g nx@19.6.5        
+      run: | 
         yarn install
         npm --version
         node --version
@@ -216,31 +216,30 @@ runs:
     - name: 'Build SDK packages'
       working-directory: ${{ github.workspace }}/core-web/
       run: |
-        SDK_PROJECTS="sdk-react"
-        # SDK_PROJECTS=$(npx nx show projects | grep '^sdk' | tr '\n' ',' | sed 's/,$/\n/')
+        SDK_PROJECTS=$(npx nx show projects | grep '^sdk' | tr '\n' ',' | sed 's/,$/\n/')
         echo "SDK_PROJECTS: ${SDK_PROJECTS}"
         npx nx run-many --target=build --projects=${SDK_PROJECTS} --configuration=production --skip-nx-cache
       shell: bash
 
-    # - name: 'Publishing sdk into NPM registry'
-    #   working-directory: ${{ github.workspace }}/core-web/dist/libs/sdk/
-    #   env:
-    #     NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
-    #     NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
-    #     NPM_TAG: ${{ inputs.npm-package-tag }}
-    #   run: |
-    #     echo "::group::Publishing SDK packages"        
-    #     sdks=$(ls)
-    #     for sdk in $sdks; do
-    #       echo "Publishing SDK lib [${sdk}]"
-    #       cd $sdk && echo "$(pwd)"
-    #       echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
-    #       npm publish --access public --tag $NPM_TAG
-    #       npm dist-tag add @dotcms/${sdk}@${NEXT_VERSION} latest
-    #       cd ..
-    #     done
-    #     echo "::endgroup::"
-    #   shell: bash
+    - name: 'Publishing sdk into NPM registry'
+      working-directory: ${{ github.workspace }}/core-web/dist/libs/sdk/
+      env:
+        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+        NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
+        NPM_TAG: ${{ inputs.npm-package-tag }}
+      run: |
+        echo "::group::Publishing SDK packages"        
+        sdks=$(ls)
+        for sdk in $sdks; do
+          echo "Publishing SDK lib [${sdk}]"
+          cd $sdk && echo "$(pwd)"
+          echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+          npm publish --access public --tag $NPM_TAG
+          npm dist-tag add @dotcms/${sdk}@${NEXT_VERSION} latest
+          cd ..
+        done
+        echo "::endgroup::"
+      shell: bash
 
     - name: 'Set output'
       id: deployment_status
