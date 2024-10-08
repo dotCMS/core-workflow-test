@@ -57,7 +57,7 @@ runs:
         generate-docker: false
         generate-artifacts: false
         version: '1.0.0-SNAPSHOT'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
 
     - name: 'Set path to node and yarn'
       run: |
