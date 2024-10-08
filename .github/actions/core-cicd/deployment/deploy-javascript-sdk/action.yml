@@ -56,11 +56,12 @@ runs:
       uses: ./.github/actions/core-cicd/maven-job
       with:
         stage-name: 'Build'
-        maven-args: 'clean install -pl :core-web -am -DskipTests -Ddocker.skip=true'
-        requires-node: 'true'
-        cleanup-runner: 'true'
-        generate-docker: 'false'
-        generate-artifacts: 'true'
+        maven-args: 'clean install -pl :dotcms-core-web -DskipTests -Ddocker.skip=true'
+        requires-node: true
+        cleanup-runner: true
+        generate-docker: false
+        generate-artifacts: false
+        version: '1.0.0-SNAPSHOT'
         github-token: ${{ inputs.github-token }}       
 
     - name: 'Get current version from NPM'
