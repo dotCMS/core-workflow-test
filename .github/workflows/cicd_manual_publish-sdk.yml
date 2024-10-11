@@ -31,15 +31,16 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}  
         run: |
           ARTIFACT_NAME=${{ steps.sbom-generator.outputs.sbom-artifact }}
-          SBOM=$(find ./artifacts -name *.json)
-          ls ${SBOM} | grep ${ARTIFACT_NAME}
-          ls -R ${{ github.workspace }}/artifacts
+          SBOM=$(find ./artifacts -name *.json | grep ${ARTIFACT_NAME})
+          # ls ${SBOM} | grep ${ARTIFACT_NAME}
+          # ls -R ${{ github.workspace }}/artifacts
           
           if [ -n "${SBOM}" ]; then
-            echo "SBOM: ${SBOM_ARTIFACT}"
+            echo "SBOM:"
+            cat ${SBOM}
             
-            # zip ${SBOM_ARTIFACT}.zip ./artifacts/${{ steps.sbom-generator.outputs.sbom-artifact }}.json
-            # gh release upload "${{ needs.prepare-release.outputs.release_tag }}" "./artifacts/${{ steps.sbom-generator.outputs.sbom-artifact }}.zip"
+            zip ${ARTIFACT_NAME}.zip ${SBOM}.json
+            # gh release upload "${{ needs.prepare-release.outputs.release_tag }}" "${ARTIFACT_NAME}.zip"
           else
             echo "SBOM artifact not found."
           fi              
