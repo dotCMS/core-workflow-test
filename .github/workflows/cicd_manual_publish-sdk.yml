@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/legacy-release/sbom-generator
+        id: sbom-generator
         with:
           dotcms_version: ${{ inputs.release_version }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -31,9 +32,11 @@ jobs:
         run: |
           SBOM_ARTIFACT=${{ steps.sbom-generator.outputs.sbom-artifact }}
 
+          ls -R ${{ github.workspace }}/artifacts
+
           if [ -f "${SBOM_ARTIFACT}.json" ]; then
             echo "SBOM: ${SBOM_ARTIFACT}"
-            ls -R ${{ github.workspace }}/artifacts
+            
             # zip ${SBOM_ARTIFACT}.zip ./artifacts/${{ steps.sbom-generator.outputs.sbom-artifact }}.json
             # gh release upload "${{ needs.prepare-release.outputs.release_tag }}" "./artifacts/${{ steps.sbom-generator.outputs.sbom-artifact }}.zip"
           else
