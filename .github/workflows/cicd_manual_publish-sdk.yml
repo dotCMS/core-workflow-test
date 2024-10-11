@@ -30,11 +30,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}  
         run: |
-          SBOM_ARTIFACT=${{ steps.sbom-generator.outputs.sbom-artifact }}
-
+          ARTIFACT_NAME=${{ steps.sbom-generator.outputs.sbom-artifact }}
+          SBOM=$(find ./artifacts -name *.json)
+          ls ${SBOM} | grep ${ARTIFACT_NAME}
           ls -R ${{ github.workspace }}/artifacts
-
-          if [ -f "./artifacts/${SBOM_ARTIFACT}.json" ]; then
+          
+          if [ -n "${SBOM}" ]; then
             echo "SBOM: ${SBOM_ARTIFACT}"
             
             # zip ${SBOM_ARTIFACT}.zip ./artifacts/${{ steps.sbom-generator.outputs.sbom-artifact }}.json
