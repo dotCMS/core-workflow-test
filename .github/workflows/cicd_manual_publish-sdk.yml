@@ -39,7 +39,7 @@ jobs:
             echo "SBOM:"
             cat ${SBOM}
             
-            zip ${ARTIFACT_NAME}.zip ${SBOM}.json
+            zip ${ARTIFACT_NAME}.zip ${SBOM}
             # gh release upload "${{ needs.prepare-release.outputs.release_tag }}" "${ARTIFACT_NAME}.zip"
           else
             echo "SBOM artifact not found."
