@@ -34,7 +34,7 @@ jobs:
 
           ls -R ${{ github.workspace }}/artifacts
 
-          if [ -f "${SBOM_ARTIFACT}.json" ]; then
+          if [ -f "./artifacts/${SBOM_ARTIFACT}.json" ]; then
             echo "SBOM: ${SBOM_ARTIFACT}"
             
             # zip ${SBOM_ARTIFACT}.zip ./artifacts/${{ steps.sbom-generator.outputs.sbom-artifact }}.json
