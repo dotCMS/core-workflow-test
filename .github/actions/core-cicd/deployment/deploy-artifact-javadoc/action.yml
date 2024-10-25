@@ -1,0 +1,92 @@
+name: Deploy Artifact Javadoc
+description: Deploys the Javadoc artifact to the GitHub Packages registry
+inputs:
+  ref:
+    description: 'Branch to build from'
+    required: false
+    default: 'main'
+  github-token:
+    description: 'GitHub Token'
+    required: true
+  release-version:
+    description: 'The version of the release'
+    required: true
+  artifact-run-id:
+    default: ${{ github.run_id }}
+    description: 'The run id of the core artifacts'    
+  aws-access-key-id:
+    description: 'AWS Access Key ID'
+    required: true
+  aws-secret-access-key:
+    description: 'AWS Secret Access Key'
+    required: true
+  aws-region:
+    description: 'AWS region'
+    default: 'us-east-1'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - name: 'Get date'
+      id: get-date
+      run: |
+        echo "date=$(/bin/date -u "+%Y-%m")" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - uses: ./.github/actions/core-cicd/cleanup-runner        
+
+    # - name: Configure AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   with:
+    #     aws-access-key-id: ${{ inputs.aws-access-key-id }}
+    #     aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+    #     aws-region: ${{ inputs.aws-region }}
+
+    - name: Restore Maven Repository
+      id: restore-maven
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.m2/repository
+        key: maven-core-${{ steps.get-date.outputs.date }}-${{ github.run_id }}        
+
+    - uses: ./.github/actions/core-cicd/maven-job
+      id: maven-javadoc
+      with:
+        github-token: ${{ inputs.github-token }}
+        stage-name: "Deploy Artifact Javadoc"
+        maven-args: "javac:javadoc -pl :dotcms-core"
+        artifacts-from: ${{ inputs.artifact-run-id }}
+
+    - name: Generate/Push Javadoc
+      if: success()
+      run: |
+        # ./mvnw -ntp \
+        #   ${JVM_TEST_MAVEN_OPTS} \
+        #   javadoc:javadoc \
+        #   -pl :dotcms-core
+        # rc=$?
+        # if [[ $rc != 0 ]]; then
+        #   echo "Javadoc generation failed with exit code $rc"
+        #   exit $rc
+        # fi
+
+        site_dir=./dotCMS/target/site
+        javadoc_dir=${site_dir}/javadocs
+        
+        ls $javadoc_dir
+
+        # s3_uri=s3://static.dotcms.com/docs/${{ needs.prepare-release.outputs.release_version }}/javadocs
+
+        # mv ${site_dir}/apidocs ${javadoc_dir}
+        # echo "Running: aws s3 cp ${javadoc_dir} ${s3_uri} --recursive"
+        # aws s3 cp ${javadoc_dir} ${s3_uri} --recursive
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+      shell: bash
