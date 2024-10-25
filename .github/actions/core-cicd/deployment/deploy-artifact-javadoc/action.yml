@@ -52,22 +52,12 @@ runs:
     - name: Generate/Push Javadoc
       if: success()
       run: |
-        # ./mvnw -ntp \
-        #   ${JVM_TEST_MAVEN_OPTS} \
-        #   javadoc:javadoc \
-        #   -pl :dotcms-core
-        # rc=$?
-        # if [[ $rc != 0 ]]; then
-        #   echo "Javadoc generation failed with exit code $rc"
-        #   exit $rc
-        # fi
-
         site_dir=./dotCMS/target/site
         javadoc_dir=${site_dir}/javadocs
         
         ls $javadoc_dir
 
-        # s3_uri=s3://static.dotcms.com/docs/${{ needs.prepare-release.outputs.release_version }}/javadocs
+        # s3_uri=s3://static.dotcms.com/docs/${{ inputs.release-version }}/javadocs
 
         # mv ${site_dir}/apidocs ${javadoc_dir}
         # echo "Running: aws s3 cp ${javadoc_dir} ${s3_uri} --recursive"
