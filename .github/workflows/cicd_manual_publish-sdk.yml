@@ -7,44 +7,58 @@ on:
     inputs:
       release_version:
         description: 'Release Version (yy.mm.dd[_lts_v##]])'
-        required: true      
+        required: true
+      
 
 jobs:
-  generate-sbom:
-    runs-on: ubuntu-22.04
+  deploy-javadoc:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/legacy-release/sbom-generator
-        id: sbom-generator
+      - uses: ./.github/actions/core-cid/deployment/deploy-artifact-javadoc
         with:
-          dotcms_version: ${{ inputs.release_version }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.ref }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          artifact-run-id: ${{ github.run_id }}
+          release-version: ${{ inputs.release_version }}
+          # aws-access-key-id: ${{ inputs.aws-access-key-id }}
+          # aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+          # aws-region: ${{ inputs.aws-region }} 
+  # generate-sbom:
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./.github/actions/legacy-release/sbom-generator
+  #       id: sbom-generator
+  #       with:
+  #         dotcms_version: ${{ inputs.release_version }}
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'Download SBOM artifact'
-        uses: actions/download-artifact@v4
-        with:
-          path: ${{ github.workspace }}/artifacts
-          pattern: ${{ steps.sbom-generator.outputs.sbom-artifact }}
+  #     - name: 'Download SBOM artifact'
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         path: ${{ github.workspace }}/artifacts
+  #         pattern: ${{ steps.sbom-generator.outputs.sbom-artifact }}
 
-      - name: Upload SBOM Asset
-        env:
-          GITHUB_TOKEN: ${{ github.token }}  
-        run: |
-          echo "::group::Upload SBOM Asset"
-          ARTIFACT_NAME=${{ steps.sbom-generator.outputs.sbom-artifact }}
-          SBOM="./artifacts/${ARTIFACT_NAME}/${ARTIFACT_NAME}.json"
+  #     - name: Upload SBOM Asset
+  #       env:
+  #         GITHUB_TOKEN: ${{ github.token }}  
+  #       run: |
+  #         echo "::group::Upload SBOM Asset"
+  #         ARTIFACT_NAME=${{ steps.sbom-generator.outputs.sbom-artifact }}
+  #         SBOM="./artifacts/${ARTIFACT_NAME}/${ARTIFACT_NAME}.json"
           
-          if [ -f "${SBOM}" ]; then
-            echo "SBOM: ${SBOM}"
-            cat "${SBOM}"
+  #         if [ -f "${SBOM}" ]; then
+  #           echo "SBOM: ${SBOM}"
+  #           cat "${SBOM}"
             
-            zip "${ARTIFACT_NAME}.zip" "${SBOM}"
-            # gh release upload "v1.5.4" "${ARTIFACT_NAME}.zip"
-            # gh release upload "${{ needs.prepare-release.outputs.release_tag }}" "${ARTIFACT_NAME}.zip"
-          else
-            echo "SBOM artifact not found."
-          fi
-          echo "::endgroup::"   
+  #           zip "${ARTIFACT_NAME}.zip" "${SBOM}"
+  #           # gh release upload "v1.5.4" "${ARTIFACT_NAME}.zip"
+  #           # gh release upload "${{ needs.prepare-release.outputs.release_tag }}" "${ARTIFACT_NAME}.zip"
+  #         else
+  #           echo "SBOM artifact not found."
+  #         fi
+  #         echo "::endgroup::"   
       
   # deployment:
   #   runs-on: ubuntu-22.04
