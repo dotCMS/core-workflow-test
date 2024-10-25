@@ -37,7 +37,8 @@ runs:
       id: maven-javadoc
       with:        
         stage-name: "Deploy Javadoc"
-        maven-args: "javadoc:javadoc -pl :dotcms-core"
+        maven-args: "javadoc:javadoc"
+        generate-docker: false
         cleanup-runner: true
         restore-classes: true
         artifacts-from: ${{ inputs.artifact-run-id }}
@@ -53,6 +54,8 @@ runs:
     - name: Generate/Push Javadoc
       if: success()
       run: |
+        echo "::group::Generate/Push Javadoc"
+        ls -R
         site_dir=./dotCMS/target/site
         javadoc_dir=${site_dir}/javadocs
         
@@ -63,6 +66,7 @@ runs:
         # mv ${site_dir}/apidocs ${javadoc_dir}
         # echo "Running: aws s3 cp ${javadoc_dir} ${s3_uri} --recursive"
         # aws s3 cp ${javadoc_dir} ${s3_uri} --recursive
+        echo "::endgroup::"
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
