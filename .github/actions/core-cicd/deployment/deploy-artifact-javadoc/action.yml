@@ -33,35 +33,21 @@ runs:
       with:
         ref: ${{ inputs.ref }}
 
-    - name: 'Get date'
-      id: get-date
-      run: |
-        echo "date=$(/bin/date -u "+%Y-%m")" >> $GITHUB_OUTPUT
-      shell: bash
-
-    - uses: ./.github/actions/core-cicd/cleanup-runner        
+    - uses: ./.github/actions/core-cicd/maven-job
+      id: maven-javadoc
+      with:        
+        stage-name: "Deploy Javadoc"
+        maven-args: "javac:javadoc -pl :dotcms-core"
+        cleanup-runner: true
+        artifacts-from: ${{ inputs.artifact-run-id }}
+        github-token: ${{ inputs.github-token }}
 
     # - name: Configure AWS Credentials
     #   uses: aws-actions/configure-aws-credentials@v1
     #   with:
     #     aws-access-key-id: ${{ inputs.aws-access-key-id }}
     #     aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-    #     aws-region: ${{ inputs.aws-region }}
-
-    - name: Restore Maven Repository
-      id: restore-maven
-      uses: actions/cache/restore@v4
-      with:
-        path: ~/.m2/repository
-        key: maven-core-${{ steps.get-date.outputs.date }}-${{ github.run_id }}        
-
-    - uses: ./.github/actions/core-cicd/maven-job
-      id: maven-javadoc
-      with:
-        github-token: ${{ inputs.github-token }}
-        stage-name: "Deploy Artifact Javadoc"
-        maven-args: "javac:javadoc -pl :dotcms-core"
-        artifacts-from: ${{ inputs.artifact-run-id }}
+    #     aws-region: ${{ inputs.aws-region }} 
 
     - name: Generate/Push Javadoc
       if: success()
