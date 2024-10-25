@@ -18,7 +18,7 @@ jobs:
         with:
           ref: master
           
-      - uses: ./.github/actions/core-cid/deployment/deploy-artifact-javadoc
+      - uses: ./.github/actions/core-cicd/deployment/deploy-artifact-javadoc
         with:
           ref: master
           github-token: ${{ secrets.GITHUB_TOKEN }}
