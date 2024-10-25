@@ -25,13 +25,15 @@ jobs:
           cleanup-runner: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           generate-artifacts: true
+
+      - run: ls -R
           
-      - uses: ./.github/actions/core-cicd/deployment/deploy-artifact-javadoc
-        with:
-          ref: master
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          artifact-run-id: ${{ github.run_id }}
-          release-version: ${{ inputs.release_version }}
+      # - uses: ./.github/actions/core-cicd/deployment/deploy-artifact-javadoc
+      #   with:
+      #     ref: master
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     artifact-run-id: ${{ github.run_id }}
+      #     release-version: ${{ inputs.release_version }}
           # aws-access-key-id: ${{ inputs.aws-access-key-id }}
           # aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
           # aws-region: ${{ inputs.aws-region }} 
