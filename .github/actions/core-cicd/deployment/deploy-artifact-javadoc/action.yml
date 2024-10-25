@@ -37,7 +37,7 @@ runs:
       id: maven-javadoc
       with:        
         stage-name: "Deploy Javadoc"
-        maven-args: "javac:javadoc -pl :dotcms-core"
+        maven-args: "javadoc:javadoc -pl :dotcms-core"
         cleanup-runner: true
         artifacts-from: ${{ inputs.artifact-run-id }}
         github-token: ${{ inputs.github-token }}
