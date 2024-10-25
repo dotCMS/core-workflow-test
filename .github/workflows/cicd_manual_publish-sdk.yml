@@ -15,9 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: master
+          
       - uses: ./.github/actions/core-cid/deployment/deploy-artifact-javadoc
         with:
-          ref: ${{ github.ref }}
+          ref: master
           github-token: ${{ secrets.GITHUB_TOKEN }}
           artifact-run-id: ${{ github.run_id }}
           release-version: ${{ inputs.release_version }}
