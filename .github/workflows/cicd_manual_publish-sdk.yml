@@ -24,6 +24,7 @@ jobs:
           maven-args: "clean install -Dprod=true -DskipTests=true"
           cleanup-runner: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          generate-artifacts: true
           
       - uses: ./.github/actions/core-cicd/deployment/deploy-artifact-javadoc
         with:
