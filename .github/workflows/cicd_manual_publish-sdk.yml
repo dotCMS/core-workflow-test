@@ -21,7 +21,7 @@ jobs:
       - uses: ./.github/actions/core-cicd/maven-job
         with:
           stage-name: "JVM Tests"
-          maven-args: "clean install -Dprod=true -DskipTests=true"
+          maven-args: "clean install -Dprod=true -DskipTests=true -Ddocker.skip"
           cleanup-runner: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           generate-artifacts: true
