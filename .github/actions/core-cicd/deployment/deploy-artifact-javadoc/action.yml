@@ -37,7 +37,7 @@ runs:
       id: maven-javadoc
       with:        
         stage-name: "Deploy Javadoc"
-        maven-args: "javadoc:javadoc"
+        maven-args: "validate"
         generate-docker: false
         cleanup-runner: true
         restore-classes: true
