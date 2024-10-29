@@ -37,7 +37,7 @@ runs:
       id: maven-javadoc
       with:        
         stage-name: "Deploy Javadoc"
-        maven-args: "validate"
+        maven-args: "javadoc:javadoc"
         generate-docker: false
         cleanup-runner: true
         restore-classes: true
@@ -55,7 +55,7 @@ runs:
       if: success()
       run: |
         echo "::group::Generate/Push Javadoc"
-        ls -R
+        # ls -R
         site_dir=./dotCMS/target/site
         javadoc_dir=${site_dir}/javadocs
         
