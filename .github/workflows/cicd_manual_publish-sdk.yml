@@ -26,22 +26,22 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           generate-artifacts: true
 
-      - run: ls -R dotCMS/target
+      # - run: ls -R dotCMS/target
 
-      - name: Generate/Push Javadoc
-        run: |
-          JVM_TEST_MAVEN_OPTS='-e -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
-          ./mvnw -ntp \
-            ${JVM_TEST_MAVEN_OPTS} \
-            javadoc:javadoc \
-            -pl :dotcms-core
+      # - name: Generate/Push Javadoc
+      #   run: |
+      #     JVM_TEST_MAVEN_OPTS='-e -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
+      #     ./mvnw -ntp \
+      #       ${JVM_TEST_MAVEN_OPTS} \
+      #       javadoc:javadoc \
+      #       -pl :dotcms-core
           
-      # - uses: ./.github/actions/core-cicd/deployment/deploy-artifact-javadoc
-      #   with:
-      #     ref: master
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     artifact-run-id: ${{ github.run_id }}
-      #     release-version: ${{ inputs.release_version }}
+      - uses: ./.github/actions/core-cicd/deployment/deploy-artifact-javadoc
+        with:
+          ref: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          artifact-run-id: ${{ github.run_id }}
+          release-version: ${{ inputs.release_version }}
           # aws-access-key-id: ${{ inputs.aws-access-key-id }}
           # aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
           # aws-region: ${{ inputs.aws-region }} 
