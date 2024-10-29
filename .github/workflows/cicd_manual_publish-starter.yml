@@ -96,7 +96,7 @@ jobs:
       - uses: jfrog/setup-jfrog-cli@v4
         env:
           JF_URL: ${{ vars.ARTIFACTORY_URL }}
-          JF_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+          JF_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           # JF_USER: ${{ secrets.EE_REPO_USERNAME }}
           # JF_PASSWORD: ${{ secrets.EE_REPO_PASSWORD }}          
                     
