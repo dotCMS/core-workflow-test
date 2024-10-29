@@ -44,27 +44,23 @@ runs:
         artifacts-from: ${{ inputs.artifact-run-id }}
         github-token: ${{ inputs.github-token }}
 
-    # - name: Configure AWS Credentials
-    #   uses: aws-actions/configure-aws-credentials@v1
-    #   with:
-    #     aws-access-key-id: ${{ inputs.aws-access-key-id }}
-    #     aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-    #     aws-region: ${{ inputs.aws-region }} 
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region }} 
 
     - name: Generate/Push Javadoc
       if: success()
       run: |
         echo "::group::Generate/Push Javadoc"
-        ls -R ./dotCMS/target/site
         site_dir=./dotCMS/target/site
         javadoc_dir=${site_dir}/javadocs
-        
-        # ls $javadoc_dir
-
-        # s3_uri=s3://static.dotcms.com/docs/${{ inputs.release-version }}/javadocs
-
-        # mv ${site_dir}/apidocs ${javadoc_dir}
-        # echo "Running: aws s3 cp ${javadoc_dir} ${s3_uri} --recursive"
+        s3_uri=s3://static.dotcms.com/docs/${{ inputs.release-version }}/javadocs
+        mv ${site_dir}/apidocs ${javadoc_dir}
+        ls -R $javadoc_dir
+        echo "Running: aws s3 cp ${javadoc_dir} ${s3_uri} --recursive"
         # aws s3 cp ${javadoc_dir} ${s3_uri} --recursive
         echo "::endgroup::"
       env:
