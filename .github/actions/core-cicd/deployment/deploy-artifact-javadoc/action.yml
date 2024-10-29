@@ -55,7 +55,7 @@ runs:
       if: success()
       run: |
         echo "::group::Generate/Push Javadoc"
-        ls -R ./dotCMS/target
+        ls -R ./dotCMS/target/site
         site_dir=./dotCMS/target/site
         javadoc_dir=${site_dir}/javadocs
         
