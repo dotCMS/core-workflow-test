@@ -103,6 +103,7 @@ jobs:
         run: |
           echo "::group::JFrog CLI context"
           jf rt ping
+          jf rt config show
           echo "::endgroup::"
           
       - name: 'Download artifacts'
@@ -145,6 +146,7 @@ jobs:
           jfrog rt u "${SOURCE}" ${TARGET} \
             --target-props="${PROPS}" \
             --flat=false \
+            --log-level=DEBUG \
             $DRY_RUN
           echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
           echo "url=${URL}" >> $GITHUB_OUTPUT  
