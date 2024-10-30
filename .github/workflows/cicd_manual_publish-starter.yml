@@ -156,7 +156,7 @@ jobs:
     if: ${{ github.event.inputs.type == 'empty' && github.event.inputs.dry-run == false }}
     needs: [ deploy-artifacts ]
     runs-on: ubuntu-20.04
-    environment: trunk
+    environment: starter
     outputs:
       pull-request-url: ${{ steps.create-pull-request.outputs.pull-request-url }}
     steps:
