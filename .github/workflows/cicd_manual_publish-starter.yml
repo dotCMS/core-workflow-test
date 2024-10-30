@@ -88,7 +88,7 @@ jobs:
   deploy-artifacts:
     needs: [ get-starter ]
     runs-on: ubuntu-20.04
-    environment: trunk
+    environment: starter
     outputs:
       filename: ${{ steps.deploy-artifacts.outputs.filename }}
       url: ${{ steps.deploy-artifacts.outputs.url }}
