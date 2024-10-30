@@ -203,7 +203,7 @@ jobs:
   send-notification:
     needs: [ deploy-artifacts, update-pom ]
     runs-on: ubuntu-20.04
-    environment: trunk
+    environment: starter
     if: always() && github.event.inputs.dry-run == false
     steps:
 
