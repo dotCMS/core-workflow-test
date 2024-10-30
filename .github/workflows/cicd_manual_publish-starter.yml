@@ -10,7 +10,7 @@ on:
           - 'full'
           - 'empty'
       old-assets:
-        description: 'Include Old Assets?'
+        description: 'Include Old Assets'
         required: true
         type: boolean
       changelog:
