@@ -10,7 +10,7 @@ on:
           - 'full'
           - 'empty'
       old-assets:
-        description: 'Include Old Assets'
+        description: 'Include old assets'
         required: true
         type: boolean
       changelog:
@@ -231,7 +231,7 @@ jobs:
           > This automated script is happy to announce that a new *_${STARTER_TYPE} starter_* :package: \`${ARTIFACT_FILENAME}\` is now available on \`ARTIFACTORY\` :frog:!
           >
           > :link: ${ARTIFACT_URL}
-          > _Include Old Assets_: ${OLD_ASSETS}
+          > _Old assets included_: ${OLD_ASSETS}
           > *Changelog*
           > \`\`\`${CHANGELOG}\`\`\`
           >
