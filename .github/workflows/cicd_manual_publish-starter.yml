@@ -219,6 +219,7 @@ jobs:
           echo "::group::Compose Message"
           ARTIFACT_FILENAME="${{ needs.deploy-artifacts.outputs.filename }}"
           ARTIFACT_URL="${{ needs.deploy-artifacts.outputs.url }}"
+          OLD_ASSETS="${{ github.event.inputs.old-assets }}"
           CHANGELOG="${{ github.event.inputs.changelog }}"
           PULL_REQUEST_URL="${{ needs.update-pom.outputs.pull-request-url }}"
           if [ "$STARTER_TYPE" == "empty" ]; then
@@ -230,6 +231,7 @@ jobs:
           > This automated script is happy to announce that a new *_${STARTER_TYPE} starter_* :package: \`${ARTIFACT_FILENAME}\` is now available on \`ARTIFACTORY\` :frog:!
           >
           > :link: ${ARTIFACT_URL}
+          > _Include Old Assets_: ${OLD_ASSETS}
           > *Changelog*
           > \`\`\`${CHANGELOG}\`\`\`
           >
