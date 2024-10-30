@@ -207,7 +207,7 @@ jobs:
   send-notification:
     needs: [ deploy-artifacts ] #, update-pom 
     runs-on: ubuntu-20.04
-    environment: starter
+    environment: trunk
     if: always() && github.event.inputs.dry-run == 'false'
     steps:
 
@@ -248,7 +248,7 @@ jobs:
       - name: Slack Notification
         uses: ./.github/actions/core-cicd/notification/notify-slack
         with:
-          channel-id: "log-starter"
+          channel-id: "slack-notification-testing"
           payload: ${{ steps.compose-message.outputs.message }}
           slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}       
 
