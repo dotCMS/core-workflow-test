@@ -145,7 +145,6 @@ jobs:
           jfrog rt u "${SOURCE}" ${TARGET} \
             --target-props="${PROPS}" \
             --flat=false \
-            --log-level=DEBUG \
             $DRY_RUN
           echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
           echo "url=${URL}" >> $GITHUB_OUTPUT  
