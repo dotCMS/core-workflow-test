@@ -34,8 +34,6 @@ on:
         default: true
         required: false
 env:
-  JAVA_VERSION: 11
-  JAVA_DISTRO: temurin
   JVM_TEST_MAVEN_OPTS: '-e -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
   DOCKER_BUILD_CONTEXT: /home/runner/work/_temp/core-build
 jobs:
@@ -62,14 +60,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # token: ${{ secrets.CI_MACHINE_TOKEN }}
+          token: ${{ secrets.CI_MACHINE_TOKEN }}
 
       - uses: ./.github/actions/core-cicd/cleanup-runner
 
       - name: Set Common Vars
         id: set-common-vars
         run: |
-          git config user.name "${{ secrets.GITHUB_TOKEN }}"
+          git config user.name "${{ secrets.CI_MACHINE_USER }}"
           git config user.email "dotCMS-Machine-User@dotcms.com"
 
           release_version=${{ github.event.inputs.release_version }}
@@ -104,7 +102,7 @@ jobs:
           release_version=${{ steps.set-common-vars.outputs.release_version }}
           release_branch=${{ steps.set-common-vars.outputs.release_branch }}
           
-          remote=$(git ls-remote --heads https://github.com/dotCMS/core-workflow-test.git ${release_branch} | wc -l | tr -d '[:space:]')
+          remote=$(git ls-remote --heads https://github.com/dotCMS/core.git ${release_branch} | wc -l | tr -d '[:space:]')
           if [[ "${remote}" == '1' ]]; then
             echo "Release branch ${release_branch} already exists, removing it"
             git push origin :${release_branch}
@@ -126,10 +124,8 @@ jobs:
           echo "release_commit=${release_commit}" >> $GITHUB_OUTPUT
 
       - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRO }}
+        id: setup-java
+        uses: ./.github/actions/core-cicd/setup-java
 
       - name: Build Core
         run: |
@@ -181,7 +177,7 @@ jobs:
 
       - name: Cache Node Binary
         id: cache-node-binary
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             core-web/installs
@@ -213,8 +209,8 @@ jobs:
           curl -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/dotCMS/core-workflow-test/releases \
+            -H "Authorization: Bearer ${{ secrets.CI_MACHINE_TOKEN }}" \
+            https://api.github.com/repos/dotCMS/core/releases \
             -d '{"tag_name": "${{ steps.set-common-vars.outputs.release_tag }}", "name": "Release ${{ steps.set-common-vars.outputs.release_version }}", "target_commitish": "${{ steps.set-release-version.outputs.release_commit }}", "draft": false, "prerelease": false, "generate_release_notes": false}'
         if: success()
 
@@ -265,10 +261,8 @@ jobs:
           key: npm-${{ hashFiles('core-web/package-lock.json') }}
 
       - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRO }}
+        id: setup-java
+        uses: ./.github/actions/core-cicd/setup-java
 
       - name: maven-settings-xml-action
         uses: whelk-io/maven-settings-xml-action@v20
@@ -344,10 +338,12 @@ jobs:
     name: Generate SBOM
     runs-on: ubuntu-latest
     needs: [  prepare-release, build-push-image ]
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/legacy-release/sbom-generator
+        id: sbom-generator
         with:
           dotcms_version: ${{ needs.prepare-release.outputs.release_version }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -356,38 +352,42 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ${{ github.workspace }}/artifacts
-          pattern: sbom-${{ needs.prepare-release.outputs.release_version }}
-
-      - name: Restore Maven Repository
-        id: restore-maven
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.m2/repository
-          key: maven-core-${{ needs.prepare-release.outputs.date }}-${{ github.run_id }}          
-
-      - uses: ./.github/actions/core-cicd/maven-job
+          pattern: ${{ steps.sbom-generator.outputs.sbom-artifact }}
+          
+      - name: Upload SBOM Asset
         env:
-          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JRELEASER_PROJECT_VERSION: ${{ needs.prepare-release.outputs.release_version }}
-          JRELEASER_ARTIFACTORY_USERNAME: ${{ secrets.EE_REPO_USERNAME }}
-          JRELEASER_ARTIFACTORY_PASSWORD: ${{ secrets.EE_REPO_PASSWORD }}
-          JRELEASER_DRY_RUN: 'true'
-        with:
-          cleanup-runner: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          stage-name: "JReleaser"
-          maven-args: "-Pupload-sbom validate -DartifactsDir=./artifacts -DskipTests=true -Ddocker.skip -pl :dotcms-parent"
-          version: ${{ needs.prepare-release.outputs.release_version }} 
-          # artifacts-from: ${{ env.ARTIFACT_RUN_ID }}
+          GITHUB_TOKEN: ${{ github.token }}  
+        run: |
+          echo "::group::Upload SBOM Asset"
+          ARTIFACT_NAME=${{ steps.sbom-generator.outputs.sbom-artifact }}
+          SBOM="./artifacts/${ARTIFACT_NAME}/${ARTIFACT_NAME}.json"
+          
+          if [ -f "${SBOM}" ]; then
+            echo "SBOM: ${SBOM}"
+            cat "${SBOM}"
+            
+            zip "${ARTIFACT_NAME}.zip" "${SBOM}"
+            gh release upload "${{ needs.prepare-release.outputs.release_tag }}" "${ARTIFACT_NAME}.zip"
+          else
+            echo "SBOM artifact not found."
+          fi
+          echo "::endgroup::"
+
+  release-labeling:
+    name: Release Labeling
+    needs: [prepare-release, release-process, build-push-image]
+    if: success() && github.event.inputs.update_github_labels == 'true'
+    uses: ./.github/workflows/issue_comp_release-labeling.yml
+    with:
+      new_label: 'Release ${{ github.event.inputs.release_version }}'
+    secrets:
+      CI_MACHINE_TOKEN: ${{ secrets.CI_MACHINE_TOKEN }}
 
   finish-release:
     name: Finish Release
     runs-on: ubuntu-latest
-    needs: [prepare-release, release-process, build-push-image, generate-sbom]
+    needs: [prepare-release, release-process, build-push-image]
     if: success()
-    env:
-      NEXT_VERSION: '1.0.0-SNAPSHOT'
-      FETCH_VALUE: 'Next Release'
     steps:
       - name: Checkout core
         uses: actions/checkout@v4
