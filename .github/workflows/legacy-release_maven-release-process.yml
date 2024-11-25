@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.CI_MACHINE_TOKEN }}
+          # token: ${{ secrets.CI_MACHINE_TOKEN }}
 
       - uses: ./.github/actions/core-cicd/cleanup-runner
 
