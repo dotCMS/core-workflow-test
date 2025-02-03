@@ -48,7 +48,9 @@ export const getPageRequestParams = ({
     }
 
     // nonsense change just to trigger a build
-    finalParams['variantName'] = copiedParams['variantName'];
+    finalParams['variantName'] = (copiedParams['variantName'] as string)?.length
+        ? copiedParams['variantName']
+        : undefined;
 
     if (copiedParams['personaId'] || dotMarketingPersonaId) {
         finalParams['personaId'] = copiedParams['personaId'] || dotMarketingPersonaId;
