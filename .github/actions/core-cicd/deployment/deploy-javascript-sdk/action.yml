@@ -64,7 +64,7 @@ runs:
         echo "::endgroup::"
       shell: bash
 
-     - name: 'Get current version from NPM'
+    - name: 'Get current version from NPM'
       id: current_version
       run: |
         echo "::group::Get current version"
