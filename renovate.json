@@ -9,7 +9,6 @@
       "enabled": false
     }
   ],
-  "logLevel": "debug",
-  "dependencyDashboard": true,
+  "dependencyDashboard": true
 
 }
