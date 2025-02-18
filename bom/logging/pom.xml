@@ -81,7 +81,7 @@
                 <!-- Async support for Log4J 2.x -->
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
-                <version>3.3.4</version>
+                <version>4.0.0</version>
                 <scope>runtime</scope>
             </dependency>
 
