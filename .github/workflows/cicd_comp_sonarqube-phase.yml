@@ -55,7 +55,7 @@ jobs:
       # Check SonarQube Quality Gate status
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@dc2f7b0dd95544cd550de3028f89193576e958b9
+        uses: sonarsource/sonarqube-quality-gate-action@adc518a017eda8be0bb3f46f87cba5bddaa719f7
         continue-on-error: ${{ github.repository != 'dotCMS/core' }}
         with:
           pollingTimeoutSec: 900 # 15 minutes
