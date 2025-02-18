@@ -20,7 +20,7 @@ runs:
   steps:
     - name: Slack Notification
       if: inputs.json == 'false'
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v1.27.1
       with:
         channel-id: ${{ inputs.channel-id }}
         payload: |
@@ -40,7 +40,7 @@ runs:
         
     - name: Slack Notification with JSON
       if: inputs.json == 'true'
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v1.27.1
       with:
         channel-id: ${{ inputs.channel-id }}
         payload: ${{ inputs.payload }}
