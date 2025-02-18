@@ -145,7 +145,7 @@
         <version.site.plugin>4.0.0-M8</version.site.plugin>
         <version.sonar.plugin>3.10.0.2594</version.sonar.plugin>
         <version.source.plugin>3.1.0</version.source.plugin>
-        <version.frontend.plugin>1.12.1</version.frontend.plugin>
+        <version.frontend.plugin>1.15.1</version.frontend.plugin>
         <version.properties.plugin>1.2.1</version.properties.plugin>
         <version.flatten.plugin>1.6.0</version.flatten.plugin>
         <version.versions.plugin>2.8.1</version.versions.plugin>
