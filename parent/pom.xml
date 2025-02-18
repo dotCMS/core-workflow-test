@@ -140,7 +140,7 @@
         <version.rar.plugin>2.4</version.rar.plugin>
         <version.release.plugin>2.5.3</version.release.plugin>
         <version.resources.plugin>3.3.1</version.resources.plugin>
-        <version.rewrite-maven-plugin>5.21.0</version.rewrite-maven-plugin>
+        <version.rewrite-maven-plugin>5.47.3</version.rewrite-maven-plugin>
         <version.shade.plugin>3.2.1</version.shade.plugin>
         <version.site.plugin>4.0.0-M8</version.site.plugin>
         <version.sonar.plugin>3.10.0.2594</version.sonar.plugin>
