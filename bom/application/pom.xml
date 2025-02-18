@@ -720,7 +720,7 @@
             <dependency>
                 <groupId>com.graphql-java</groupId>
                 <artifactId>graphql-java</artifactId>
-                <version>17.5</version>
+                <version>230521-nf-execution</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
