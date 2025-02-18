@@ -132,7 +132,7 @@ jobs:
         if: ${{ inputs.validation-level != 'none' }}
 
       # Execute the paths-filter step to determine changes
-      - uses: dorny/paths-filter@v3.0.1
+      - uses: dorny/paths-filter@v3.0.2
         if: ${{ inputs.validation-level != 'none' }}
         id: filter
         with:
