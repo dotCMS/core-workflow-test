@@ -580,7 +580,7 @@
                 <!-- SneakyThrow: A Java library that allows to throw checked exceptions without declaration -->
                 <groupId>com.rainerhahnekamp</groupId>
                 <artifactId>sneakythrow</artifactId>
-                <version>1.1.0</version>
+                <version>1.2.0</version>
             </dependency>
 
             <dependency>
