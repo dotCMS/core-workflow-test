@@ -1202,7 +1202,7 @@
             <dependency>
                 <groupId>io.smallrye</groupId>
                 <artifactId>jandex</artifactId>
-                <version>3.0.5</version>
+                <version>3.2.7</version>
             </dependency>
 
             <!--
