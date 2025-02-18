@@ -30,7 +30,7 @@ jobs:
 
           echo "PLATFORMS=${PLATFORMS}" >> $GITHUB_ENV
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.0.0
+        uses: docker/setup-qemu-action@v3.4.0
         with:
           platforms: amd64,arm64
         if: github.event.inputs.multi_arch == 'true'

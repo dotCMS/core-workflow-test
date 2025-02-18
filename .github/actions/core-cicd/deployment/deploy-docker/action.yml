@@ -146,7 +146,7 @@ runs:
       if: (inputs.docker_registry == 'GHCR.IO' || inputs.docker_registry == 'BOTH') && inputs.do_deploy == 'true'
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3.0.0
+      uses: docker/setup-qemu-action@v3.4.0
       with:
         image: tonistiigi/binfmt:qemu-v7.0.0
         platforms: ${{ inputs.docker_platforms }}
