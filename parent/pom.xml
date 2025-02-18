@@ -116,7 +116,7 @@
         <version.cargo.plugin>1.10.12</version.cargo.plugin>
         <version.checkstyle>10.11.0</version.checkstyle>
         <version.checkstyle.plugin>3.3.0</version.checkstyle.plugin>
-        <version.clean.plugin>3.3.2</version.clean.plugin>
+        <version.clean.plugin>3.4.0</version.clean.plugin>
         <version.compiler.plugin>3.11.0</version.compiler.plugin>
         <version.dependency.plugin>3.6.0</version.dependency.plugin>
         <version.deploy.plugin>3.1.1</version.deploy.plugin>
