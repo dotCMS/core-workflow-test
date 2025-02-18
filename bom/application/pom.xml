@@ -573,7 +573,7 @@
                 <!-- Google Guava: Google Core Libraries -->
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>27.0.1-android</version>
+                <version>27.1-jre</version>
             </dependency>
 
             <dependency>
