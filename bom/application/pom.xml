@@ -587,7 +587,7 @@
                 <!-- Functional programming utilities including Try, Tuple, Option, Either, Collections, etc. -->
                 <groupId>io.vavr</groupId>
                 <artifactId>vavr</artifactId>
-                <version>0.10.3</version>
+                <version>0.10.6</version>
             </dependency>
 
             <dependency>
