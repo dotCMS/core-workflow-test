@@ -133,7 +133,7 @@
         <version.jar.plugin>3.3.0</version.jar.plugin>
         <version.javadoc.plugin>3.5.0</version.javadoc.plugin>
         <version.jxr.plugin>3.3.0</version.jxr.plugin>
-        <version.jococo.plugin>0.8.11</version.jococo.plugin>
+        <version.jococo.plugin>0.8.12</version.jococo.plugin>
         <version.javancss.plugin>2.1</version.javancss.plugin>
         <version.license.plugin>1.20</version.license.plugin>
         <version.pir.plugin>3.4.0</version.pir.plugin>
