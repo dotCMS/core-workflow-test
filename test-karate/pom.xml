@@ -23,7 +23,7 @@
         <!-- Some tests e.g. in ApiToken_Resource.postman_collection currently fail unless docker external port is same as internal -->
         <tomcat.port>8080</tomcat.port>
         <docker.jacoco.skip>false</docker.jacoco.skip>
-        <karate.version>1.5.0</karate.version>
+        <karate.version>1.5.1</karate.version>
         <karate.test.skip>true</karate.test.skip>
         <karate.base.url>http://localhost:${tomcat.port}</karate.base.url>
         <it.test>KarateCITests#defaults</it.test>
