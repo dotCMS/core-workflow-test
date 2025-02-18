@@ -85,7 +85,7 @@ jobs:
 
       - name: Restore Docker Context
         id: restore-docker-context
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.DOCKER_BUILD_CONTEXT }}/context
           key: ${{ inputs.docker_context_cache_key }}
