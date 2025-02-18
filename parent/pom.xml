@@ -119,7 +119,7 @@
         <version.clean.plugin>3.3.2</version.clean.plugin>
         <version.compiler.plugin>3.11.0</version.compiler.plugin>
         <version.dependency.plugin>3.6.0</version.dependency.plugin>
-        <version.deploy.plugin>3.1.1</version.deploy.plugin>
+        <version.deploy.plugin>3.1.3</version.deploy.plugin>
         <version.docker-compose.plugin>4.0.0</version.docker-compose.plugin>
         <!-- version.* properties are defined in jboss-parent and are overridden/updated here: -->
         <version.enforcer.plugin>3.5.0</version.enforcer.plugin>
