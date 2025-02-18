@@ -144,7 +144,7 @@
         <version.shade.plugin>3.2.1</version.shade.plugin>
         <version.site.plugin>4.0.0-M8</version.site.plugin>
         <version.sonar.plugin>3.10.0.2594</version.sonar.plugin>
-        <version.source.plugin>3.1.0</version.source.plugin>
+        <version.source.plugin>3.3.1</version.source.plugin>
         <version.frontend.plugin>1.12.1</version.frontend.plugin>
         <version.properties.plugin>1.2.1</version.properties.plugin>
         <version.flatten.plugin>1.6.0</version.flatten.plugin>
