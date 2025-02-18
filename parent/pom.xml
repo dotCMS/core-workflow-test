@@ -148,7 +148,7 @@
         <version.frontend.plugin>1.12.1</version.frontend.plugin>
         <version.properties.plugin>1.2.1</version.properties.plugin>
         <version.flatten.plugin>1.6.0</version.flatten.plugin>
-        <version.versions.plugin>2.8.1</version.versions.plugin>
+        <version.versions.plugin>2.18.0</version.versions.plugin>
         <version.maven.plugin.plugin>3.8.1</version.maven.plugin.plugin>
         <version.war.plugin>3.2.3</version.war.plugin>
         <version.docker-maven.plugin>0.43.4</version.docker-maven.plugin>
