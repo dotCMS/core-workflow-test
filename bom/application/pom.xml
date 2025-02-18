@@ -708,7 +708,7 @@
                 <!-- Geo Location -->
                 <groupId>com.maxmind.geoip2</groupId>
                 <artifactId>geoip2</artifactId>
-                <version>2.1.0</version>
+                <version>4.2.1</version>
             </dependency>
 
             <!--
