@@ -1104,7 +1104,7 @@
             <dependency>
                 <groupId>fop</groupId>
                 <artifactId>fop</artifactId>
-                <version>0.20.3</version>
+                <version>0.20.5</version>
             </dependency>
 
             <!-- Security -->
