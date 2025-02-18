@@ -28,7 +28,7 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <scope>provided</scope>
-            <version>16.0.1</version>
+            <version>16.0.3</version>
         </dependency>
     </dependencies>
 
