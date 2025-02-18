@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 0,
+  "automerge": false,
+  "packageRules": [
+    {
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "enabled": false
+    }
+  ],
+  "logLevel": "debug",
+  "dependencyDashboard": true,
+
+}
