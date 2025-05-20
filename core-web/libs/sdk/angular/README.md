@@ -212,6 +212,7 @@ If you encounter issues while using `@dotcms/angular`, here are some common prob
         )
       };
      ```
+     
    - **Invalid Page Assets**: Ensure that `pageAsset` objects are correctly formatted. Missing fields in `pageAsset` can cause errors in `DotcmsLayoutComponent`. Validate the structure by logging `pageAsset` before passing it in.
 
 5. **Common Angular Errors**:
@@ -222,7 +223,7 @@ If you encounter issues while using `@dotcms/angular`, here are some common prob
 
 ## Contributing
 
-GitHub pull requests are the preferred method to contribute code to dotCMS. Before any pull requests can be accepted, an automated tool will ask you to agree to the [dotCMS Contributor's Agreement](https://www.gist.github.com/wezell/85ef45298c48494b90d92755b583acb3).
+GitHub pull requests are the preferred method to contribute code to dotCMS. Before any pull requests can be accepted, an automated tool will ask you to agree to the [dotCMS Contributor's Agreement](https://www.gist.github.com/wezell/85ef45298c48494b90d92755b583acb3)..
 
 ## Licensing
 
