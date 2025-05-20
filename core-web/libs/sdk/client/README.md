@@ -6,6 +6,7 @@ The `@dotcms/client` is a JavaScript/TypeScript library for interacting with a d
 
 This client library provides a streamlined, promise-based interface to fetch pages and navigation API.
 
+
 ## Table of Contents
 
 - [Features](#features)
