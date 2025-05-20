@@ -61,6 +61,7 @@ runs:
         BASE_PATH=${{ github.workspace }}/installs
         ls -R $BASE_PATH
         echo "PATH=$PATH:${BASE_PATH}/node:${BASE_PATH}/node/yarn/dist/bin" >> $GITHUB_ENV
+        echo "which node:"
         which node
         echo "::endgroup::"
       shell: bash
