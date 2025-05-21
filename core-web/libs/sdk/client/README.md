@@ -4,7 +4,8 @@ The `@dotcms/client` is a JavaScript/TypeScript library for interacting with a d
 
 > **⚠️ IMPORTANT:** Versions published under the `next` tag (`npm install @dotcms/client@next`) are experimental, in beta, and not code complete. For the current stable and functional version, please use `latest` (`npm install @dotcms/client@latest`). Once we release the stable version, we will provide a migration guide from the alpha to stable version. The current alpha version (under `latest`) will continue to work, allowing you to migrate progressively at your own pace.
 
-This client library provides a streamlined, promise-based interface to fetch pages and navigation API...
+This client library provides a streamlined, promise-based interface to fetch pages and navigation API.
+
 
 ## Table of Contents
 
