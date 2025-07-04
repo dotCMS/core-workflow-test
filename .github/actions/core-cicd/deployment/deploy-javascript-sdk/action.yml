@@ -25,7 +25,7 @@ inputs:
     required: false
     default: 'latest'
   version-type:
-    description: 'Version type: auto (default), minor, major, or custom. Auto means patch increment on merge, or 1.0.0 for first release'
+    description: 'Version type: auto (default), patch, minor, major, or custom. Auto means no increment unless transitioning from prerelease to 1.0.0'
     required: false
     default: 'auto'
   custom-version:
@@ -234,10 +234,15 @@ runs:
               VERSION_TYPE_USED="minor"
               echo "Manual minor version increment requested"
               ;;
-            "auto"|*)
+            "patch")
               PATCH=$((PATCH + 1))
               VERSION_TYPE_USED="patch"
-              echo "Automatic patch version increment"
+              echo "Manual patch version increment requested"
+              ;;
+            "auto"|*)
+              # Auto mode: keep current version (no increment)
+              VERSION_TYPE_USED="auto-no-increment"
+              echo "Auto mode: keeping current stable version (no increment)"
               ;;
           esac
           
@@ -279,11 +284,23 @@ runs:
           exit 1
         fi
         
+        # Check if version changed - if not, skip publishing
+        if [ "$CURRENT_VERSION" = "$NEXT_VERSION" ] && [ "$VERSION_TYPE_USED" = "auto-no-increment" ]; then
+          echo "🚫 No version change detected (${CURRENT_VERSION} → ${NEXT_VERSION})"
+          echo "   Skipping publishing process since version-type is 'auto' and no increment is needed."
+          echo "   To force publishing, use version-type: 'patch', 'minor', 'major', or 'custom'"
+          echo "should_publish=false" >> $GITHUB_OUTPUT
+        else
+          echo "✅ Version will be updated (${CURRENT_VERSION} → ${NEXT_VERSION})"
+          echo "should_publish=true" >> $GITHUB_OUTPUT
+        fi
+        
         echo "✅ Version validation passed"
         echo "::endgroup::"
       shell: bash
 
     - name: 'Printing versions'
+      if: steps.validate_version.outputs.should_publish == 'true'
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       env:
        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
@@ -298,6 +315,7 @@ runs:
       shell: bash
 
     - name: 'Bump SDK version and update dependencies'
+      if: steps.validate_version.outputs.should_publish == 'true'
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       env:
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
@@ -394,6 +412,7 @@ runs:
       shell: bash
 
     - name: 'Printing SDK packages configuration'
+      if: steps.validate_version.outputs.should_publish == 'true'
       env:
         SDK_LIBS_PATH: ${{ github.workspace }}/core-web/libs/sdk
         EXAMPLES_PATH: ${{ github.workspace }}/examples
@@ -420,6 +439,7 @@ runs:
       shell: bash
 
     - name: 'Install project'
+      if: steps.validate_version.outputs.should_publish == 'true'
       working-directory: ${{ github.workspace }}/core-web/
       run: |
         yarn install
@@ -429,12 +449,14 @@ runs:
       shell: bash
 
     - name: 'Build SDK packages'
+      if: steps.validate_version.outputs.should_publish == 'true'
       working-directory: ${{ github.workspace }}/core-web/
       run: |
         npx nx run-many --target=build --projects='sdk-*' --configuration=production --skip-nx-cache
       shell: bash
 
     - name: 'Publishing sdk into NPM registry'
+      if: steps.validate_version.outputs.should_publish == 'true'
       working-directory: ${{ github.workspace }}/core-web/dist/libs/sdk/
       env:
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
@@ -472,7 +494,10 @@ runs:
 
     - name: 'Set output'
       id: deployment_status
-      if: success()
       run: |
-        echo "published=true" >> $GITHUB_OUTPUT
+        if [ "${{ steps.validate_version.outputs.should_publish }}" = "true" ]; then
+          echo "published=true" >> $GITHUB_OUTPUT
+        else
+          echo "published=false" >> $GITHUB_OUTPUT
+        fi
       shell: bash
