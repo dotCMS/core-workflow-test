@@ -38,8 +38,8 @@ inputs:
     required: true
 outputs:
   npm-package-version:
-    description: 'SDK libs - NPM package version for latest tag'
-    value: ${{ steps.next_version.outputs.next_version }}
+    description: 'SDK libs - NPM package version (formatted for notifications)'
+    value: ${{ steps.deployment_status.outputs.npm_package_version }}
   npm-package-version-next:
     description: 'SDK libs - NPM package version for next tag'
     value: ${{ steps.next_version.outputs.next_version_next }}
@@ -49,6 +49,9 @@ outputs:
   published-next:
     description: 'SDK libs - Published to next tag'
     value: ${{ steps.deployment_status.outputs.published_next }}
+  published:
+    description: 'SDK libs - Published (backward compatibility - true if any tag published)'
+    value: ${{ steps.deployment_status.outputs.published }}
   version-type-used:
     description: 'Type of version increment that was applied'
     value: ${{ steps.next_version.outputs.version_type_used }}
@@ -186,7 +189,13 @@ runs:
           if [ "$current_base" = "$base_version" ]; then
             # Same base version, increment the patch number
             local current_patch=$(echo "$current_next" | sed 's/.*-next\.//')
-            echo "$((current_patch + 1))"
+            # Validate that current_patch is numeric to prevent arithmetic errors
+            if [[ "$current_patch" =~ ^[0-9]+$ ]]; then
+              echo "$((current_patch + 1))"
+            else
+              # If patch number is not numeric (malformed), treat as different base version
+              echo "1"
+            fi
           else
             # Different base version, start from 1
             echo "1"
@@ -521,6 +530,7 @@ runs:
       shell: bash
 
     - name: 'Publishing sdk into NPM registry'
+      id: publish_packages
       working-directory: ${{ github.workspace }}/core-web/dist/libs/sdk/
       env:
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
@@ -549,6 +559,9 @@ runs:
           echo "📦 Processing @dotcms/${sdk}..."
           cd $sdk && echo "  Working directory: $(pwd)"
           
+          # Save original version before any modifications
+          ORIGINAL_VERSION=$(jq -r '.version' package.json)
+          
           # Publish to latest tag if needed
           if [ "$SHOULD_PUBLISH_LATEST" = "true" ]; then
             echo "  🚀 Publishing to latest tag: @dotcms/${sdk}@${NEXT_VERSION}"
@@ -575,6 +588,10 @@ runs:
               echo "  ❌ Failed to publish to next tag"
               PUBLISH_NEXT_SUCCESS=false
             fi
+            
+            # IMPORTANT: Revert package.json back to original stable version
+            jq --arg original_version "$ORIGINAL_VERSION" '.version = $original_version' package.json > tmp.$$.json && mv tmp.$$.json package.json
+            echo "  ↩️ Reverted package.json version back to $ORIGINAL_VERSION"
           fi
           
           cd ..
@@ -588,15 +605,51 @@ runs:
           echo "❌ Some publications failed"
           exit 1
         fi
+        
+        # At the end of the publishing step, set the actual results
+        echo "actual_published_latest=$PUBLISH_LATEST_SUCCESS" >> $GITHUB_OUTPUT
+        echo "actual_published_next=$PUBLISH_NEXT_SUCCESS" >> $GITHUB_OUTPUT
         echo "::endgroup::"
       shell: bash
 
     - name: 'Set output'
       id: deployment_status
+      if: success()
       env:
-        SHOULD_PUBLISH_LATEST: ${{ steps.validate_version.outputs.should_publish_latest }}
-        SHOULD_PUBLISH_NEXT: ${{ steps.validate_version.outputs.should_publish_next }}
+        ACTUAL_PUBLISHED_LATEST: ${{ steps.publish_packages.outputs.actual_published_latest }}
+        ACTUAL_PUBLISHED_NEXT: ${{ steps.publish_packages.outputs.actual_published_next }}
+        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+        NEXT_VERSION_NEXT: ${{ steps.next_version.outputs.next_version_next }}
       run: |
-        echo "published_latest=$SHOULD_PUBLISH_LATEST" >> $GITHUB_OUTPUT
-        echo "published_next=$SHOULD_PUBLISH_NEXT" >> $GITHUB_OUTPUT
+        echo "published_latest=$ACTUAL_PUBLISHED_LATEST" >> $GITHUB_OUTPUT
+        echo "published_next=$ACTUAL_PUBLISHED_NEXT" >> $GITHUB_OUTPUT
+        
+        # Backward compatibility: published is true if either latest or next was published
+        if [ "$ACTUAL_PUBLISHED_LATEST" = "true" ] || [ "$ACTUAL_PUBLISHED_NEXT" = "true" ]; then
+          PUBLISHED="true"
+        else
+          PUBLISHED="false"
+        fi
+        echo "published=$PUBLISHED" >> $GITHUB_OUTPUT
+        
+        # Create npm-package-version output with clean formatting
+        # Template expects: [ `${{ steps.deployment_status.outputs.npm_package_version }}` ]
+        if [ "$ACTUAL_PUBLISHED_LATEST" = "true" ] && [ "$ACTUAL_PUBLISHED_NEXT" = "true" ]; then
+          # Both published - clean dual format
+          NPM_PACKAGE_VERSION="${NEXT_VERSION} (latest) and ${NEXT_VERSION_NEXT} (next)"
+        elif [ "$ACTUAL_PUBLISHED_LATEST" = "true" ]; then
+          # Only latest published
+          NPM_PACKAGE_VERSION="${NEXT_VERSION} (latest)"
+        elif [ "$ACTUAL_PUBLISHED_NEXT" = "true" ]; then
+          # Only next published
+          NPM_PACKAGE_VERSION="${NEXT_VERSION_NEXT} (next)"
+        else
+          # Nothing published
+          NPM_PACKAGE_VERSION="No versions published"
+        fi
+        echo "npm_package_version=$NPM_PACKAGE_VERSION" >> $GITHUB_OUTPUT
+        
+        echo "✅ Outputs set:"
+        echo "  published: $PUBLISHED"
+        echo "  npm_package_version: $NPM_PACKAGE_VERSION"
       shell: bash
