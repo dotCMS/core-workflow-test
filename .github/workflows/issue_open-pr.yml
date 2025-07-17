@@ -1,4 +1,4 @@
-name: PR opened
+name: Link Issue to PR
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   add-issue-to-pr:
-    name: Add Issue to PR
+    name: Link Issue to PR
     uses: ./.github/workflows/issue_comp_link-issue-to-pr.yml
     with:
       pr_branch: ${{ github.head_ref }}
