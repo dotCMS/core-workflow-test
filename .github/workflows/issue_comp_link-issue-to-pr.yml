@@ -168,14 +168,16 @@ jobs:
           # Get existing PR list from the comment if it exists
           if [[ -n "$existing_comment" && "$existing_comment" != "null" ]]; then
             existing_body=$(echo "$comments" | jq -r --arg id "$existing_comment" '.[] | select(.id == ($id | tonumber)) | .body')
-            pr_list=$(echo "$existing_body" | grep -o "- \[.*\](.*).*" | sort -u)
+            
+            # Extract existing PR lines (lines starting with "- [")
+            existing_pr_lines=$(echo "$existing_body" | grep "^- \[" | sort -u)
             
             # Check if current PR is already in the list
-            if echo "$pr_list" | grep -q "$pr_url"; then
-              echo "PR already exists in comment, using existing list"
+            if echo "$existing_pr_lines" | grep -q "$pr_url"; then
+              echo "PR already exists in comment, keeping existing list"
               {
                 echo "pr_list<<EOF"
-                echo "$existing_body"
+                printf "## PRs linked to this issue\n\n%s" "$existing_pr_lines"
                 echo "EOF"
               } >> "$GITHUB_OUTPUT"
             else
@@ -185,8 +187,9 @@ jobs:
                 new_pr_line="$new_pr_line ✅"
               fi
               
-              updated_list=$(echo -e "$pr_list\n$new_pr_line" | sort -u)
-              new_body=$(printf "## PRs linked to this issue\n\n%s" "$updated_list")
+              # Combine existing and new PR lines
+              all_pr_lines=$(echo -e "$existing_pr_lines\n$new_pr_line" | sort -u)
+              new_body=$(printf "## PRs linked to this issue\n\n%s" "$all_pr_lines")
               {
                 echo "pr_list<<EOF"
                 echo "$new_body"
