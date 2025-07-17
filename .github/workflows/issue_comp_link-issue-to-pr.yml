@@ -310,7 +310,7 @@ jobs:
             "**Option 2: Link via GitHub UI** (Note: won't clear the failed check)" \
             "1. Go to the PR → Development section (right sidebar)" \
             "2. Click \"Link issue\" and select an existing issue" \
-            "3. Push a new commit or ask maintainer to re-run the workflow" \
+            "3. Push a new commit or re-run the workflow to clear the failed check" \
             "**Option 3: Use branch naming**" \
             "Create a new branch with one of these patterns:" \
             "- \`123-feature-description\` (number at start)" \
