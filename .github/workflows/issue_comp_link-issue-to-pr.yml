@@ -77,8 +77,10 @@ jobs:
             # Check if PR body contains issue references (fixes #123, closes #456, etc.)
             pr_body=$(echo "$pr_details" | jq -r '.body // ""')
             
-            # Extract issue numbers from PR body using various keywords
-            linked_issues=$(echo "$pr_body" | grep -oiE '(fixes?|closes?|resolves?)\s+#([0-9]+)' | grep -oE '[0-9]+' | head -1)
+            # Extract issue numbers from PR body using all GitHub-supported keywords
+            # Supports: close, closes, closed, fix, fixes, fixed, resolve, resolves, resolved
+            # With optional colons and case-insensitive matching
+            linked_issues=$(echo "$pr_body" | grep -oiE '(close[ds]?|fix(e[ds])?|resolve[ds]?)(:)?\s+#([0-9]+)' | grep -oE '[0-9]+' | head -1)
             
             if [[ -n "$linked_issues" ]]; then
               echo "Found linked issue in PR body: $linked_issues"
@@ -304,9 +306,10 @@ jobs:
             "### How to fix this:" \
             "**Option 1: Add keyword to PR body** (Recommended - auto-removes this comment)" \
             "Edit this PR description and add one of these lines:" \
-            "- \`This PR fixes: #123\`" \
-            "- \`This PR closes: #123\`" \
-            "- \`This PR resolves: #123\`" \
+            "- \`This PR fixes #123\` or \`Fixes: #123\`" \
+            "- \`This PR closes #123\` or \`Closes: #123\`" \
+            "- \`This PR resolves #123\` or \`Resolves: #123\`" \
+            "- Other supported keywords: \`fix\`, \`fixed\`, \`close\`, \`closed\`, \`resolve\`, \`resolved\`" \
             "**Option 2: Link via GitHub UI** (Note: won't clear the failed check)" \
             "1. Go to the PR → Development section (right sidebar)" \
             "2. Click \"Link issue\" and select an existing issue" \
