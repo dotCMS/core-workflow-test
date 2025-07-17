@@ -259,6 +259,36 @@ jobs:
             echo "Issue #$issue_number already referenced in PR #$pr_number body"
           fi
 
+      - name: Remove failure comment if issue is now resolved
+        run: |
+          pr_url="${{ inputs.pr_url }}"
+          pr_number=$(echo "$pr_url" | grep -o '[0-9]*$')
+          
+          # Check for existing failure comment
+          existing_comments=$(curl -s \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$pr_number/comments")
+          
+          # Find failure comment by looking for the distinctive header
+          failure_comment_id=$(echo "$existing_comments" | jq -r '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("❌ Issue Linking Required"))) | .id' | head -1)
+          
+          if [[ -n "$failure_comment_id" && "$failure_comment_id" != "null" ]]; then
+            echo "Found existing failure comment: $failure_comment_id"
+            
+            # Delete the failure comment since the issue is now resolved
+            curl -X DELETE \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${{ github.repository }}/issues/comments/$failure_comment_id"
+            
+            echo "Removed failure comment from PR #$pr_number (issue now resolved)"
+          else
+            echo "No failure comment found to remove"
+          fi
+
       - name: Add failure comment to PR
         if: failure() && steps.determine_issue.outputs.failure_detected == 'true'
         run: |
