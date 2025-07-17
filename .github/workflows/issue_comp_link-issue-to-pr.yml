@@ -298,18 +298,18 @@ jobs:
           pr_url="${{ inputs.pr_url }}"
           pr_number=$(echo "$pr_url" | grep -o '[0-9]*$')
           
-          comment_body=$(printf "%s\n\n%s\n\n%s\n\n%s\n%s\n%s\n\n%s\n%s\n%s\n%s\n%s\n\n%s\n%s\n%s\n%s\n%s\n\n%s\n%s\n\n%s\n%s" \
+          comment_body=$(printf "%s\n\n%s\n\n%s\n\n%s\n%s\n%s\n%s\n%s\n\n%s\n%s\n%s\n\n%s\n%s\n%s\n%s\n%s\n\n%s\n%s\n\n%s\n%s" \
             "## ❌ Issue Linking Required" \
             "This PR could not be linked to an issue. **All PRs must be linked to an issue** for tracking purposes." \
             "### How to fix this:" \
-            "**Option 1: Link via GitHub UI** (Recommended)" \
-            "1. Go to the PR → Development section (right sidebar)" \
-            "2. Click \"Link issue\" and select an existing issue" \
-            "**Option 2: Add keyword to PR body**" \
+            "**Option 1: Add keyword to PR body** (Recommended - auto-removes this comment)" \
             "Edit this PR description and add one of these lines:" \
             "- \`This PR fixes: #123\`" \
             "- \`This PR closes: #123\`" \
             "- \`This PR resolves: #123\`" \
+            "**Option 2: Link via GitHub UI**" \
+            "1. Go to the PR → Development section (right sidebar)" \
+            "2. Click \"Link issue\" and select an existing issue" \
             "**Option 3: Use branch naming**" \
             "Create a new branch with one of these patterns:" \
             "- \`123-feature-description\` (number at start)" \
