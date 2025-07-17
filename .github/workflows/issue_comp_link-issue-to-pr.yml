@@ -279,9 +279,9 @@ jobs:
             "- \`This PR resolves: #123\`" \
             "**Option 3: Use branch naming**" \
             "Create a new branch with one of these patterns:" \
-            "- \`issue-123-feature-description\`" \
-            "- \`123-feature-description\`" \
-            "- \`feature-issue-123-description\`" \
+            "- \`123-feature-description\` (number at start)" \
+            "- \`issue-123-feature-description\` (issue-number at start)" \
+            "- \`feature-issue-123\` (issue-number anywhere)" \
             "### Why is this required?" \
             "Issue linking ensures proper tracking, documentation, and helps maintain project history. It connects your code changes to the problem they solve." \
             "---" \
