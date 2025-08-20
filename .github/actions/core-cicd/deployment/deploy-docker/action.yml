@@ -176,7 +176,11 @@ runs:
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v3.10.0
       with:
+<<<<<<< HEAD
         version: v0.23.0 # version of buildx https://github.com/docker/buildx/releases supports API v2 GitHub cache (>= v0.21.0)
+=======
+        version: v0.20.0 # version of buildx https://github.com/docker/buildx/releases
+>>>>>>> c1895055f7efd04e1cc576dddeb786ee20653ba7
         platforms: ${{ inputs.docker_platforms }}
     - name: Build/Push Docker Image
       uses: docker/build-push-action@v6.15.0
