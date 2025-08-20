@@ -1,14 +1,16 @@
 # Note: This action publishes stable versions of the SDK libraries to NPM.
 # 
-# AUTOMATIC BEHAVIOR (on merge):
-# - If current version is beta (contains "beta") -> publishes 1.0.0
-# - If no stable version exists -> publishes 1.0.0  
-# - If stable version exists (1.0.0+) -> automatically increments patch version
+# DUAL PUBLISHING BEHAVIOR:
+# LATEST TAG:
+# - If current version contains "alpha" or "beta" -> publishes 1.0.0
+# - If stable version exists -> only publishes on explicit version-type (minor/major/custom)
+# - Patch versions -> skips latest publishing (only publishes to next)
+# - Auto mode with stable version -> skips latest publishing
 #
-# MANUAL BEHAVIOR (workflow dispatch):
-# - Can manually specify minor or major version increments
-# - Can specify custom version (e.g., 1.3.4, 2.1.0, etc.)
-# - After manual version change, automatic patch increments continue from new version
+# NEXT TAG:
+# - Always publishes with "-next.X" suffix where X increments
+# - If transitioning from prerelease -> publishes {latest_version}-next.1
+# - If stable version -> publishes {current_or_new_version}-next.{incremented_patch}
 #
 name: 'SDK Publish NPM Packages - Stable'
 description: 'Publish stable versions of the dotCMS SDK libs on NPM registry.'
@@ -21,11 +23,11 @@ inputs:
     description: 'NPM token'
     required: true
   npm-package-tag:
-    description: 'Package tag'
+    description: 'Package tag for stable releases'
     required: false
     default: 'latest'
   version-type:
-    description: 'Version type: auto (default), minor, major, or custom. Auto means patch increment on merge, or 1.0.0 for first release'
+    description: 'Version type: auto (default), patch, minor, major, or custom. Auto means no increment unless transitioning from prerelease to 1.0.0'
     required: false
     default: 'auto'
   custom-version:
@@ -37,10 +39,19 @@ inputs:
     required: true
 outputs:
   npm-package-version:
-    description: 'SDK libs - NPM package version'
-    value: ${{ steps.next_version.outputs.next_version }}
+    description: 'SDK libs - NPM package version (formatted for notifications)'
+    value: ${{ steps.deployment_status.outputs.npm_package_version }}
+  npm-package-version-next:
+    description: 'SDK libs - NPM package version for next tag'
+    value: ${{ steps.next_version.outputs.next_version_next }}
+  published-latest:
+    description: 'SDK libs - Published to latest tag'
+    value: ${{ steps.deployment_status.outputs.published_latest }}
+  published-next:
+    description: 'SDK libs - Published to next tag'
+    value: ${{ steps.deployment_status.outputs.published_next }}
   published:
-    description: 'SDK libs - Published'
+    description: 'SDK libs - Published (backward compatibility - true if any tag published)'
     value: ${{ steps.deployment_status.outputs.published }}
   version-type-used:
     description: 'Type of version increment that was applied'
@@ -65,7 +76,6 @@ runs:
         generate-artifacts: false
         version: '1.0.0-SNAPSHOT'
         github-token: ${{ inputs.github-token }}
-        # version-type defaults to "auto" - will do patch increment or 1.0.0 for first release - also can be "minor", "major", or "custom"
 
     - name: 'Adding node and yarn to the PATH env'
       run: |
@@ -87,6 +97,9 @@ runs:
         # Get the current beta version for reference
         CURRENT_BETA=$(npm view @dotcms/client dist-tags --json 2>/dev/null | jq -r '.beta // empty')
         
+        # Get the current next version
+        CURRENT_NEXT=$(npm view @dotcms/client dist-tags --json 2>/dev/null | jq -r '.next // empty')
+        
         # Determine the current version to use as base
         if [ -n "$CURRENT_STABLE" ] && [ "$CURRENT_STABLE" != "null" ]; then
           CURRENT_VERSION="$CURRENT_STABLE"
@@ -101,11 +114,13 @@ runs:
 
         echo "Current stable version: ${CURRENT_STABLE:-'none'}"
         echo "Current beta version: ${CURRENT_BETA:-'none'}"
+        echo "Current next version: ${CURRENT_NEXT:-'none'}"
         echo "Using version: $CURRENT_VERSION (source: $VERSION_SOURCE)"
         
         echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
         echo "version_source=$VERSION_SOURCE" >> $GITHUB_OUTPUT
         echo "current_stable=$CURRENT_STABLE" >> $GITHUB_OUTPUT
+        echo "current_next=$CURRENT_NEXT" >> $GITHUB_OUTPUT
         echo "::endgroup::"
       shell: bash
 
@@ -139,6 +154,7 @@ runs:
        CURRENT_VERSION: ${{ steps.current_version.outputs.current_version }}
        VERSION_SOURCE: ${{ steps.current_version.outputs.version_source }}
        CURRENT_STABLE: ${{ steps.current_version.outputs.current_stable }}
+       CURRENT_NEXT: ${{ steps.current_version.outputs.current_next }}
        VERSION_TYPE: ${{ inputs.version-type }}
        CUSTOM_VERSION: ${{ inputs.custom-version }}
       run: |
@@ -146,21 +162,45 @@ runs:
         
         echo "Current version: $CURRENT_VERSION"
         echo "Version source: $VERSION_SOURCE"
+        echo "Current next: $CURRENT_NEXT"
         echo "Requested version type: $VERSION_TYPE"
         if [ "$VERSION_TYPE" = "custom" ]; then
           echo "Custom version requested: $CUSTOM_VERSION"
         fi
+        echo ""
         
-        # Function to check if version contains beta
-        is_beta_version() {
-          [[ "$1" == *"beta"* ]]
+        # Function to check if version contains alpha or beta
+        is_prerelease_version() {
+          [[ "$1" == *"alpha"* ]] || [[ "$1" == *"beta"* ]]
         }
         
-        # Function to extract semantic version from beta version
-        extract_semantic_version() {
-          local version="$1"
-          # Remove beta suffix and extract major.minor.patch
-          echo "$version" | sed 's/-beta.*//' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' || echo "0.0.0"
+        # Function to get next patch number for "next" tag
+        get_next_patch_number() {
+          local base_version="$1"
+          local current_next="$2"
+          
+          if [ -z "$current_next" ] || [ "$current_next" = "null" ]; then
+            echo "1"
+            return
+          fi
+          
+          # Extract the base version from current next (remove -next.X)
+          local current_base=$(echo "$current_next" | sed 's/-next\.[0-9]*$//')
+          
+          if [ "$current_base" = "$base_version" ]; then
+            # Same base version, increment the patch number
+            local current_patch=$(echo "$current_next" | sed 's/.*-next\.//')
+            # Validate that current_patch is numeric to prevent arithmetic errors
+            if [[ "$current_patch" =~ ^[0-9]+$ ]]; then
+              echo "$((current_patch + 1))"
+            else
+              # If patch number is not numeric (malformed), treat as different base version
+              echo "1"
+            fi
+          else
+            # Different base version, start from 1
+            echo "1"
+          fi
         }
         
         # Function to compare versions (returns 0 if v1 >= v2, 1 if v1 < v2)
@@ -185,7 +225,7 @@ runs:
           return 0  # v1 == v2
         }
         
-        # Determine the next version based on current state and input
+        # Calculate LATEST version
         if [ "$VERSION_TYPE" = "custom" ]; then
           # Custom version specified
           NEXT_VERSION="$CUSTOM_VERSION"
@@ -207,11 +247,11 @@ runs:
           VERSION_TYPE_USED="initial"
           echo "No existing version found, setting initial version to 1.0.0"
           
-        elif [ "$VERSION_SOURCE" = "beta" ] || is_beta_version "$CURRENT_VERSION"; then
-          # Current version is beta, transition to 1.0.0 stable
+        elif is_prerelease_version "$CURRENT_VERSION"; then
+          # Current version is alpha or beta, transition to 1.0.0 stable
           NEXT_VERSION="1.0.0"
-          VERSION_TYPE_USED="beta-to-stable"
-          echo "Transitioning from beta version to stable 1.0.0"
+          VERSION_TYPE_USED="prerelease-to-stable"
+          echo "Transitioning from prerelease version ($CURRENT_VERSION) to stable 1.0.0"
           
         elif [ "$VERSION_SOURCE" = "stable" ] && [ -n "$CURRENT_STABLE" ]; then
           # We have a stable version, apply versioning logic
@@ -234,10 +274,15 @@ runs:
               VERSION_TYPE_USED="minor"
               echo "Manual minor version increment requested"
               ;;
-            "auto"|*)
+            "patch")
               PATCH=$((PATCH + 1))
               VERSION_TYPE_USED="patch"
-              echo "Automatic patch version increment"
+              echo "Manual patch version increment requested"
+              ;;
+            "auto"|*)
+              # Auto mode: keep current version (no increment)
+              VERSION_TYPE_USED="auto-no-increment"
+              echo "Auto mode: keeping current stable version (no increment)"
               ;;
           esac
           
@@ -249,35 +294,78 @@ runs:
           echo "Fallback: setting version to 1.0.0"
         fi
 
+        # Calculate NEXT version (always generated)
+        if [ "$VERSION_TYPE_USED" = "auto-no-increment" ]; then
+          # For auto mode, use current stable version as base for next
+          NEXT_BASE_VERSION="$CURRENT_STABLE"
+        else
+          # Use the calculated next version as base
+          NEXT_BASE_VERSION="$NEXT_VERSION"
+        fi
+        
+        NEXT_PATCH_NUMBER=$(get_next_patch_number "$NEXT_BASE_VERSION" "$CURRENT_NEXT")
+        NEXT_VERSION_NEXT="${NEXT_BASE_VERSION}-next.${NEXT_PATCH_NUMBER}"
+
         echo ""
         echo "=== VERSION CALCULATION RESULT ==="
         echo "Previous version: $CURRENT_VERSION"
-        echo "Next version: $NEXT_VERSION"
+        echo "Next version (latest): $NEXT_VERSION"
+        echo "Next version (next): $NEXT_VERSION_NEXT"
         echo "Version type used: $VERSION_TYPE_USED"
         echo "=================================="
         
         echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+        echo "next_version_next=$NEXT_VERSION_NEXT" >> $GITHUB_OUTPUT
         echo "version_type_used=$VERSION_TYPE_USED" >> $GITHUB_OUTPUT
         echo "::endgroup::"
       shell: bash
 
     - name: 'Validate version increment'
+      id: validate_version
       env:
         CURRENT_VERSION: ${{ steps.current_version.outputs.current_version }}
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+        NEXT_VERSION_NEXT: ${{ steps.next_version.outputs.next_version_next }}
         VERSION_TYPE_USED: ${{ steps.next_version.outputs.version_type_used }}
       run: |
         echo "::group::Validate version increment"
         echo "Validation summary:"
         echo "  Current: $CURRENT_VERSION"
-        echo "  Next: $NEXT_VERSION"
+        echo "  Next (latest): $NEXT_VERSION"
+        echo "  Next (next): $NEXT_VERSION_NEXT"
         echo "  Type: $VERSION_TYPE_USED"
         
-        # Basic validation - ensure we have a valid semver
+        # Basic validation - ensure we have valid semver
         if [[ ! "$NEXT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "::error::Invalid version format: $NEXT_VERSION"
+          echo "::error::Invalid version format for latest: $NEXT_VERSION"
           exit 1
         fi
+        
+        if [[ ! "$NEXT_VERSION_NEXT" =~ ^[0-9]+\.[0-9]+\.[0-9]+-next\.[0-9]+$ ]]; then
+          echo "::error::Invalid version format for next: $NEXT_VERSION_NEXT"
+          exit 1
+        fi
+        
+        # Determine what should be published
+        if [ "$CURRENT_VERSION" = "$NEXT_VERSION" ] && [ "$VERSION_TYPE_USED" = "auto-no-increment" ]; then
+          echo "🚫 No version change detected for latest tag (${CURRENT_VERSION} → ${NEXT_VERSION})"
+          echo "   Skipping latest publishing since version-type is 'auto' and no increment is needed."
+          SHOULD_PUBLISH_LATEST="false"
+        elif [ "$VERSION_TYPE_USED" = "patch" ]; then
+          echo "🚫 Patch version detected (${CURRENT_VERSION} → ${NEXT_VERSION})"
+          echo "   Skipping latest publishing for patch versions - only publishing to next tag."
+          SHOULD_PUBLISH_LATEST="false"
+        else
+          echo "✅ Version will be updated for latest tag (${CURRENT_VERSION} → ${NEXT_VERSION})"
+          SHOULD_PUBLISH_LATEST="true"
+        fi
+        
+        # Always publish to next tag
+        SHOULD_PUBLISH_NEXT="true"
+        echo "✅ Version will be published to next tag: ${NEXT_VERSION_NEXT}"
+        
+        echo "should_publish_latest=$SHOULD_PUBLISH_LATEST" >> $GITHUB_OUTPUT
+        echo "should_publish_next=$SHOULD_PUBLISH_NEXT" >> $GITHUB_OUTPUT
         
         echo "✅ Version validation passed"
         echo "::endgroup::"
@@ -287,12 +375,16 @@ runs:
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       env:
        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+       NEXT_VERSION_NEXT: ${{ steps.next_version.outputs.next_version_next }}
        CURRENT_VERSION: ${{ steps.current_version.outputs.current_version }}
        VERSION_TYPE_USED: ${{ steps.next_version.outputs.version_type_used }}
+       SHOULD_PUBLISH_LATEST: ${{ steps.validate_version.outputs.should_publish_latest }}
+       SHOULD_PUBLISH_NEXT: ${{ steps.validate_version.outputs.should_publish_next }}
       run: |
         echo "::group::Version update summary"
         echo "Current version: $CURRENT_VERSION"
-        echo "Next version: $NEXT_VERSION"
+        echo "Next version (latest): $NEXT_VERSION (publish: $SHOULD_PUBLISH_LATEST)"
+        echo "Next version (next): $NEXT_VERSION_NEXT (publish: $SHOULD_PUBLISH_NEXT)"
         echo "Update type: $VERSION_TYPE_USED"
         echo "::endgroup::"
       shell: bash
@@ -301,9 +393,13 @@ runs:
       working-directory: ${{ github.workspace }}/core-web/libs/sdk/
       env:
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+        NEXT_VERSION_NEXT: ${{ steps.next_version.outputs.next_version_next }}
         EXAMPLES_PATH: ${{ github.workspace }}/examples
+        SHOULD_PUBLISH_LATEST: ${{ steps.validate_version.outputs.should_publish_latest }}
       run: |
-        echo "Updating version to $NEXT_VERSION"
+        echo "Preparing versions:"
+        echo "  Latest: $NEXT_VERSION (will publish: $SHOULD_PUBLISH_LATEST)"
+        echo "  Next: $NEXT_VERSION_NEXT (will publish: $SHOULD_PUBLISH_NEXT)"
 
         # Function to update the version in package.json using jq
         update_version() {
@@ -363,17 +459,21 @@ runs:
         echo "Found SDK packages: ${sdk_packages[*]}"
         echo ""
 
+        # We'll use the latest version for package.json updates (even if not publishing to latest)
+        # This ensures consistency in the build artifacts
+        VERSION_FOR_PACKAGES="$NEXT_VERSION"
+        
         # Step 1: Update the version in each SDK package
-        echo "📦 Updating SDK package versions..."
+        echo "📦 Updating SDK package versions to $VERSION_FOR_PACKAGES..."
         for sdk in "${sdk_packages[@]}"; do
-          update_version "$sdk" "$NEXT_VERSION"
+          update_version "$sdk" "$VERSION_FOR_PACKAGES"
         done
         echo ""
 
         # Step 2: Update peerDependencies in each SDK package
         echo "🔗 Updating SDK peer dependencies..."
         for sdk in "${sdk_packages[@]}"; do
-          update_peer_dependencies "$sdk" "$NEXT_VERSION"
+          update_peer_dependencies "$sdk" "$VERSION_FOR_PACKAGES"
         done
         echo ""
 
@@ -384,7 +484,7 @@ runs:
         if [ -n "$example_packages" ]; then
           for package_json_path in $example_packages; do
             example_dir=$(dirname "$package_json_path")
-            update_dependencies_in_examples "$example_dir" "$NEXT_VERSION"
+            update_dependencies_in_examples "$example_dir" "$VERSION_FOR_PACKAGES"
           done
         else
           echo "No example packages found"
@@ -435,44 +535,126 @@ runs:
       shell: bash
 
     - name: 'Publishing sdk into NPM registry'
+      id: publish_packages
       working-directory: ${{ github.workspace }}/core-web/dist/libs/sdk/
       env:
         NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+        NEXT_VERSION_NEXT: ${{ steps.next_version.outputs.next_version_next }}
         NPM_AUTH_TOKEN: ${{ inputs.npm-token }}
-        NPM_TAG: ${{ inputs.npm-package-tag }}
+        NPM_TAG_LATEST: ${{ inputs.npm-package-tag }}
         VERSION_TYPE_USED: ${{ steps.next_version.outputs.version_type_used }}
+        SHOULD_PUBLISH_LATEST: ${{ steps.validate_version.outputs.should_publish_latest }}
+        SHOULD_PUBLISH_NEXT: ${{ steps.validate_version.outputs.should_publish_next }}
       run: |
         echo "::group::Publishing SDK packages"
-        echo "Publishing version $NEXT_VERSION with tag '$NPM_TAG' (type: $VERSION_TYPE_USED)"
+        echo "Publishing plan:"
+        echo "  Latest tag ($NPM_TAG_LATEST): $NEXT_VERSION (publish: $SHOULD_PUBLISH_LATEST)"
+        echo "  Next tag: $NEXT_VERSION_NEXT (publish: $SHOULD_PUBLISH_NEXT)"
+        echo "  Version type: $VERSION_TYPE_USED"
         echo ""
         
+        # Set up NPM authentication
+        echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+        
         sdks=$(ls)
+        PUBLISH_LATEST_SUCCESS=true
+        PUBLISH_NEXT_SUCCESS=true
+        
         for sdk in $sdks; do
-          echo "📦 Publishing @dotcms/${sdk}@${NEXT_VERSION}..."
+          echo "📦 Processing @dotcms/${sdk}..."
           cd $sdk && echo "  Working directory: $(pwd)"
           
-          # Set up NPM authentication
-          echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+          # Save original version before any modifications
+          ORIGINAL_VERSION=$(jq -r '.version' package.json)
           
-          # Publish the package
-          if npm publish --access public --tag $NPM_TAG; then
-            echo "  ✅ Successfully published @dotcms/${sdk}@${NEXT_VERSION} with tag '${NPM_TAG}'"
+          # Publish to latest tag if needed
+          if [ "$SHOULD_PUBLISH_LATEST" = "true" ]; then
+            echo "  🚀 Publishing to latest tag: @dotcms/${sdk}@${NEXT_VERSION}"
+            if npm publish --access public --tag $NPM_TAG_LATEST; then
+              echo "  ✅ Successfully published to latest tag"
+            else
+              echo "  ❌ Failed to publish to latest tag"
+              PUBLISH_LATEST_SUCCESS=false
+            fi
           else
-            echo "  ❌ Failed to publish @dotcms/${sdk}@${NEXT_VERSION}"
-            exit 1
+            echo "  ⏭️ Skipping latest tag publishing (no version change)"
+          fi
+          
+          # Always publish to next tag
+          if [ "$SHOULD_PUBLISH_NEXT" = "true" ]; then
+            echo "  🚀 Publishing to next tag: @dotcms/${sdk}@${NEXT_VERSION_NEXT}"
+            
+            # Temporarily update package.json version for next publication
+            jq --arg next_version "$NEXT_VERSION_NEXT" '.version = $next_version' package.json > tmp.$$.json && mv tmp.$$.json package.json
+            
+            if npm publish --access public --tag next; then
+              echo "  ✅ Successfully published to next tag"
+            else
+              echo "  ❌ Failed to publish to next tag"
+              PUBLISH_NEXT_SUCCESS=false
+            fi
+            
+            # IMPORTANT: Revert package.json back to original stable version
+            jq --arg original_version "$ORIGINAL_VERSION" '.version = $original_version' package.json > tmp.$$.json && mv tmp.$$.json package.json
+            echo "  ↩️ Reverted package.json version back to $ORIGINAL_VERSION"
           fi
           
           cd ..
           echo ""
         done
         
-        echo "🎉 All SDK packages published successfully!"
+        # Final status
+        if [ "$PUBLISH_LATEST_SUCCESS" = "true" ] && [ "$PUBLISH_NEXT_SUCCESS" = "true" ]; then
+          echo "🎉 All SDK packages published successfully!"
+        else
+          echo "❌ Some publications failed"
+          exit 1
+        fi
+        
+        # At the end of the publishing step, set the actual results
+        echo "actual_published_latest=$PUBLISH_LATEST_SUCCESS" >> $GITHUB_OUTPUT
+        echo "actual_published_next=$PUBLISH_NEXT_SUCCESS" >> $GITHUB_OUTPUT
         echo "::endgroup::"
       shell: bash
 
     - name: 'Set output'
       id: deployment_status
       if: success()
+      env:
+        ACTUAL_PUBLISHED_LATEST: ${{ steps.publish_packages.outputs.actual_published_latest }}
+        ACTUAL_PUBLISHED_NEXT: ${{ steps.publish_packages.outputs.actual_published_next }}
+        NEXT_VERSION: ${{ steps.next_version.outputs.next_version }}
+        NEXT_VERSION_NEXT: ${{ steps.next_version.outputs.next_version_next }}
       run: |
-        echo "published=true" >> $GITHUB_OUTPUT
+        echo "published_latest=$ACTUAL_PUBLISHED_LATEST" >> $GITHUB_OUTPUT
+        echo "published_next=$ACTUAL_PUBLISHED_NEXT" >> $GITHUB_OUTPUT
+        
+        # Backward compatibility: published is true if either latest or next was published
+        if [ "$ACTUAL_PUBLISHED_LATEST" = "true" ] || [ "$ACTUAL_PUBLISHED_NEXT" = "true" ]; then
+          PUBLISHED="true"
+        else
+          PUBLISHED="false"
+        fi
+        echo "published=$PUBLISHED" >> $GITHUB_OUTPUT
+        
+        # Create npm-package-version output with clean formatting
+        # Template expects: [ `${{ steps.deployment_status.outputs.npm_package_version }}` ]
+        if [ "$ACTUAL_PUBLISHED_LATEST" = "true" ] && [ "$ACTUAL_PUBLISHED_NEXT" = "true" ]; then
+          # Both published - clean dual format
+          NPM_PACKAGE_VERSION="${NEXT_VERSION} (latest) and ${NEXT_VERSION_NEXT} (next)"
+        elif [ "$ACTUAL_PUBLISHED_LATEST" = "true" ]; then
+          # Only latest published
+          NPM_PACKAGE_VERSION="${NEXT_VERSION} (latest)"
+        elif [ "$ACTUAL_PUBLISHED_NEXT" = "true" ]; then
+          # Only next published
+          NPM_PACKAGE_VERSION="${NEXT_VERSION_NEXT} (next)"
+        else
+          # Nothing published
+          NPM_PACKAGE_VERSION="No versions published"
+        fi
+        echo "npm_package_version=$NPM_PACKAGE_VERSION" >> $GITHUB_OUTPUT
+        
+        echo "✅ Outputs set:"
+        echo "  published: $PUBLISHED"
+        echo "  npm_package_version: $NPM_PACKAGE_VERSION"
       shell: bash
