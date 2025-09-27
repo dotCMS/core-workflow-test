@@ -5,6 +5,9 @@ inputs:
   username:
     description: 'GitHub username to check'
     required: true
+  github_token:
+    description: 'Fine-grained GitHub token with organization membership read permissions'
+    required: true
 
 outputs:
   is_member:
@@ -24,7 +27,7 @@ runs:
         echo "Checking organization membership for user: ${{ inputs.username }} in dotCMS organization"
 
         # Use GitHub CLI to check organization membership
-        # This uses the GITHUB_TOKEN which has read access to organization membership
+        # This uses a fine-grained token with organization membership read permissions
 
         set +e  # Don't exit on error, we want to handle it gracefully
 
@@ -58,6 +61,7 @@ runs:
           echo "membership_status=member" >> $GITHUB_OUTPUT
         else
           # HTTP 404 or other error: User is not a member
+
           echo "❌ User ${{ inputs.username }} is not a member of dotCMS (API exit code: $api_exit_code)"
           echo "is_member=false" >> $GITHUB_OUTPUT
           echo "membership_status=non-member" >> $GITHUB_OUTPUT
