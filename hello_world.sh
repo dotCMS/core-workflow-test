@@ -2,6 +2,7 @@
 
 # hello_world.sh - A demonstration script showing AI capabilities
 # This script demonstrates various shell scripting features and best practices
+# Execute with: ./hello_world.sh
 
 set -euo pipefail  # Enable strict error handling
 
