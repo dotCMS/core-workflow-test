@@ -1659,7 +1659,7 @@
             <dependency>
                 <groupId>org.wiremock</groupId>
                 <artifactId>wiremock</artifactId>
-                <version>3.5.3</version>
+                <version>3.13.2</version>
             </dependency>
 
             <dependency>
