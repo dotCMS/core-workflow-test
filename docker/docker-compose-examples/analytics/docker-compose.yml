@@ -214,7 +214,7 @@ services:
 
   redis:
     container_name: jitsu_redis
-    image: redis:6.2.6-bullseye
+    image: redis:6.2.12-bullseye
     volumes:
       - redis-data:/data
     networks:
