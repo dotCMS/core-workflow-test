@@ -31,6 +31,10 @@
         <maven.compiler.target>${maven.compiler.release}</maven.compiler.target>
         <maven.compiler.testSource>${maven.compiler.source}</maven.compiler.testSource>
         <maven.compiler.testTarget>${maven.compiler.target}</maven.compiler.testTarget>
+
+        <!-- CLI modules compiler release - separate property to support Java version override testing
+             Defaults to 21 for Quarkus/GraalVM compatibility (max supported by ASM in Quarkus 3.6.0) -->
+        <dotcms.cli.compiler.release>21</dotcms.cli.compiler.release>
         <java.module.args>
             --add-modules java.se,jdk.management.agent
             --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
