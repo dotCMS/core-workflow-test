@@ -837,7 +837,7 @@
             <dependency>
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
-                <version>4.4.6</version>
+                <version>4.4.8</version>
             </dependency>
 
             <!-- OpenSearch 3.x Modern Client -->
