@@ -95,7 +95,7 @@
         <starter.run.path>${starter.download.folder}/${starter.run.filename}</starter.run.path>
         <dependency-check-maven.version>8.3.1</dependency-check-maven.version>
         <surefire-report-maven.version>3.1.0</surefire-report-maven.version>
-        <project-info-reports.version>3.4.5</project-info-reports.version>
+        <project-info-reports.version>3.9.0</project-info-reports.version>
         <gib.fetchBaseBranch>true</gib.fetchBaseBranch>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gitflow-incremental-builder.version>4.4.1</gitflow-incremental-builder.version>
