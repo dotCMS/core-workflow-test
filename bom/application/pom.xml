@@ -20,7 +20,7 @@
         <bytebuddy.version>1.18.1</bytebuddy.version>
         <batik.version>1.17</batik.version>
         <bouncy-castle.version>1.70</bouncy-castle.version>
-        <awaitility.version>4.0.0</awaitility.version>
+        <awaitility.version>4.3.0</awaitility.version>
         <shedlock.version>4.33.0</shedlock.version>
         <jackson.version>2.17.2</jackson.version>
         <jersey.version>2.47</jersey.version>
