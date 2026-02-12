@@ -683,7 +683,7 @@
                 <!-- UserAgentUtils: Utility for parsing a user agent string -->
                 <groupId>eu.bitwalker</groupId>
                 <artifactId>UserAgentUtils</artifactId>
-                <version>1.19</version>
+                <version>1.21</version>
             </dependency>
             <dependency>
                 <groupId>eu.medsea.mimeutil</groupId>
