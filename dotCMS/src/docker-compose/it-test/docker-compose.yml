@@ -63,7 +63,7 @@ services:
             - es_net
 
     dejavu:
-        image: appbaseio/dejavu:3.6.0
+        image: appbaseio/dejavu:3.10.0
         container_name: dejavu
         ports:
             - '1358:1358'
