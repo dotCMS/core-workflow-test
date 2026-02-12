@@ -23,7 +23,7 @@
         <testcontainers.docker.image>${docker.output.image.name}/${docker.version.tag}</testcontainers.docker.image>
         <java.keytar.version>1.0.0</java.keytar.version>
         <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
-        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+        <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
         <quarkus.native.additional-build-args>--native-compiler-options=-Wno-nullability-completeness, -H:ReflectionConfigurationFiles=reflection-config.json,-H:ResourceConfigurationFiles=resources-config.json</quarkus.native.additional-build-args>
     </properties>
 
