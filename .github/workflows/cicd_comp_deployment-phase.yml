@@ -203,6 +203,8 @@ jobs:
             echo "No .sdkmanrc file found"
             exit 1
           fi
+          echo "SDKMAN_JAVA_VERSION=${SDKMAN_JAVA_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "java_suffix=${JAVA_SUFFIX}" >> "$GITHUB_OUTPUT"
 
           {
             echo "SDKMAN_JAVA_VERSION=${SDKMAN_JAVA_VERSION}"
