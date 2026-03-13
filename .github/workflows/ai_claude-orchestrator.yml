@@ -124,6 +124,7 @@ jobs:
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
+
   # Rollback safety analysis — runs on every PR push
   claude-rollback-safety-check:
     needs: security-check
@@ -139,7 +140,7 @@ jobs:
       id-token: write
       pull-requests: write
       issues: write
-    uses: dotCMS/ai-workflows/.github/workflows/claude-orchestrator.yml@v1.0.0
+    uses: dotCMS/ai-workflows/.github/workflows/claude-orchestrator.yml@debug-auto-labeller-claude-executor
     with:
       trigger_mode: automatic
       direct_prompt: |
