@@ -215,6 +215,15 @@ jobs:
             echo "java_suffix=${MAVEN_SUFFIX}"
           } >> "$GITHUB_OUTPUT"
 
+          {
+            echo "SDKMAN_JAVA_VERSION=${SDKMAN_JAVA_VERSION}"
+            echo "raw_suffix=${RAW_SUFFIX}"
+            echo "maven_suffix=${MAVEN_SUFFIX}"
+            echo "docker_suffix=${DOCKER_SUFFIX}"
+            # Legacy output for backwards compatibility
+            echo "java_suffix=${MAVEN_SUFFIX}"
+          } >> "$GITHUB_OUTPUT"
+
       # Clean up the runner to ensure a fresh environment
       - uses: ./.github/actions/core-cicd/cleanup-runner
 
