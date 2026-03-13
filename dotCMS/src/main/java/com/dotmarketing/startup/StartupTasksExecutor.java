@@ -174,7 +174,7 @@ public class StartupTasksExecutor {
 
     public void executeStartUpTasks() throws DotDataException {
 
-        Logger.debug(this.getClass(), "Running Startup Tasks");
+        Logger.debug(this.getClass(), "Running Startup Tasks!!!!!");
 
 
         String name = null;
