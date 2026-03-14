@@ -38,5 +38,4 @@ public class Task260312AddUsagesPortletToMenu implements StartupTask {
         }
     }
 }
-
 }
