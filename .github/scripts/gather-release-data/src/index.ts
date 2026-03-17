@@ -52,6 +52,10 @@ function parseArgs(argv: string[]): CLIArgs {
     process.exit(1);
   }
 
+  if (!args.repo) {
+    process.stderr.write('Warning: --repo not specified, defaulting to dotCMS/core\n');
+  }
+
   return {
     repo: args.repo || 'dotCMS/core',
     fromTag: args.fromTag,
@@ -74,6 +78,9 @@ async function main(): Promise<void> {
       `No --from-tag provided, auto-detecting previous release...\n`
     );
     const tags = await listStandardReleaseTags(octokit, owner, repo);
+    // Note: if this tag was just published, GitHub's release API may not yet
+    // reflect it due to eventual consistency. A simple re-run of this workflow
+    // will succeed once the API catches up (typically within seconds).
     fromTag = findPreviousTag(tags, args.toTag);
     if (!fromTag) {
       process.stderr.write(
@@ -96,6 +103,13 @@ async function main(): Promise<void> {
   );
 
   process.stderr.write(`Found ${totalCommits} commits in range.\n`);
+
+  if (commits.length < totalCommits) {
+    process.stderr.write(
+      `Warning: GitHub capped the commit response at ${commits.length} of ${totalCommits} total. ` +
+        `Release notes will reflect only analyzed commits.\n`
+    );
+  }
 
   if (totalCommits === 0) {
     const emptyResult: ReleaseData = {
@@ -124,12 +138,13 @@ async function main(): Promise<void> {
   // Process and categorize
   const { changes, rollbackUnsafe, skipped } = processChanges(prDetails);
 
-  // Build output
+  // Build output — use commits.length (actual analyzed) not totalCommits (GitHub's
+  // API-reported figure, which may exceed what the compare endpoint returns).
   const result: ReleaseData = {
     repo: args.repo,
     fromTag,
     toTag: args.toTag,
-    totalCommits,
+    totalCommits: commits.length,
     rollbackUnsafe,
     skipped,
     changes,

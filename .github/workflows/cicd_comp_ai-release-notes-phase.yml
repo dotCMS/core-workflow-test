@@ -43,6 +43,9 @@ jobs:
   generate-notes:
     name: Generate Release Notes
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write      # gh release view + gh release edit
+      pull-requests: read  # Octokit pulls.get for PR details
     # Skip non-standard releases (CLI, LTS)
     if: >-
       !contains(inputs.release_tag, 'dotcms-cli-')
@@ -58,9 +61,11 @@ jobs:
             --repo "${{ github.repository }}" \
             --json body --jq '.body // ""')
 
-          # Skip if body has meaningful content (more than just whitespace)
+          # Skip if body has meaningful content beyond GitHub's auto-generated
+          # "Full Changelog: ...compare/..." link (present on all new releases).
           TRIMMED=$(echo "$BODY" | sed '/^[[:space:]]*$/d')
-          if [ -n "$TRIMMED" ]; then
+          MEANINGFUL=$(echo "$TRIMMED" | grep -v '^\*\*Full Changelog\*\*:' || true)
+          if [ -n "$MEANINGFUL" ]; then
             echo "Release already has notes — skipping generation."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
@@ -142,7 +147,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt_file: /tmp/claude-prompt.md
           allowed_tools: "Write"
-          max_turns: 10
+          max_turns: 3
           timeout_minutes: 10
 
       - name: Update release description

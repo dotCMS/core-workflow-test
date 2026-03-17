@@ -139,6 +139,7 @@ export function extractPRNumbers(commits: CommitInfo[]): number[] {
 /**
  * Fetch PR details with rate-limit awareness.
  * Processes PRs in batches to avoid hitting secondary rate limits.
+ * Throws if any PR fetch fails so the workflow step fails visibly.
  */
 export async function fetchPRDetails(
   octokit: Octokit,
@@ -147,6 +148,7 @@ export async function fetchPRDetails(
   prNumbers: number[]
 ): Promise<Map<number, PRDetails>> {
   const results = new Map<number, PRDetails>();
+  const fetchErrors: number[] = [];
   const BATCH_SIZE = 15;
 
   for (let i = 0; i < prNumbers.length; i += BATCH_SIZE) {
@@ -180,8 +182,9 @@ export async function fetchPRDetails(
         const errMsg =
           error instanceof Error ? error.message : String(error);
         process.stderr.write(
-          `Warning: Could not fetch PR #${prNumber}: ${errMsg}\n`
+          `Error: Could not fetch PR #${prNumber}: ${errMsg}\n`
         );
+        fetchErrors.push(prNumber);
         return null;
       }
     });
@@ -197,6 +200,12 @@ export async function fetchPRDetails(
     if (i + BATCH_SIZE < prNumbers.length) {
       await sleep(500);
     }
+  }
+
+  if (fetchErrors.length > 0) {
+    throw new Error(
+      `Failed to fetch ${fetchErrors.length} PR(s): ${fetchErrors.map((n) => `#${n}`).join(', ')}`
+    );
   }
 
   return results;

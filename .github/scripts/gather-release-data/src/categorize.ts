@@ -49,8 +49,6 @@ export function isRollbackUnsafe(labels: string[]): boolean {
 
 /** Determine the changelog category for a PR based on its labels and title. */
 export function categorize(pr: PRDetails): Change['category'] {
-  if (shouldSkip(pr.labels)) return 'skip';
-
   // Label-based categorization (first match wins)
   if (hasLabel(pr.labels, DEPRECATION_LABELS)) return 'deprecation';
   if (hasLabel(pr.labels, FEATURE_LABELS)) return 'feature';
