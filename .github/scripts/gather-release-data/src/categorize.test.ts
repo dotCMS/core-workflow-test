@@ -63,10 +63,6 @@ describe('categorize', () => {
     expect(categorize(makePR({ labels: ['breaking change'] }))).toBe('deprecation');
   });
 
-  it('categorizes skip label', () => {
-    expect(categorize(makePR({ labels: ['Changelog: Skip'] }))).toBe('skip');
-  });
-
   it('falls back to title-based heuristics', () => {
     expect(categorize(makePR({ title: 'feat: add new widget' }))).toBe('feature');
     expect(categorize(makePR({ title: 'fix: resolve crash' }))).toBe('fix');

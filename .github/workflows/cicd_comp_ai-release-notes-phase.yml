@@ -5,7 +5,7 @@
 # Called by the release pipeline (cicd_6-release.yml) or the backfill workflow.
 #
 # Flow:
-# 1. Check if release already has notes (idempotency)
+# 1. Validate the release tag exists
 # 2. Run TypeScript data-gathering script → structured JSON
 # 3. Assemble prompt (template + JSON)
 # 4. Claude writes release notes to /tmp/release-notes.md
@@ -15,6 +15,7 @@
 # - Claude only writes prose (Write tool) — no shell commands
 # - gh release edit is a plain shell step for auditability
 # - Non-blocking: does not affect release success/failure
+# - Always overwrites: re-running is safe and produces consistent results
 #
 
 name: AI Release Notes Phase
@@ -26,11 +27,6 @@ on:
         description: 'Release tag (e.g., v26.03.13-02)'
         required: true
         type: string
-      release_version:
-        description: 'Release version (e.g., 26.03.13-02)'
-        required: false
-        type: string
-        default: ''
     secrets:
       ANTHROPIC_API_KEY:
         required: true
@@ -52,51 +48,37 @@ jobs:
       && !contains(inputs.release_tag, '_lts_')
       && startsWith(inputs.release_tag, 'v')
     steps:
-      - name: Check if release already has notes
-        id: check-notes
+      - name: Validate release exists
         env:
           GH_TOKEN: ${{ secrets.CI_MACHINE_TOKEN || github.token }}
         run: |
-          BODY=$(gh release view "${{ inputs.release_tag }}" \
+          if ! gh release view "${{ inputs.release_tag }}" \
             --repo "${{ github.repository }}" \
-            --json body --jq '.body // ""')
-
-          # Skip if body has meaningful content beyond GitHub's auto-generated
-          # "Full Changelog: ...compare/..." link (present on all new releases).
-          TRIMMED=$(echo "$BODY" | sed '/^[[:space:]]*$/d')
-          MEANINGFUL=$(echo "$TRIMMED" | grep -v '^\*\*Full Changelog\*\*:' || true)
-          if [ -n "$MEANINGFUL" ]; then
-            echo "Release already has notes — skipping generation."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "Release has no notes — will generate."
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            --json tagName --jq '.tagName' > /dev/null 2>&1; then
+            echo "::error::Release '${{ inputs.release_tag }}' not found in ${{ github.repository }}. Verify the tag exists and the release has been published."
+            exit 1
           fi
+          echo "Release '${{ inputs.release_tag }}' found."
 
       - name: Checkout repository
-        if: steps.check-notes.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           ref: main
 
       - name: Setup Node.js
-        if: steps.check-notes.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install script dependencies
-        if: steps.check-notes.outputs.skip != 'true'
         working-directory: .github/scripts/gather-release-data
         run: npm ci
 
       - name: Build TypeScript
-        if: steps.check-notes.outputs.skip != 'true'
         working-directory: .github/scripts/gather-release-data
         run: npx tsc
 
       - name: Gather release data
-        if: steps.check-notes.outputs.skip != 'true'
         id: gather
         working-directory: .github/scripts/gather-release-data
         env:
@@ -132,7 +114,6 @@ jobs:
           echo "- **Skipped**: ${SKIPPED}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Assemble prompt
-        if: steps.check-notes.outputs.skip != 'true'
         working-directory: .github/scripts/gather-release-data
         run: |
           node dist/assemble-prompt.js \
@@ -141,7 +122,6 @@ jobs:
             --output /tmp/claude-prompt.md
 
       - name: Generate release notes with Claude
-        if: steps.check-notes.outputs.skip != 'true'
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -151,7 +131,6 @@ jobs:
           timeout_minutes: 10
 
       - name: Update release description
-        if: steps.check-notes.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.CI_MACHINE_TOKEN || github.token }}
         run: |
