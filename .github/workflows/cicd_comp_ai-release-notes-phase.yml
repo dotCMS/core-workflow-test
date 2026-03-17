@@ -42,6 +42,11 @@ jobs:
     permissions:
       contents: write      # gh release view + gh release edit
       pull-requests: read  # Octokit pulls.get for PR details
+    # All run: blocks reference these via $RELEASE_TAG / $REPO instead of
+    # direct ${{ }} interpolation to prevent shell injection from crafted tags.
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag }}
+      REPO: ${{ github.repository }}
     # Skip non-standard releases (CLI, LTS)
     if: >-
       !contains(inputs.release_tag, 'dotcms-cli-')
@@ -52,13 +57,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.CI_MACHINE_TOKEN || github.token }}
         run: |
-          if ! gh release view "${{ inputs.release_tag }}" \
-            --repo "${{ github.repository }}" \
+          if ! gh release view "$RELEASE_TAG" \
+            --repo "$REPO" \
             --json tagName --jq '.tagName' > /dev/null 2>&1; then
-            echo "::error::Release '${{ inputs.release_tag }}' not found in ${{ github.repository }}. Verify the tag exists and the release has been published."
+            echo "::error::Release '${RELEASE_TAG}' not found in ${REPO}. Verify the tag exists and the release has been published."
             exit 1
           fi
-          echo "Release '${{ inputs.release_tag }}' found."
+          echo "Release '${RELEASE_TAG}' found."
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -85,8 +90,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.CI_MACHINE_TOKEN || github.token }}
         run: |
           node dist/index.js \
-            --repo "${{ github.repository }}" \
-            --to-tag "${{ inputs.release_tag }}" \
+            --repo "$REPO" \
+            --to-tag "$RELEASE_TAG" \
             > /tmp/release-data.json 2>/tmp/gather-stderr.log
 
           # Log the resolved range for operator visibility
@@ -144,9 +149,9 @@ jobs:
           echo "Generated release notes ($(wc -l < /tmp/release-notes.md) lines):"
           cat /tmp/release-notes.md
 
-          gh release edit "${{ inputs.release_tag }}" \
-            --repo "${{ github.repository }}" \
+          gh release edit "$RELEASE_TAG" \
+            --repo "$REPO" \
             --notes-file /tmp/release-notes.md
 
           echo "## Release Notes Updated" >> "$GITHUB_STEP_SUMMARY"
-          echo "Release [${{ inputs.release_tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ inputs.release_tag }}) description updated." >> "$GITHUB_STEP_SUMMARY"
+          echo "Release [${RELEASE_TAG}](https://github.com/${REPO}/releases/tag/${RELEASE_TAG}) description updated." >> "$GITHUB_STEP_SUMMARY"
