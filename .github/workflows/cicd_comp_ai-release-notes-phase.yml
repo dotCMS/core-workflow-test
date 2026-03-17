@@ -128,27 +128,12 @@ jobs:
 
       - name: Assemble prompt
         if: steps.check-notes.outputs.skip != 'true'
+        working-directory: .github/scripts/gather-release-data
         run: |
-          RELEASE_DATA=$(cat /tmp/release-data.json)
-          FROM_TAG=$(jq -r '.fromTag' /tmp/release-data.json)
-          TO_TAG=$(jq -r '.toTag' /tmp/release-data.json)
-          REPO=$(jq -r '.repo' /tmp/release-data.json)
-
-          # Read template and perform substitutions
-          PROMPT=$(cat .github/scripts/gather-release-data/prompt-template.md)
-
-          # Use awk for safe multi-line replacement of __RELEASE_DATA__
-          awk -v data="$RELEASE_DATA" '{gsub(/__RELEASE_DATA__/, data); print}' \
-            <<< "$PROMPT" > /tmp/prompt-stage1.md
-
-          # Replace simple placeholders
-          sed -i "s|__FROM_TAG__|${FROM_TAG}|g" /tmp/prompt-stage1.md
-          sed -i "s|__TO_TAG__|${TO_TAG}|g" /tmp/prompt-stage1.md
-          sed -i "s|__REPO__|${REPO}|g" /tmp/prompt-stage1.md
-
-          cp /tmp/prompt-stage1.md /tmp/claude-prompt.md
-
-          echo "Prompt assembled ($(wc -c < /tmp/claude-prompt.md) bytes)"
+          node dist/assemble-prompt.js \
+            --template prompt-template.md \
+            --data /tmp/release-data.json \
+            --output /tmp/claude-prompt.md
 
       - name: Generate release notes with Claude
         if: steps.check-notes.outputs.skip != 'true'

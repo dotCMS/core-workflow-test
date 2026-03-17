@@ -46,8 +46,6 @@ export async function listStandardReleaseTags(
         tags.push(release.tag_name);
       }
     }
-    // We rarely need more than the first page for recent releases
-    if (tags.length >= 50) break;
   }
   return tags;
 }
@@ -62,9 +60,8 @@ export function findPreviousTag(
 ): string | undefined {
   const idx = tags.indexOf(currentTag);
   if (idx === -1) {
-    // Tag not in list — it may be newer than all listed tags.
-    // In that case, the first tag in the list is the previous.
-    return tags[0];
+    // Tag not found in release history — caller must handle
+    return undefined;
   }
   // Return the next tag after the current one (i.e., the one before it chronologically)
   return tags[idx + 1];

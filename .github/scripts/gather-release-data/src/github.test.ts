@@ -47,8 +47,8 @@ describe('findPreviousTag', () => {
     expect(findPreviousTag(tags, 'v26.03.12-01')).toBe('v26.03.11-01');
   });
 
-  it('returns the first tag when given tag is not in the list (newer)', () => {
-    expect(findPreviousTag(tags, 'v26.03.14-01')).toBe('v26.03.13-02');
+  it('returns undefined when given tag is not in the list', () => {
+    expect(findPreviousTag(tags, 'v26.03.14-01')).toBeUndefined();
   });
 
   it('returns undefined for the oldest tag', () => {
