@@ -39,6 +39,7 @@ jobs:
   generate-notes:
     name: Generate Release Notes
     runs-on: ubuntu-24.04
+    continue-on-error: true
     permissions:
       contents: write      # gh release view + gh release edit
       pull-requests: read  # Octokit pulls.get for PR details
@@ -119,12 +120,11 @@ jobs:
           echo "- **Skipped**: ${SKIPPED}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Assemble prompt
-        working-directory: .github/scripts/gather-release-data
         run: |
-          node dist/assemble-prompt.js \
-            --template prompt-template.md \
-            --data /tmp/release-data.json \
-            --output /tmp/claude-prompt.md
+          cat .github/scripts/gather-release-data/prompt-template.md > /tmp/claude-prompt.md
+          printf '\n---\n\n## Release Data (JSON)\n\n```json\n' >> /tmp/claude-prompt.md
+          cat /tmp/release-data.json >> /tmp/claude-prompt.md
+          printf '\n```\n' >> /tmp/claude-prompt.md
 
       - name: Generate release notes with Claude
         uses: anthropics/claude-code-action@v1

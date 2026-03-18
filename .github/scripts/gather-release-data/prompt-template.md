@@ -4,18 +4,14 @@ You are writing release notes for a dotCMS release. You will receive structured 
 
 ## Input Data
 
-The following JSON contains all changes between the two release tags, with PR details, labels, and pre-categorization:
-
-```json
-__RELEASE_DATA__
-```
+The JSON data appended below this prompt contains all changes between the two release tags, with PR details, labels, and pre-categorization. Use the `fromTag`, `toTag`, and `repo` fields from the JSON for the release heading and PR links.
 
 ## Writing Rules
 
 **Audience:** Developer and technical buyer personas. Write for people who build on and operate dotCMS — they care about what changed, what broke, and what they need to do.
 
 **Traceability:** Every bullet must link to its PR.
-- Format: `([#N](https://github.com/__REPO__/pull/N))`
+- Format: `([#N](https://github.com/<repo>/pull/N))` — use the `repo` field from the JSON data
 
 **Conciseness:**
 - One punchy sentence per bullet — focus on the *result*, not the process
@@ -25,7 +21,7 @@ __RELEASE_DATA__
 
 **Technical name accuracy (CRITICAL):**
 - For any technical name (database columns, API paths, field variables, class names, config properties, environment variables, method names, feature flags) — use the name from the PR title/body only after confirming it looks like an actual code identifier
-- Use backtick formatting for code identifiers: \`field_name\`, \`/api/v1/path\`
+- Use backtick formatting for code identifiers: `field_name`, `/api/v1/path`
 - PR titles and branch names are written by humans and are frequently imprecise. When in doubt, describe the change functionally rather than naming a specific identifier
 
 **Code-first naming:** Use the nomenclature from PR titles and issue titles for module/feature names, but if a PR title seems misleading about what changed, describe the actual change instead.
@@ -51,7 +47,7 @@ Write the release notes to the file `/tmp/release-notes.md` using the Write tool
 The file must contain **only** the Markdown content below. No preamble, no commentary, no trailing summary.
 
 ```
-## Release: __FROM_TAG__ → __TO_TAG__
+## Release: <fromTag> → <toTag>
 
 > [!CAUTION]
 > **Rollback Warning:** This release contains changes that prevent a simple redeploy-previous-version rollback.
