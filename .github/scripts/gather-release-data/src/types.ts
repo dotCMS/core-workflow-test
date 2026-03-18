@@ -7,7 +7,7 @@ export interface Change {
   pr: number;
   title: string;
   labels: string[];
-  category: 'feature' | 'fix' | 'deprecation' | 'infrastructure' | 'internal';
+  category: 'feature' | 'fix' | 'deprecation' | 'infrastructure' | 'internal' | 'uncategorized';
   body: string;
   linkedIssues: number[];
 }

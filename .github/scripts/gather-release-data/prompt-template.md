@@ -34,7 +34,9 @@ The JSON data has pre-categorized changes. Use these categories to sort into sec
 - `deprecation` → Deprecations, End of Life, and Reminders
 - `infrastructure` → Infrastructure & Security
 
-You may override a categorization if the PR title/body clearly indicates it belongs elsewhere.
+Changes marked `uncategorized` had no matching labels or conventional commit prefix — use the PR title and body to place them in the most appropriate section.
+
+You may also override any other categorization if the PR title/body clearly indicates it belongs elsewhere.
 
 ## Rollback Warning
 

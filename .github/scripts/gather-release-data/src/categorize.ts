@@ -65,8 +65,8 @@ export function categorize(pr: PRDetails): Change['category'] {
   // Check for release-machinery commits that should be omitted
   if (isReleaseMachinery(pr.title)) return 'internal';
 
-  // Default: treat as feature (Claude will refine during writing)
-  return 'feature';
+  // No label or title match — let Claude decide the category
+  return 'uncategorized';
 }
 
 /** Detect release-machinery commits that have no user-facing impact. */
