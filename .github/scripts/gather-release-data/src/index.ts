@@ -78,13 +78,22 @@ async function main(): Promise<void> {
       `No --from-tag provided, auto-detecting previous release...\n`
     );
     const tags = await listStandardReleaseTags(octokit, owner, repo);
-    // Note: if this tag was just published, GitHub's release API may not yet
-    // reflect it due to eventual consistency. A simple re-run of this workflow
-    // will succeed once the API catches up (typically within seconds).
+
+    // Validate that toTag is visible in the release list. If it's missing,
+    // the GitHub releases API hasn't indexed the newly published release yet.
+    if (!tags.includes(args.toTag)) {
+      process.stderr.write(
+        `Error: ${args.toTag} not found in GitHub releases API. ` +
+          `The release may not have been published yet, or the API has not caught up. ` +
+          `Re-run this workflow to retry.\n`
+      );
+      process.exit(1);
+    }
+
     fromTag = findPreviousTag(tags, args.toTag);
     if (!fromTag) {
       process.stderr.write(
-        `Error: Could not find a previous standard release tag before ${args.toTag}\n`
+        `Error: ${args.toTag} is the earliest standard release — no previous tag to compare against.\n`
       );
       process.exit(1);
     }
