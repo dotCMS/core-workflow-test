@@ -20,6 +20,10 @@ on:
         description: 'Release tag to generate notes for (e.g., v26.03.13-02)'
         required: true
         type: string
+      previous_tag:
+        description: 'Previous release tag for diff range (optional — auto-detected if omitted)'
+        required: false
+        type: string
 
 # Prevent concurrent runs for the same tag
 concurrency:
@@ -32,6 +36,7 @@ jobs:
     uses: ./.github/workflows/cicd_comp_ai-release-notes-phase.yml
     with:
       release_tag: ${{ inputs.release_tag }}
+      previous_tag: ${{ inputs.previous_tag }}
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       CI_MACHINE_TOKEN: ${{ secrets.CI_MACHINE_TOKEN }}

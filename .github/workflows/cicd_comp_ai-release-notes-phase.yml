@@ -7,6 +7,8 @@
 # Flow:
 # 1. Validate the release tag exists
 # 2. Run TypeScript data-gathering script → structured JSON
+#    (previous_tag eliminates race condition when called from release pipeline;
+#     auto-detected from GitHub releases API when omitted in backfill)
 # 3. Assemble prompt (template + JSON)
 # 4. Claude writes release notes to /tmp/release-notes.md
 # 5. Deterministic step: gh release edit updates the release description
@@ -26,6 +28,10 @@ on:
       release_tag:
         description: 'Release tag (e.g., v26.03.13-02)'
         required: true
+        type: string
+      previous_tag:
+        description: 'Previous release tag for diff range. If omitted, auto-detected from GitHub releases API.'
+        required: false
         type: string
     secrets:
       ANTHROPIC_API_KEY:
@@ -47,6 +53,7 @@ jobs:
     # direct ${{ }} interpolation to prevent shell injection from crafted tags.
     env:
       RELEASE_TAG: ${{ inputs.release_tag }}
+      PREVIOUS_TAG: ${{ inputs.previous_tag }}
       REPO: ${{ github.repository }}
     # Skip non-standard releases (CLI, LTS)
     if: >-
@@ -90,9 +97,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CI_MACHINE_TOKEN || github.token }}
         run: |
+          FROM_TAG_ARG=""
+          if [ -n "$PREVIOUS_TAG" ]; then
+            FROM_TAG_ARG="--from-tag $PREVIOUS_TAG"
+          fi
+
           node dist/index.js \
             --repo "$REPO" \
             --to-tag "$RELEASE_TAG" \
+            $FROM_TAG_ARG \
             > /tmp/release-data.json 2>/tmp/gather-stderr.log
 
           # Log the resolved range for operator visibility
