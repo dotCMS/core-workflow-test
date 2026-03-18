@@ -97,15 +97,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CI_MACHINE_TOKEN || github.token }}
         run: |
-          FROM_TAG_ARG=""
+          ARGS=(--repo "$REPO" --to-tag "$RELEASE_TAG")
           if [ -n "$PREVIOUS_TAG" ]; then
-            FROM_TAG_ARG="--from-tag $PREVIOUS_TAG"
+            ARGS+=(--from-tag "$PREVIOUS_TAG")
           fi
 
-          node dist/index.js \
-            --repo "$REPO" \
-            --to-tag "$RELEASE_TAG" \
-            $FROM_TAG_ARG \
+          node dist/index.js "${ARGS[@]}" \
             > /tmp/release-data.json 2>/tmp/gather-stderr.log
 
           # Log the resolved range for operator visibility
