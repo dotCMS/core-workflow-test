@@ -1,0 +1,39 @@
+name: Test SDKMAN Bash Fix
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/actions/core-cicd/setup-java/**'
+      - '.github/workflows/test_sdkman-bash-fix.yml'
+
+jobs:
+  test-setup-java:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            label: Linux
+          - os: macos-15
+            label: macOS-Silicon
+          - os: macos-15-intel
+            label: macOS-Intel
+    runs-on: ${{ matrix.os }}
+    name: Setup Java (${{ matrix.label }})
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show system bash version
+        shell: bash
+        run: |
+          echo "System bash: $(bash --version | head -1)"
+          echo "Runner OS: $RUNNER_OS"
+          echo "Architecture: $(uname -m)"
+      - name: Setup Java via SDKMAN
+        uses: ./.github/actions/core-cicd/setup-java
+      - name: Verify Java
+        shell: bash
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME"
+          java -version
+          echo "Success!"
