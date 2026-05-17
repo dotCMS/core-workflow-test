@@ -771,7 +771,7 @@
                 <!-- MSSQL Driver, MSSQL support is deprecated -->
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
-                <version>7.4.1.jre8</version>
+                <version>7.4.1.jre12</version>
             </dependency>
 
 
