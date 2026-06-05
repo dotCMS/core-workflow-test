@@ -1,0 +1,24 @@
+---
+commit: 9b95202
+title: "chore: verify clean provenance in doc-object generation"
+type: chore
+module: "doc-objects release-digest tooling"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "Whitespace-only change to an internal release-digest shell script with no behavioral or customer-facing effect."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-05T12:27:00Z
+  source_pr: 476
+  source_diff_sha: 9b952026093002823da9f8652b0fd0d6fd77313e
+---
+
+## What changed
+
+A single trailing newline was added to the end of `tools/doc-objects/aggregate-release-digest.sh`. The script's logic -- iterating over doc-object inputs and emitting a bundle-summary HTML comment with included/filtered/missing counts -- is unchanged. This PR is a smoke test exercising the doc-object generation automation with a hardcoded model identifier; there is no functional, output, or behavioral change for any consumer.
