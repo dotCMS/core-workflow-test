@@ -1,0 +1,41 @@
+---
+commit: b1d2607
+title: "feat(ci): add aggregate-release-digest script for doc-object bundle generation"
+type: ci
+module: "doc-object release tooling"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 474
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "Internal CI/release tooling that assembles release-notes input from doc-object git notes; no customer-observable behavior change."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8[1m]
+  prompt_version: v0.1
+  generated_at: 2026-06-05T11:36:00Z
+  source_pr: 474
+  source_diff_sha: b1d26074fe5e14a1389e8bbef577dd4529891caa
+---
+
+## What changed
+
+Adds `tools/doc-objects/aggregate-release-digest.sh`, the read side of the doc-object pattern.
+Given a commit range (`<FROM>..<TO>`) and an optional `--audience` (`customer|internal|all`)
+filter, it walks commits with `git rev-list --reverse`, reads each commit's doc-object from the
+`refs/notes/doc-objects` git-notes ref, parses the `audience` field out of the note frontmatter
+with awk, and emits a single markdown bundle meant as LLM input for release-notes synthesis.
+Commits with no attached note are skipped and counted; notes whose audience does not match the
+filter (and are not `both`) are filtered out. A trailing HTML comment reports
+included/filtered/missing counts.
+
+## Risk / watch
+
+Pure additive tooling — a standalone bash script under `tools/`, not wired into any build,
+runtime, or product code path. Consumers must first run
+`git fetch origin refs/notes/doc-objects:refs/notes/doc-objects` for the notes to be visible.
+The script runs under `set -euo pipefail`; the audience filter defaults to `customer` when
+`--audience` is omitted. No epic matched (dotcms-aios epic index was not reachable).
