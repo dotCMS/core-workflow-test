@@ -1,0 +1,22 @@
+---
+commit: 6c0fbef
+title: "fix(categories): add SQL escape example for doc-object quality and extraction test"
+type: docs
+module: "doc-object tooling / categories API examples"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 480
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "Adds an internal doc-object test fixture; no product code or customer-facing behavior is changed."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-09T14:48:13Z
+  source_pr: 480
+  source_diff_sha: 6c0fbeff937e5238adbb868bcd17adc082cd1ded
+---
