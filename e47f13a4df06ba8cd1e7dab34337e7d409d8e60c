@@ -1,0 +1,22 @@
+---
+commit: e47f13a
+title: "Add autodoc Epic documentation audit workflow"
+type: ci
+module: "CI/CD — autodoc Epic documentation pipeline"
+customer_visible: no
+security_relevant: true
+breaking_change: false
+pr:
+  primary: 483
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "CI-only automation with no customer-facing surface; relevant to engineering/docs operations."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-16T12:48:00Z
+  source_pr: 483
+  source_diff_sha: e47f13a4df06ba8cd1e7dab34337e7d409d8e60c
+---
