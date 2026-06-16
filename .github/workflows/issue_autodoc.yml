@@ -5,13 +5,55 @@ on:
     types: [closed]
 
 jobs:
-  autodoc:
-    name: Run documentation audit
-    # Fire when an Epic issue is closed while carrying a doc-trigger label.
+  # Cheap label-gate first (no API call), then verify the issue is a top-level
+  # Epic and not a sub-issue whose parent Epic will handle documentation later.
+  preflight:
+    name: Check issue is a top-level Epic with a doc label
     if: |
       contains(github.event.issue.labels.*.name, 'Epic') &&
       (contains(github.event.issue.labels.*.name, 'Doc : Needs Doc') ||
        contains(github.event.issue.labels.*.name, 'Changelog: Needs Doc'))
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+    outputs:
+      is_top_level: ${{ steps.check-parent.outputs.is_top_level }}
+
+    steps:
+      - name: Check for parent issue
+        id: check-parent
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          PARENT=$(gh api graphql \
+            -f query='
+              query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $number) {
+                    parent { number }
+                  }
+                }
+              }
+            ' \
+            -f owner="${REPO%/*}" \
+            -f repo="${REPO#*/}" \
+            -F number="$ISSUE_NUMBER" \
+            --jq '.data.repository.issue.parent.number // empty')
+
+          if [ -n "$PARENT" ]; then
+            echo "Issue #$ISSUE_NUMBER is a sub-issue of Epic #$PARENT — skipping; Epic will handle docs when it closes."
+            echo "is_top_level=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Issue #$ISSUE_NUMBER has no parent — proceeding."
+            echo "is_top_level=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  autodoc:
+    name: Run documentation audit
+    needs: preflight
+    if: needs.preflight.outputs.is_top_level == 'true'
     runs-on: ubuntu-latest
     permissions:
       issues: write   # post/edit the report comment
@@ -39,7 +81,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # Set AUTODOC_REPO secret to the org/repo slug once autodoc has a GitHub remote
-          # (e.g. "dotCMS/autodoc"). Uses CI_MACHINE_TOKEN for cross-repo access.
+          # (e.g. "jdcmsd/autodoc"). Uses AUTODOC_TOKEN for cross-repo access.
           repository: ${{ secrets.AUTODOC_REPO }}
           token: ${{ secrets.AUTODOC_TOKEN }}
           path: autodoc
