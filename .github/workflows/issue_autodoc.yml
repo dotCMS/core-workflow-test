@@ -2,15 +2,16 @@ name: Autodoc — Epic Documentation Audit
 
 on:
   issues:
-    types: [labeled]
+    types: [closed]
 
 jobs:
   autodoc:
     name: Run documentation audit
-    # Fire when a doc-trigger label is applied to an Epic issue.
+    # Fire when an Epic issue is closed while carrying a doc-trigger label.
     if: |
-      (github.event.label.name == 'Doc : Needs Doc' || github.event.label.name == 'Changelog: Needs Doc') &&
-      contains(github.event.issue.labels.*.name, 'Epic')
+      contains(github.event.issue.labels.*.name, 'Epic') &&
+      (contains(github.event.issue.labels.*.name, 'Doc : Needs Doc') ||
+       contains(github.event.issue.labels.*.name, 'Changelog: Needs Doc'))
     runs-on: ubuntu-latest
     permissions:
       issues: write   # post/edit the report comment
