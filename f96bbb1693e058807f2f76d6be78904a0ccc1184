@@ -1,0 +1,30 @@
+---
+commit: f96bbb1
+title: "Use AUTODOC_TOKEN for dotcms-aios checkout"
+type: ci
+module: "autodoc CI workflow"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 487
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "CI-only credential scope fix so the autodoc job can read a private repo; no customer-facing behavior change."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-16T16:14:00Z
+  source_pr: 487
+  source_diff_sha: f96bbb1693e058807f2f76d6be78904a0ccc1184
+---
+
+## What changed
+
+The `issue_autodoc.yml` workflow checks out the private `dotCMS/dotcms-aios` repository as part of its autodoc job. The checkout step previously used the default `GITHUB_TOKEN`, which is scoped only to the `core-workflow-test` repository and cannot read other private org repos. The token is switched to `AUTODOC_TOKEN`, which has org-level read access, allowing the `dotcms-aios` checkout to succeed.
+
+## Risk / watch
+
+Single-line secret reference change in a GitHub Actions workflow. Requires the `AUTODOC_TOKEN` secret to be configured at the repo or org level with read access to `dotCMS/dotcms-aios`; if absent or under-scoped, the autodoc job's checkout step will fail. No application code, database, or API surface is touched.
