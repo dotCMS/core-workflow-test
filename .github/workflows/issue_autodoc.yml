@@ -25,8 +25,8 @@ jobs:
       # Corporate Anthropic key — already provisioned in this repo; same secret name as
       # ai_claude-rollback-safety.yml. No additional key needed.
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      DOTCMS_API_TOKEN: ${{ secrets.DOTCMS_API_TOKEN }}
-      DOTCMS_API_TOKEN_LOCAL: ${{ secrets.DOTCMS_API_TOKEN_LOCAL }}
+      DOTCMS_API_TOKEN_AISEARCH: ${{ secrets.DOTCMS_API_TOKEN_AISEARCH }}
+      DOTCMS_API_TOKEN_AUTODOCDRAFT: ${{ secrets.DOTCMS_API_TOKEN_AUTODOCDRAFT }}
       DOTCMS_BASE_URL: ${{ secrets.DOTCMS_BASE_URL }}
       DOTCMS_SITE_FOLDER: ${{ secrets.DOTCMS_SITE_FOLDER }}
 
