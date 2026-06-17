@@ -1,0 +1,22 @@
+---
+commit: d550c25
+title: "feat(Block Editor): Restore internal dotCMS page search in the link popover"
+type: feature
+module: "Block Editor 2.0 / link popover"
+customer_visible: yes
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 492
+release_notes:
+  audience: customer
+  priority: medium
+  reasoning: "Restores a content-author-facing capability (internal page search when linking) that exists in the legacy editor but was missing from Block Editor 2.0."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-17T15:40:03Z
+  source_pr: 492
+  source_diff_sha: d550c25067c452ba95addd2cef4b9ce3e65f1cdc
+---
