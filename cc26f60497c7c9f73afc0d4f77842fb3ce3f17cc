@@ -1,0 +1,22 @@
+---
+commit: cc26f60
+title: "Write eval context to file before passing to Claude (stdin fix)"
+type: ci
+module: "autodoc CI workflow (issue_autodoc)"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 489
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "CI-only workflow change with no runtime or customer-observable effect."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-17T15:02:37Z
+  source_pr: 489
+  source_diff_sha: cc26f60497c7c9f73afc0d4f77842fb3ce3f17cc
+---
