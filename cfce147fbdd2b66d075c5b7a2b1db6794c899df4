@@ -1,0 +1,22 @@
+---
+commit: cfce147
+title: "autodoc: consolidate repo checkout and rename secrets"
+type: ci
+module: "CI/CD — autodoc issue-documentation workflow"
+customer_visible: no
+security_relevant: true
+breaking_change: false
+pr:
+  primary: 493
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "Internal CI workflow refactor for the autodoc pipeline; no customer-facing behavior or API surface changes."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-23T20:23:00Z
+  source_pr: 493
+  source_diff_sha: cfce147fbdd2b66d075c5b7a2b1db6794c899df4
+---
