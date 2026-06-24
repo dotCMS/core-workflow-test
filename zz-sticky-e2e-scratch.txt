@@ -1,1 +1,1 @@
-sticky-comment e2e test scratch file — commit 1
+sticky-comment e2e test scratch file — commit 2 (expect a NEW comment, commit 1 stays)
