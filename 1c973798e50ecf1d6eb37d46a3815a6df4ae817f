@@ -1,0 +1,22 @@
+---
+commit: 1c97379
+title: "fix(autodoc): use AUTODOC_AIOS_CI for dotcms-aios checkout"
+type: ci
+module: "autodoc CI workflow"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 497
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "CI-only autodoc workflow change (secret swap + removed push-back step) with no customer-facing or application behavior impact."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-24T16:39:40Z
+  source_pr: 497
+  source_diff_sha: 1c973798e50ecf1d6eb37d46a3815a6df4ae817f
+---
