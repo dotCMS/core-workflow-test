@@ -1,0 +1,42 @@
+---
+# THROWAWAY e2e test for dotCMS/ai-workflows use_sticky_comment:false fix (PR #49).
+# Exercises the bedrock-generic (DeepSeek R1) path with sticky OFF to confirm:
+#   - in-progress comment reconciles to final (no orphaned "review in progress")
+#   - each commit posts a fresh comment (per-commit feedback history)
+# Delete this workflow + branch after the test.
+name: zz sticky-comment e2e (throwaway)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# One run per push; do NOT cancel in-progress so each commit's review completes.
+concurrency:
+  group: zz-sticky-e2e-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  nonsticky-review:
+    # Scope strictly to the test branch so this never touches unrelated PRs.
+    if: github.head_ref == 'test/sticky-nonsticky-e2e'
+    # Union of all orchestrator child jobs' needs — GitHub validates permissions for
+    # every called job at startup (even the skipped Anthropic ones), so granting only
+    # the bedrock path's subset causes a startup_failure.
+    permissions:
+      id-token: write       # OIDC -> Bedrock role
+      contents: write
+      pull-requests: write
+      issues: write
+    uses: dotCMS/ai-workflows/.github/workflows/claude-orchestrator.yml@v3
+    with:
+      trigger_mode: automatic
+      enable_mention_detection: false
+      model_id: us.deepseek.r1-v1:0          # routes to bedrock-generic (the fixed path)
+      bedrock_role_arn: ${{ vars.BEDROCK_ROLE_ARN }}
+      use_sticky_comment: false              # <-- the path under test
+      prompt: >-
+        This is an e2e test of non-sticky review comments. Briefly review this PR
+        diff in one or two sentences. No need to be thorough.
+      timeout_minutes: 15
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
