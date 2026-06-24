@@ -1,0 +1,22 @@
+---
+commit: 08c6f15
+title: "refactor(autodoc): inline prompt; remove dotcms-aios autodoc/ dependency"
+type: refactor
+module: "autodoc CI workflow (issue documentation automation)"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 498
+release_notes:
+  audience: internal
+  priority: low
+  reasoning: "CI-only automation change with no customer-observable behavior; affects engineering tooling only."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-06-24T17:01:00Z
+  source_pr: 498
+  source_diff_sha: 08c6f15441b22d5395679b6d02a7682d11a39b57
+---
