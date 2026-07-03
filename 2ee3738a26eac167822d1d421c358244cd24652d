@@ -1,0 +1,22 @@
+---
+commit: 2ee3738
+title: "test: throwaway e2e workflow for ai-workflows v3.3.3 (not for merge)"
+type: ci
+module: "CI/CD — ai-workflows e2e test harness"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 505
+release_notes:
+  audience: skip
+  priority: low
+  reasoning: "Throwaway CI-only workflow added to e2e-verify a reusable-workflow release; no product surface and explicitly not for merge."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-07-03T17:16:00Z
+  source_pr: 505
+  source_diff_sha: 2ee3738a26eac167822d1d421c358244cd24652d
+---
