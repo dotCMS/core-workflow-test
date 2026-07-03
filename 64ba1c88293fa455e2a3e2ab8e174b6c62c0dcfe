@@ -1,0 +1,22 @@
+---
+commit: 64ba1c8
+title: "chore: remove throwaway ai-workflows v3.3.3 e2e test workflow"
+type: chore
+module: "CI/CD — GitHub Actions workflows"
+customer_visible: no
+security_relevant: false
+breaking_change: false
+pr:
+  primary: 507
+release_notes:
+  audience: skip
+  priority: low
+  reasoning: "Deletes a throwaway internal CI test workflow with no customer-facing or product behavior effect."
+provenance:
+  generator: doc-object-skill
+  model: claude-opus-4-8-20251001
+  prompt_version: v0.1
+  generated_at: 2026-07-03T17:24:00Z
+  source_pr: 507
+  source_diff_sha: 64ba1c88293fa455e2a3e2ab8e174b6c62c0dcfe
+---
