@@ -137,8 +137,12 @@ jobs:
   publish-sdk-next:
     name: Publish SDK (next)
     needs: [ initialize, test ]
+    # Explicit success check on `test` (not the always()/!failure() idiom used by
+    # sibling jobs) — this job publishes to a real, public npm registry, so it should
+    # require `test` to have actually run and passed, not merely "didn't fail/wasn't
+    # cancelled" (which also admits a skipped test job).
     if: >-
-      always() && !failure() && !cancelled() &&
+      needs.test.result == 'success' &&
       fromJSON(needs.initialize.outputs.filters).sdk_libs == 'true' &&
       github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-${{ vars.UBUNTU_RUNNER_VERSION || '24.04' }}
@@ -168,6 +172,33 @@ jobs:
           npm-tag: next
           npm-token: ${{ secrets.NPM_ORG_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Slack Notification (SDK next announcement)'
+        if: success() && steps.deploy-javascript-sdk.outputs.published == 'true'
+        continue-on-error: true
+        uses: ./.github/actions/core-cicd/notification/notify-slack
+        with:
+          channel-id: "log-sdk-libs"
+          payload: |
+            > :large_orange_circle: *Attention dotters:* SDK libs published to `next`!
+            >
+            > This automated script is happy to announce that a new *_SDK libs_* version *tagged as:* [ `${{ steps.next-version.outputs.version }}` ] is now available on the `NPM` registry under the `next` tag :package:. This is an internal dev/QA build, not an official release — do not recommend it to customers.
+            > `npm install @dotcms/client@next`
+            > <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|View commit> · <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View workflow run>
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: 'Slack Notification (SDK next failure)'
+        if: failure()
+        continue-on-error: true
+        uses: ./.github/actions/core-cicd/notification/notify-slack
+        with:
+          channel-id: "log-sdk-libs"
+          payload: |
+            > :red_circle: *SDK `next` publish FAILED!*
+            >
+            > The automated SDK `next` publish failed while trying to publish version `${{ steps.next-version.outputs.version }}`.
+            > <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|View commit> · <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View workflow run — check logs for details>
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
 
   # Finalize job - aggregates results from previous jobs
   finalize:
