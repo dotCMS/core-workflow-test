@@ -1,0 +1,70 @@
+name: evergreen-tracks-admin (UI DEMO)
+
+# DEMO ONLY — dotCMS/core-workflow-test.
+#
+# A secrets-free copy of the workflow_dispatch surface of
+# dotCMS/core .github/workflows/cicd_evergreen-tracks-admin.yml, used to preview
+# the dispatch form and run titles for dotCMS/core#37315. It performs NO Docker
+# login, reads NO secrets, and mutates NOTHING — the single step echoes the
+# command the real workflow would have run.
+
+run-name: >-
+  ${{ inputs.mode == 'apply' && 'APPLY' || 'DRY-RUN (no changes)' }}
+  — ${{ inputs.action }} ${{ inputs.version }}${{ inputs.track }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Mode — dry-run prints the plan and changes NOTHING; apply mutates tags'
+        required: true
+        type: choice
+        default: 'dry-run'
+        options: [dry-run, apply]
+      repo:
+        description: 'Docker repo to operate on'
+        required: true
+        default: 'dotcms/dotcms'
+      action:
+        description: 'taint | untaint | hold | release-hold'
+        required: true
+        type: choice
+        options: [taint, untaint, hold, release-hold]
+      version:
+        description: 'GA version (for taint/untaint/hold)'
+        required: false
+        default: ''
+      track:
+        description: 'Track (for hold/release-hold): latest|standard|trailing'
+        required: false
+        default: ''
+      force:
+        description: 'Allow holding onto a tainted version'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  admin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run admin action (echo only)
+        env:
+          REPO: ${{ inputs.repo }}
+          ACTION: ${{ inputs.action }}
+          VERSION: ${{ inputs.version }}
+          TRACK: ${{ inputs.track }}
+          FORCE: ${{ inputs.force }}
+          MODE: ${{ inputs.mode }}
+        run: |
+          EXTRA=""
+          if [ "$FORCE" = "true" ]; then EXTRA="$EXTRA --force"; fi
+          if [ "$MODE" = "apply" ]; then
+            EXTRA="$EXTRA --apply"
+          else
+            echo "::notice::DRY-RUN — printing the plan only. Nothing in the registry will change. Re-dispatch with mode=apply to make it real."
+          fi
+          echo "would run: evergreen-tracks admin --repo $REPO --action $ACTION --version $VERSION --track $TRACK$EXTRA"
